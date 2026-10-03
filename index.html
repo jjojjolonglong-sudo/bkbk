@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BKBK</title>
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><meta name="theme-color" content="#3b6a6a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{--desk:#3b6a6a;--face:#d8d2c2;--paper:#f4eedc;--ink:#25232b;--navy:#24406b;--red:#b5402f;--sh:#7d776a;--dk:#2b2924;--ui:'Gowun Dodum','Malgun Gothic',sans-serif;--se:'Gowun Batang','Batang',serif}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font:14px/1.45 var(--ui);color:var(--ink);padding:10px;background:var(--desk) radial-gradient(#0003 1px,transparent 1.5px) 0 0/6px 6px}
+.win{background:var(--face);border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:inset -1px -1px var(--sh),3px 3px 0 #0004;display:flex;flex-direction:column;min-height:0}
+.tb{background:linear-gradient(90deg,var(--navy),#5b82b8);color:#fff;padding:3px 6px;display:flex;justify-content:space-between;align-items:center;font-weight:700;margin:2px}
+.tb span:last-child{font-weight:400;font-size:12px;opacity:.9}
+#app{height:calc(100vh - 20px);max-width:1200px;margin:0 auto}
+*{scrollbar-width:none}*::-webkit-scrollbar{display:none}
+#tabs{display:flex;gap:2px;padding:4px 6px 0}
+.tab{font:inherit;padding:4px 16px;background:var(--face);border:2px solid;border-color:#fff var(--dk) transparent #fff;cursor:pointer;border-bottom:0;position:relative;top:2px}
+.tab.on{background:var(--paper);font-weight:700;border-top:3px solid var(--red);z-index:1}
+#grid{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:8px;min-height:0;border-top:2px solid #fff;background:var(--face)}
+.pane{min-width:0;min-height:0;display:flex;flex-direction:column;background:#fffef9;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);box-shadow:inset 1px 1px var(--sh),inset -1px -1px #ece8dc}
+.ph{padding:10px 14px 0;font:16px/1.4 var(--ui);background:#fff}
+.ph::after{content:"----------------------------------------------------------------------------------------------------------------------------------";display:block;overflow:hidden;white-space:nowrap;color:var(--sh);letter-spacing:1px}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.sc{overflow:auto;flex:1;min-height:0;padding:10px}
+.half{flex:1;min-height:0;overflow:auto;padding:8px}
+.half+.half,.stat+.sc{border-top:1px dashed var(--sh)}
+h3{font:700 13px var(--ui);margin:14px 0 6px;padding-bottom:2px;border-bottom:1px dashed var(--sh)}
+h3:first-child{margin-top:0}
+h2{font:700 20px/1.3 var(--se);margin-top:10px}
+.empty{color:var(--sh);padding:20px;text-align:center}
+.cv{background-size:cover;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font:700 10px/1.2 var(--se);overflow:hidden;border:1px solid var(--dk);box-shadow:2px 2px 0 #0003;flex:none;padding:2px}
+.cv.sm{width:40px;height:56px}.cv.lg{width:130px;height:185px;font-size:15px;margin:auto;display:flex}
+.it{display:flex;gap:10px;padding:6px;cursor:pointer;border:1px solid transparent}
+.it:hover{border:1px dotted var(--ink)}.it.on{background:var(--navy);color:#fff}
+.it .t{font-weight:700}.it .s{font-size:12px;opacity:.8}.it>div:last-child{flex:1;min-width:0}
+.pb{display:block;position:relative;height:16px;margin:4px 0;background:#fff;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);overflow:hidden}
+.pb s{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(90deg,var(--navy) 0 7px,transparent 7px 9px)}
+.pb u{position:absolute;right:4px;top:-1px;font-size:11px;text-decoration:none;background:#fffa;padding:0 3px}
+.it.on .pb{border-color:#000 #fff #fff #000}
+.kv{width:100%;margin:8px 0}.kv td{padding:1px 6px 1px 0}.kv td:first-child{color:var(--sh);width:60px}
+.au{text-align:center;color:var(--sh)}.st{color:var(--red);letter-spacing:2px;font-size:16px}
+.cm{font-family:var(--se);margin-top:6px}
+.blk{display:flex;gap:8px;padding:6px;margin:4px 0;background:#fff8;border:1px solid var(--sh);cursor:pointer}
+.blk.q{display:block;font-family:var(--se);border-left:4px solid var(--red);cursor:default}
+.ln{display:flex;gap:8px;padding:1px 6px;margin:2px 0;background:#fff8;border:1px solid #bdb59f;font-size:12px;cursor:default}
+.ln b{flex:none;min-width:70px}.ln span:nth-child(2){flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.stat{padding:14px 16px;font-family:var(--se);display:flex;gap:18px;flex-wrap:wrap;background:#fffbe9}
+.stat div{text-align:center}.stat strong{display:block;font-size:26px;color:var(--red)}
+.card{aspect-ratio:1;background-size:cover;background-color:var(--c);border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:2px 2px 0 #0003;min-width:0}
+.ov{height:100%;background:rgba(244,238,220,.86);padding:14px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.ov p{font:15px/1.6 var(--se);overflow:hidden}.ov small{color:var(--sh);font-size:12px}
+.ov p.w{font-size:20px;font-weight:700}
+.main .card{margin:14px auto;width:min(100%,340px)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn,.chip{font:inherit;font-size:12px;padding:3px 10px;background:var(--face);cursor:pointer;border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;margin:2px}
+.btn:active,.chip.on{border-color:var(--dk) #fff #fff var(--dk);background:#c3bca9;font-weight:700}
+.bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
+.th{cursor:pointer;opacity:.55}.th.on{opacity:1;outline:3px solid var(--red)}
+.th .cv{width:100%;height:auto;aspect-ratio:3/4;font-size:8px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:11px}
+.cal>b{text-align:center;padding:2px;background:var(--face)}
+.dc{min-height:70px;background:#fff8;border:1px solid #bdb59f;padding:2px;min-width:0;overflow:hidden}
+.dc em{font-style:normal;color:var(--sh)}
+.lb{margin-top:2px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:1px solid #0005}
+.row{margin-bottom:22px}
+.board{display:flex;align-items:flex-end;gap:0;padding:0 10px;min-height:100px;background:linear-gradient(#0003,#0000 35%),#5d4026;border-bottom:12px solid;border-image:linear-gradient(#a97c50,#6e4a2b) 1}
+.sp{position:relative;flex:none;cursor:pointer;border:1px solid #0006;border-bottom:0;border-radius:7px 7px 0 0;overflow:hidden;transform-origin:50% 100%;transition:transform .12s}
+.sp:hover{transform:scale(1.06);z-index:2}.sp.on{transform:scale(1.04);box-shadow:inset 0 0 0 2px #fff9;z-index:1}
+.sp i{position:absolute;left:0;right:0;height:7px}.sp i:first-child{top:8px}.sp i:last-child{bottom:8px}
+.sp span{overflow:hidden;position:absolute;left:0;right:0;top:50%;height:125%;transform:translateY(-50%) scaleY(.8);writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;padding:20px 0}
+.sp b{font:700 12px/1 var(--se);letter-spacing:-.04em;white-space:nowrap}
+.fl{margin-top:8px;font-size:12px;min-width:0;flex:1}.fl>span{display:block;color:var(--sh)}
+.r2{display:flex;gap:8px}.inl{display:flex;gap:4px}.inl select,.inl input{flex:1;min-width:0}
+.cvup{width:110px;height:156px;margin:0 auto;border:2px dashed var(--sh);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:#fff center/cover;color:var(--sh);font-size:12px}
+.ro{background:#e8e4d6!important}
+.sr{width:18px;height:18px;vertical-align:middle}.sr .bg{fill:#fff;stroke:var(--dk);stroke-width:1.2}.sr .fg{fill:var(--red)}
+.err{background:#fff2b0;padding:6px 10px;border-bottom:1px solid var(--sh);font-size:12px}
+.bar{padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;flex:none}
+#md{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:9;padding:10px}
+#md.on{display:flex}#md .win{width:min(480px,100%);max-height:90vh}#md form{padding:10px;overflow:auto}
+#md label{display:block;font-size:12px;margin-top:6px}
+#md input,#md select,#md textarea{width:100%;font:inherit;padding:3px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
+#md input[type=color]{height:28px;padding:0}
+[data-edit]{cursor:pointer!important}[data-edit]:hover{outline:1px dotted var(--red)}
+@media(max-width:760px){#grid{grid-template-columns:1fr;overflow:auto}.pane{min-height:70vh}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.tab:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:2px dotted var(--red);outline-offset:1px}
+</style></head><body>
+<div id="app" class="win">
+ <div class="tb"><span>📖 BKBK.exe</span><span><button class="btn" id="cfg" style="padding:0 6px;font-size:11px;margin:0" title="Connect to sheet">⚙</button> <span id="status">loading…</span></span></div>
+ <div id="tabs"></div><div id="msg"></div>
+ <div id="grid">
+  <div class="pane"><div class="ph" id="lt"></div><div class="body" id="L"></div></div>
+  <div class="pane"><div class="ph" id="rt"></div><div class="body" id="R"></div></div>
+ </div>
+</div>
+<div id="md"></div>
+<script>
+/* 웹앱 URL·키는 코드에 넣지 않고 ⚙ 버튼으로 입력 → 이 브라우저(localStorage)에만 저장 */
+const LS=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
+const API=LS('bkbk_api'),KEY=LS('bkbk_key');
+
+const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TABS=['Main','Book','Log','Text','Word','Shelf'];
+let D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null;
+const P=v=>parseFloat(v)||0,dk=d=>String(d||'').slice(0,10);
+const by=(a,f,r)=>[...a].sort((x,y)=>(f(x)>f(y)?1:f(x)<f(y)?-1:0)*(r?-1:1));
+const bk=id=>D.Books.find(b=>b.id==id)||{};
+const logs=id=>D.Logs.filter(l=>l.book==id);
+const prog=id=>Math.max(0,...logs(id).map(l=>P(l.offpct)));
+const fin=id=>prog(id)>=100;
+const finD=id=>logs(id).filter(l=>P(l.offpct)>=100).map(l=>dk(l.date)).sort().pop()||'';
+const lastD=id=>logs(id).map(l=>dk(l.date)).sort().pop()||'';
+const split=s=>String(s||'').split(/[,;]\s*/).filter(Boolean);
+const lum=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return'#fff';const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11>150?'#222':'#fff'};
+
+/* ---------- 데이터 ---------- */
+async function load(){
+  if(!API){D=demo();$('#status').textContent='demo · click ⚙ to connect';return}
+  try{const r=await fetch(API+(API.includes('?')?'&':'?')+'action=all&key='+encodeURIComponent(KEY));D=await r.json();if(D.error)throw new Error(D.error);
+    for(const k of['Books','Tags','Series','Logs','Texts','Words'])D[k]=D[k]||[];
+    $('#status').textContent='connecting...'}
+  catch(e){D=demo();$('#status').textContent='offline (demo)';$('#msg').innerHTML='<div class="err">Could not load the sheet. Check the web app URL and its access setting (Anyone).</div>'}
+}
+function demo(){
+  const d=n=>new Date(Date.now()-n*864e5).toISOString().slice(0,10);
+  return{Books:[
+   {id:1,name:'여름의 끝',author:'김서진',genre:'소설',series:1,volume:1,page:312,charcount:210000,star:8,comment:'조용하게 오래 남는 책.',color1:'#2f5d62',color2:'#e0b84f',color3:'#fff',height:21,thick:2.4},
+   {id:2,name:'느린 시간의 기술',author:'박하린',genre:'에세이',series:1,volume:2,page:240,charcount:150000,star:6,comment:'가볍게 읽기 좋음.',color1:'#b5402f',color2:'#f4eedc',color3:'#fff',height:19,thick:1.8},
+   {id:3,name:'종이 도시의 지도',author:'이도윤',genre:'인문',page:420,charcount:300000,star:10,comment:'',color1:'#24406b',color2:'#d8d2c2',color3:'#fff',height:23,thick:3.2},
+   {id:4,name:'작은 방의 철학',author:'김서진',genre:'에세이',page:180,charcount:90000,star:8,comment:'',color1:'#6b4a7a',color2:'#e0b84f',color3:'#fff',height:18,thick:1.4}],
+  Tags:[{id:1,name:'김서진',type:'author'},{id:2,name:'박하린',type:'author'},{id:3,name:'소설',type:'genre'},{id:4,name:'에세이',type:'genre'},{id:5,name:'Favorite',type:'theme'},{id:6,name:'시간',type:'theme'}],
+  Series:[{id:1,name:'여름 연작'}],
+  Logs:[{book:1,date:d(40),chapter:'1장',onpct:0,offpct:40},{book:1,date:d(35),chapter:'2장',onpct:40,offpct:100},{book:2,date:d(10),chapter:'1부',onpct:0,offpct:35},{book:2,date:d(2),chapter:'2부',onpct:35,offpct:62},{book:3,date:d(90),chapter:'전체',onpct:0,offpct:100},{book:4,date:d(1),chapter:'1장',onpct:0,offpct:13}],
+  Texts:[{book:1,date:d(38),page:60,pct:19,text:'떠나는 것들은 늘 한 박자 늦게 돌아본다.',tags:'Favorite,시간'},{book:2,date:d(5),page:90,pct:38,text:'느리다는 건 멈췄다는 뜻이 아니라, 깊어진다는 뜻이다.',tags:'Favorite'},{book:3,date:d(80),page:200,pct:48,text:'지도는 길을 알려주지 않고 길을 잃을 자유를 준다.',tags:'시간'}],
+  Words:[{book:1,date:d(37),page:50,pct:16,word:'무람없다',meaning:'예의를 지키지 않고 버릇없다'},{book:3,date:d(70),page:120,pct:28,word:'윤슬',meaning:'햇빛이나 달빛에 비쳐 반짝이는 물결'}]}
+}
+
+/* ---------- 공통 조각 ---------- */
+function img(u){u=String(u||'');const m=u.match(/\/d\/([\w-]+)|[?&]id=([\w-]+)/);return/drive\.google/.test(u)&&m?`https://drive.google.com/thumbnail?id=${m[1]||m[2]}&sz=w600`:u}
+const cv=(b,c='')=>`<div class="cv ${c}" style="${b.cover?`background-image:url('${E(img(b.cover))}')`:`background:${E(b.color1||'#8a7f6a')}`}">${b.cover?'':E(b.name)}</div>`;
+const pb=p=>{p=Math.min(100,Math.round(p));return`<span class="pb"><s style="width:${p}%"></s><u>${p}%</u></span>`};
+const SP='M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z',MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const stars=n=>{n=P(n)/2;return'<span style="white-space:nowrap">'+[0,1,2,3,4].map(i=>{const f=Math.max(0,Math.min(1,n-i));return`<svg class="sr" viewBox="0 0 24 24"><path class="bg" d="${SP}"/><path class="fg" d="${SP}" style="clip-path:inset(0 ${100-f*100}% 0 0)"/></svg>`}).join('')+'</span>'};
+const HL={낮음:17,중간:21,높음:25},TL={얇음:1.5,중간:2.5,두꺼움:3.5};
+const hv=b=>HL[b.height]||P(b.height)||21,tv=b=>TL[b.thick]||P(b.thick)||2.5;
+const hl=v=>HL[v]?v:P(v)<19?'낮음':P(v)<23?'중간':'높음',tl=v=>TL[v]?v:P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
+const lv=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return 128;const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11};
+const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t">${E(b.name)}</div><div class="s">${E(b.author)}</div>${pb(prog(b.id))}</div></div>`;
+const card=(b,main,sub,cls='',ed='')=>`<div class="card" ${ed?`data-edit="${ed}"`:''} style="--c:${E(b.color1||'#8a7f6a')};${b.cover?`background-image:url('${E(img(b.cover))}')`:''}"><div class="ov"><p class="${cls}">${main}</p><small>${sub}</small></div></div>`;
+const sec=(t,h)=>h?`<h3>${t}</h3>${h}`:'';
+
+function det(id){
+  const b=bk(id);if(!b.id)return'<p class="empty">Select Book</p>';
+  const ser=D.Series.find(s=>s.id==b.series||s.name==b.series);
+  const sb=ser?by(D.Books.filter(x=>x.series==b.series),x=>P(x.volume)):[];
+  const L=by(logs(id),l=>dk(l.date)),T=by(D.Texts.filter(t=>t.book==id),t=>P(t.pct)),W=by(D.Words.filter(w=>w.book==id),w=>P(w.pct));
+  return`<div class="bar"><button class="btn" data-edit="Books:${E(b.id)}">✎ Edit</button><button class="btn" data-add="Logs" data-bk="${E(b.id)}">＋ Log</button><button class="btn" data-add="Texts" data-bk="${E(b.id)}">＋ Text</button><button class="btn" data-add="Words" data-bk="${E(b.id)}">＋ Word</button></div><div class="sc">${cv(b,'lg')}<h2>${E(b.name)}</h2><p class="au">${E(b.author)}</p>
+  <table class="kv"><tr><td>Genre<td>${E(b.genre)}<tr><td>Page<td>${E(b.page)}<tr><td>Chars<td>${b.charcount?E(b.charcount)+'만자':''}</table>
+  ${pb(prog(id))}<div class="st">${stars(b.star)}</div><p class="cm">${E(b.comment)}</p>
+  ${sec('Series · '+E(ser&&ser.name),sb.length>1?sb.map(x=>`<div class="blk" data-b="${x.id}">${cv(x,'sm')}<div><b>${E(x.name)}</b><div class="s">${E(x.comment)}</div><span class="st" style="font-size:12px">${stars(x.star)}</span></div></div>`).join(''):'')}
+  ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${P(l.onpct)}→${P(l.offpct)}%</span><span>+${Math.round(P(l.offpct)-P(l.onpct))}%</span></div>`).join(''))}
+  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${P(t.pct)}% · p.${E(t.page)}</small><br>${E(t.text)}</div>`).join(''))}
+  ${sec('Word',W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span></div>`).join(''))}</div>`;
+}
+
+/* ---------- 탭 ---------- */
+function Main(){
+  const B=D.Books,fb=B.filter(b=>fin(b.id)),y=String(new Date().getFullYear()),m=new Date().toISOString().slice(0,7);
+  const st=`<div class="stat"><div><strong>${fb.length}</strong>Total</div><div><strong>${fb.filter(b=>finD(b.id).startsWith(y)).length}</strong>Year</div><div><strong>${fb.filter(b=>finD(b.id).startsWith(m)).length}</strong>Month</div></div>`;
+  const f=D.Texts.filter(t=>split(t.tags).includes('Favorite'));
+  if(fav==null||!f[fav])fav=f.length?Math.floor(Math.random()*f.length):null;
+  const t=f[fav],b=t?bk(t.book):{};
+  const c=t?`<div class="main">${card(b,E(t.text),E(b.name)+' · p.'+E(t.page))}<div style="text-align:center"><button class="btn" data-roll>Shuffle</button></div></div>`:'<p class="empty">Empty</p>';
+  return[st+`<div class="sc">${c}</div>`,'','Main','Memo'];
+}
+function Book(){
+  const now=Date.now(),rec=by(D.Books.filter(b=>!fin(b.id)&&lastD(b.id)&&now-new Date(lastD(b.id))<=31*864e5),b=>lastD(b.id));
+  const all=[...by(D.Books.filter(b=>fin(b.id)),b=>finD(b.id),1),...D.Books.filter(b=>!fin(b.id))];
+  return[`<div class="bar"><button class="btn" data-add="Books">＋ New Book</button></div><div class="half"><h3>Recent</h3>${rec.map(row).join('')||'<p class="empty">Empty</p>'}</div><div class="half"><h3>All</h3>${all.map(row).join('')}</div>`,det(sel),'Book','Book'];
+}
+function Log(){
+  const y=cal.getFullYear(),m=cal.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
+  let c=['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d=>`<b>${d}</b>`).join('')+'<div></div>'.repeat(f);
+  for(let d=1;d<=n;d++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    c+=`<div class="dc"><em>${d}</em>${D.Logs.filter(l=>dk(l.date)==ds).map(l=>{const b=bk(l.book);return`<div class="lb" data-b="${b.id}" style="background:${E(b.color1||'#888')};color:${lum(b.color1)}">${E(b.name)} ${P(l.offpct)}%</div>`}).join('')}</div>`}
+  return[`<div class="bar"><button class="btn" data-add="Logs">＋ New Log</button></div><div class="sc"><div style="text-align:center;margin-bottom:8px"><button class="btn" data-m="-1">◀</button> <b>${y} ${MON[m]}</b> <button class="btn" data-m="1">▶</button></div><div class="cal">${c}</div></div>`,det(sel),'Log','Book'];
+}
+function filt(k){
+  const N={author:'Author',genre:'Genre',theme:'Theme'};
+  return`<div class="bar">${k?`<button class="btn" data-add="${k}s">＋ New ${k}</button>`:''}</div><div class="sc"><h3>Book</h3><div class="bg">${D.Books.map(b=>`<div class="th ${F.b.has(String(b.id))?'on':''}" data-fb="${b.id}" title="${E(b.name)}">${cv(b)}</div>`).join('')}</div>`+
+  Object.keys(N).map(t=>{const g=D.Tags.filter(x=>String(x.type).toLowerCase()==t);return g.length?`<h3>${N[t]}</h3>${g.map(x=>`<button class="chip ${F.t.has(x.name)?'on':''}" data-ft="${E(x.name)}">${E(x.name)}</button>`).join('')}`:''}).join('')+
+  `<p style="margin-top:12px"><button class="btn" data-clr>Clear</button></p></div>`;
+}
+const hit=(bid,tags)=>{if(!F.b.size&&!F.t.size)return true;const b=bk(bid),tg=split(tags);
+  return F.b.has(String(bid))||[...F.t].some(n=>tg.includes(n)||b.author==n||split(b.genre).includes(n))};
+function Text(){
+  const T=by(D.Texts.filter(t=>hit(t.book,t.tags)),t=>dk(t.date),1);
+  return[filt('Text'),`<div class="sc"><div class="cards">${T.map(t=>{const b=bk(t.book);return card(b,E(t.text),E(b.name)+' · p.'+E(t.page),'','Texts:'+E(t.id))}).join('')||'<p class="empty">Empty</p>'}</div></div>`,'Filter','Text'];
+}
+function Word(){
+  const W=by(D.Words.filter(w=>hit(w.book,'')),w=>dk(w.date),1);
+  return[filt('Word'),`<div class="sc"><div class="cards">${W.map(w=>{const b=bk(w.book);return card(b,E(w.word),E(w.meaning)+'<br>'+E(b.name),'w','Words:'+E(w.id))}).join('')||'<p class="empty">Empty</p>'}</div></div>`,'Filter','Word'];
+}
+function Shelf(){
+  const W=Math.max(280,($('#L').clientWidth||600)-60),k=11,bw=b=>Math.max(20,tv(b)*k);let rows=[],r=[],w=0;
+  D.Books.forEach(b=>{if(w+bw(b)>W&&r.length){rows.push(r);r=[];w=0}r.push(b);w+=bw(b)});r.length&&rows.push(r);
+  const sp=b=>{const c1=b.color1||'#888',c3=b.color3||'#fff',tc=Math.abs(lv(c3)-lv(c1))>90?c3:lum(c1);return`<div class="sp ${sel==b.id?'on':''}" data-b="${b.id}" title="${E(b.name)}" style="width:${bw(b)}px;height:${Math.max(90,hv(b)*k)}px;background:${E(c1)};color:${E(tc)}"><i style="background:${E(b.color2||'#ddd')}"></i><span><b>${E(b.name)}</b></span><i style="background:${E(b.color2||'#ddd')}"></i></div>`};
+  return[`<div class="sc">${rows.map(r=>`<div class="row"><div class="board">${r.map(sp).join('')}</div></div>`).join('')}</div>`,det(sel),'Shelf','Book'];
+}
+
+/* ---------- 추가/수정 폼 ---------- */
+const FLD={Logs:'date book chapter onpage offpage onpct offpct',Texts:'date book chapter page pct text notion tags',Words:'date book chapter page pct word meaning',Tags:'name type',Series:'name'};
+const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Position %',text:'Text',notion:'Memo',tags:'Tags (comma separated)',word:'Word',meaning:'Meaning',name:'Name',type:'Type'};
+const SK={Books:'Book',Logs:'Log',Texts:'Text',Words:'Word',Tags:'Tag',Series:'Series'};
+const PFX={Books:'BK',Tags:'TG',Series:'SR',Logs:'LG',Texts:'TX',Words:'WD'};
+const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
+const nid=sh=>{const re=new RegExp('^'+PFX[sh]+'(\\d+)$');return PFX[sh]+String(Math.max(0,...D[sh].map(r=>+((String(r.id).match(re)||[0,0])[1])))+1).padStart(4,'0')};
+const post=async b=>(await fetch(API,{method:'POST',body:JSON.stringify({...b,key:KEY})})).json();
+const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
+let cur;
+const opt=(a,v,f)=>a.map(x=>{const[i,n]=f(x);return`<option value="${E(i)}" ${i==v?'selected':''}>${E(n)}</option>`}).join('');
+const fl=(l,h)=>`<div class="fl"><span>${l}</span>${h}</div>`;
+const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):tagsOf(k).map(t=>[t.name,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
+const inp=(k,v,x='')=>`<input name="${k}" value="${E(v)}" ${x}>`;
+function bookForm(r){
+  return fl('Cover',`<div class="cvup" id="cvup" style="${r.cover?`background-image:url('${E(img(r.cover))}')`:''}">${r.cover?'':'Click to upload'}</div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}">`)+
+  fl('Name',inp('name',r.name))+
+  `<div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',r.author)}</div>`)}${fl('Genre',`<div class="inl" id="in-genre">${inl('genre',r.genre)}</div>`)}</div>`+
+  fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)+
+  `<div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>`+
+  `<div class="r2">${fl('Page',inp('page',r.page,'type="number" min="0"'))}${fl('Chars (만자)',inp('charcount',r.charcount,'type="number" min="0" step="0.1"'))}</div>`+
+  fl('Platform',`<select name="platform"><option value="">-</option>${opt(PLAT,r.platform,x=>[x,x])}</select>`)+
+  fl('Star (1–10)',inp('star',r.star,'type="number" min="1" max="10" step="1" style="width:70px"')+` <span id="stp">${stars(r.star)}</span>`)+
+  fl('Comment',`<textarea name="comment" rows="3">${E(r.comment)}</textarea>`)+
+  `<div class="r2">${['color1','color2','color3'].map((k,i)=>fl('Color '+(i+1),`<input type="color" name="${k}" value="${/^#[0-9a-f]{6}$/i.test(r[k])?r[k]:'#888888'}" style="height:28px;padding:0">`)).join('')}</div>`+
+  `<div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thick">${opt(['얇음','중간','두꺼움'],tl(r.thick),x=>[x,x])}</select>`)}</div>`;
+}
+function openForm(sheet,row,bid){
+  const isNew=!row;row=row?{...row}:{};
+  if(isNew)row=sheet=='Books'?{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff'}:{book:bid||sel||(D.Books[0]||{}).id,date:new Date().toISOString().slice(0,10)};
+  cur={sheet,row,isNew};
+  const f=k=>{const v=row[k]??'';
+    if(k=='book')return`<select name="book">${opt(D.Books,v,b=>[b.id,b.name])}</select>`;
+    if(k=='type')return`<select name="type">${opt(['Author','Genre','Theme'],v,x=>[x,x])}</select>`;
+    if(k=='date')return`<input type="date" name="date" value="${dk(v)}">`;
+    if(['text','notion'].includes(k))return`<textarea name="${k}" rows="3">${E(v)}</textarea>`;
+    return inp(k,v)};
+  const body=sheet=='Books'?bookForm(row):FLD[sheet].split(' ').map(k=>fl(KO[k],f(k))).join('');
+  $('#md').innerHTML=`<div class="win"><div class="tb"><span>${isNew?'New':'Edit'} ${SK[sheet]}</span></div><form onsubmit="return false">${body}<div style="margin:14px 0 4px;text-align:right"><button type="button" class="btn" data-cancel>Cancel</button> ${isNew?'':'<button type="button" class="btn" data-del>Delete</button> '}<button type="button" class="btn" data-save><b>Save</b></button></div></form></div>`;
+  $('#md').classList.add('on');nameSync();
+}
+function nameSync(){
+  if(!cur||cur.sheet!='Books')return;const e=$('#md form').elements,sid=e.series.value;
+  if(sid){const s=D.Series.find(x=>x.id==sid)||{};e.name.value=`${s.name} [${e.label.value||(e.volume.value?e.volume.value+'권':'')}]`.replace(' []','');e.name.readOnly=true;e.name.classList.add('ro')}
+  else{e.name.readOnly=false;e.name.classList.remove('ro')}
+}
+function onSeries(){const e=$('#md form').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=cur.row.id).map(b=>P(b.volume)))+1:'';nameSync()}
+async function send(sheet,row,del,quiet){
+  if(!row.id)row.id=nid(sheet);
+  const a=D[sheet],i=a.findIndex(r=>r.id==row.id);del?(i>=0&&a.splice(i,1)):i>=0?(a[i]=row):a.push(row);
+  if(API){$('#status').textContent='saving…';try{const j=await post({sheet,row,del});if(j.ok===false)throw new Error(j.error);$('#status').textContent='connecting...'}catch(e){$('#msg').innerHTML='<div class="err">Save failed: '+E(e.message)+'</div>'}}
+  if(!quiet){$('#md').classList.remove('on');render()}
+}
+function doSave(){
+  const r={...cur.row};for(const[k,v]of new FormData($('#md form')).entries())r[k]=v;
+  if(cur.sheet=='Books'){if(!String(r.name).trim()){alert('Name is required');return}r.volume=r.volume?Math.round(P(r.volume)):'';if(r.star)r.star=Math.min(10,Math.max(1,Math.round(P(r.star))))}
+  if(['Logs','Texts','Words'].includes(cur.sheet)){const pg=P(bk(r.book).page);
+    if(pg)[['onpage','onpct'],['offpage','offpct'],['page','pct']].forEach(([a,b])=>{if(a in r&&b in r&&r[a]!==''&&r[b]==='')r[b]=Math.round(P(r[a])/pg*100)})}
+  send(cur.sheet,r);
+}
+function palette(im){
+  const c=document.createElement('canvas');c.width=c.height=40;const x=c.getContext('2d');x.drawImage(im,0,0,40,40);const d=x.getImageData(0,0,40,40).data,B={};
+  for(let i=0;i<d.length;i+=4){if(d[i+3]<128)continue;const k=(d[i]>>4)+','+(d[i+1]>>4)+','+(d[i+2]>>4),b=B[k]=B[k]||[0,0,0,0];b[0]++;b[1]+=d[i];b[2]+=d[i+1];b[3]+=d[i+2]}
+  const L=Object.values(B).map(b=>({n:b[0],c:[b[1]/b[0],b[2]/b[0],b[3]/b[0]].map(Math.round)})).sort((a,b)=>b.n-a.n);
+  const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),sat=c=>{const m=Math.max(...c);return m?(m-Math.min(...c))/m:0};
+  const p1=L[0].c,p2=(L.find(o=>dist(o.c,p1)>70)||L[1]||L[0]).c;
+  const p3=(L.filter(o=>o.n>=3&&dist(o.c,p1)>60&&dist(o.c,p2)>40).sort((a,b)=>sat(b.c)*Math.sqrt(b.n)-sat(a.c)*Math.sqrt(a.n))[0]||L[L.length-1]).c;
+  return[p1,p2,p3].map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join(''));
+}
+function onCover(f){
+  if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{const im=new Image();im.onload=async()=>{
+    const s=Math.min(1,700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    const url=c.toDataURL('image/jpeg',.85),box=$('#cvup'),e=$('#md form').elements;
+    box.style.backgroundImage=`url('${url}')`;box.textContent='';
+    palette(im).forEach((v,i)=>e['color'+(i+1)].value=v);
+    if(!API){e.cover.value=url;return}
+    box.textContent='uploading…';
+    try{const j=await post({action:'upload',name:(e.name.value||'cover')+'.jpg',mime:'image/jpeg',data:url.split(',')[1]});if(!j.ok)throw new Error(j.error||'failed');e.cover.value=j.url;box.textContent=''}
+    catch(x){e.cover.value='';box.textContent='Upload failed';$('#msg').innerHTML='<div class="err">Cover upload failed: '+E(x.message)+'</div>'}
+  };im.src=rd.result};rd.readAsDataURL(f);
+}
+document.addEventListener('change',e=>{if(!$('#md').classList.contains('on'))return;const t=e.target;
+  if(t.name=='series')onSeries();if(t.id=='cvf')onCover(t.files[0])});
+document.addEventListener('input',e=>{if(!$('#md').classList.contains('on'))return;const n=e.target.name;
+  if(n=='label'||n=='volume')nameSync();if(n=='star'&&$('#stp'))$('#stp').innerHTML=stars(e.target.value)});
+document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
+
+/* ---------- 렌더 & 이벤트 ---------- */
+function render(){
+  $('#tabs').innerHTML=TABS.map(t=>`<button class="tab ${t==tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
+  const v={Main,Book,Log,Text,Word,Shelf}[tab]();
+  $('#L').innerHTML=v[0];$('#R').innerHTML=v[1]||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').textContent=v[3];
+}
+document.addEventListener('click',async e=>{
+  if(e.target.closest('#cfg')){const u=prompt('Apps Script web app URL (/exec). Leave empty to use demo data.',API);if(u===null)return;const k=prompt('Access key (the KEY set in Code.gs; leave empty if none)',KEY);try{localStorage.setItem('bkbk_api',u.trim());localStorage.setItem('bkbk_key',(k||'').trim())}catch(x){}location.reload();return}
+  const g=a=>e.target.closest(`[${a}]`);let x;
+  if(e.target.closest('#cvup')){$('#cvf').click();return}
+  if(x=g('data-ia')){const k=x.dataset.ia;$('#in-'+k).innerHTML=`<input id="ni-${k}" placeholder="New ${k}" maxlength="60"><button type="button" class="btn" data-ic="${k}">OK</button>`;$('#ni-'+k).focus();return}
+  if(x=g('data-ic')){const k=x.dataset.ic,v=$('#ni-'+k).value.trim();
+    if(v){if(k=='series'){const r={name:v};r.id=nid('Series');await send('Series',r,false,true);$('#in-'+k).innerHTML=inl(k,r.id);onSeries()}
+      else{await send('Tags',{name:v,type:k=='author'?'Author':'Genre'},false,true);$('#in-'+k).innerHTML=inl(k,v)}}
+    else $('#in-'+k).innerHTML=inl(k,'');return}
+  if(g('data-cancel')){$('#md').classList.remove('on');return}
+  if(g('data-save')){doSave();return}
+  if(g('data-del')){confirm('삭제할까요?')&&send(cur.sheet,cur.row,true);return}
+  if(x=g('data-add')){openForm(x.dataset.add,null,x.dataset.bk);return}
+  if(x=g('data-edit')){const[sh,id]=x.dataset.edit.split(':');openForm(sh,D[sh].find(r=>String(r.id)==id));return}
+  if(x=g('data-tab'))tab=x.dataset.tab;
+  else if(x=g('data-fb')){const i=x.dataset.fb;F.b.has(i)?F.b.delete(i):F.b.add(i)}
+  else if(x=g('data-ft')){const i=x.dataset.ft;F.t.has(i)?F.t.delete(i):F.t.add(i)}
+  else if(g('data-clr')){F.b.clear();F.t.clear()}
+  else if(g('data-roll'))fav=null;
+  else if(x=g('data-m'))cal=new Date(cal.getFullYear(),cal.getMonth()+ +x.dataset.m,1);
+  else if(x=g('data-b'))sel=x.dataset.b;
+  else return;
+  render();
+});
+load().then(render);
+</script></body></html>
