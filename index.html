@@ -155,13 +155,19 @@ function demo(){
 }
 
 /* ---------- 공통 조각 ---------- */
-const gid=u=>(String(u||'').match(/(?:\/d\/|[?&]id=)([\w-]+)/)||[])[1];
-function img(u){u=String(u||'');const id=gid(u);return/drive\.google|googleusercontent/.test(u)&&id?`https://lh3.googleusercontent.com/d/${id}=w600`:u}
-function cvErr(i){const par=i.parentNode;if(par.classList.contains('card')){i.remove();return}
-  if(!i.dataset.r){i.dataset.r=1;const id=gid(i.src);if(id){i.src=i.src.includes('lh3.')?`https://drive.google.com/thumbnail?id=${id}&sz=w600`:`https://lh3.googleusercontent.com/d/${id}=w600`;return}}
-  par.textContent=par.dataset.t||''}
-const IM=(c,x='')=>`<img ${x} src="${E(img(c))}" loading="lazy" referrerpolicy="no-referrer" onerror="cvErr(this)" alt="">`;
-const cv=(b,c='')=>`<div class="cv ${c}" data-t="${E(b.name)}" style="background:${E(b.color1||'#8a7f6a')}">${b.cover?IM(b.cover):E(b.name)}</div>`;
+const gid=u=>/^https?:/.test(u)?(String(u).match(/(?:\/d\/|[?&]id=)([\w-]+)/)||[])[1]:'';
+function img(u,w=600){u=String(u||'');const id=gid(u);return/drive\.google|googleusercontent/.test(u)&&id?`https://lh3.googleusercontent.com/d/${id}=w${w}`:u}
+/* 표지 로더: 화면을 다시 그려도 중단되지 않고, 동시에 4장씩만 요청, 실패하면 다른 주소로 재시도 */
+const IC=new Map(),Q=[];let busy=0;
+function want(u){if(IC.has(u))return;IC.set(u,0);Q.push(u);pump()}
+function pump(){while(busy<4&&Q.length){busy++;tryLoad(Q.shift(),0)}}
+function tryLoad(u,n){const id=gid(u),w=(u.match(/=w(\d+)$/)||[0,600])[1],src=[u,id?`https://drive.google.com/thumbnail?id=${id}&sz=w${w}`:u,u][n],im=new Image();im.referrerPolicy='no-referrer';
+  im.onload=()=>{IC.set(u,src);busy--;hydrate();pump()};
+  im.onerror=()=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),n?1500:300);else{IC.set(u,'bad');busy--;hydrate();pump()}};
+  im.src=src}
+function hydrate(){document.querySelectorAll('img[data-u]:not([src])').forEach(i=>{const u=i.dataset.u,v=IC.get(u);if(v==='bad')i.remove();else if(v)i.src=v;else want(u)})}
+const IM=(c,x='',w=600)=>{const u=img(c,w),v=IC.get(u);return`<img ${x} data-u="${E(u)}" ${v&&v!=='bad'?`src="${E(v)}"`:''} alt="">`};
+const cv=(b,c='')=>`<div class="cv ${c}" data-t="${E(b.name)}" style="background:${E(b.color1||'#8a7f6a')}">${E(b.name)}${b.cover?IM(b.cover,'',c=='lg'?400:240):''}</div>`;
 const hx=v=>{v=String(v||'').trim().replace('#','');if(/^[0-9a-f]{3}$/i.test(v))v=v.replace(/./g,'$&$&');return/^[0-9a-f]{6}$/i.test(v)?'#'+v:'#888888'};
 const GR=(()=>{const a=[[232,195,90],[217,118,58],[181,64,47]];return Array.from({length:10},(_,i)=>{const t=i/9*2,k=Math.min(1,Math.floor(t)),f=t-k,A=a[k],B=a[k+1];return'#'+A.map((v,j)=>Math.round(v+(B[j]-v)*f).toString(16).padStart(2,'0')).join('')})})();
 const pb=p=>{p=Math.min(100,Math.round(p));const n=p>0?Math.max(1,Math.round(p/10)):0;return`<span class="pbw"><span class="pb">${GR.map((c,i)=>`<i${i<n?` style="background:${c}"`:''}></i>`).join('')}</span><b>${p}%</b></span>`};
@@ -256,7 +262,7 @@ const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):tagsOf(k).
 const inp=(k,v,x='')=>`<input name="${k}" value="${E(v)}" ${x}>`;
 function bookForm(r){
   const col=`<div class="r2" style="gap:4px">${['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${hx(r[k])}" style="height:28px;padding:0;min-width:0">`).join('')}</div>`;
-  const cov=`<div style="flex:none;width:78px;display:flex;flex-direction:column"><div class="fl" style="display:flex;flex-direction:column;flex:1"><span>Cover</span><div class="cvup" id="cvup" style="flex:1;width:100%;height:auto;min-height:70px;margin:0;${r.cover?`background-image:url('${E(img(r.cover))}')`:''}">${r.cover?'':'+'}</div></div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}"></div>`;
+  const cov=`<div style="flex:none;width:78px;display:flex;flex-direction:column"><div class="fl" style="display:flex;flex-direction:column;flex:1"><span>Cover</span><div class="cvup" id="cvup" style="flex:1;width:100%;height:auto;min-height:70px;margin:0;${r.cover?`background-image:url('${E(img(r.cover,400))}')`:''}">${r.cover?'':'+'}</div></div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}"></div>`;
   return`<div style="display:flex;gap:10px;align-items:stretch">${cov}<div style="flex:1;min-width:0">`+fl('Color',col)+
    `<div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thick">${opt(['얇음','중간','두꺼움'],tl(r.thick),x=>[x,x])}</select>`)}</div></div></div>`+
   `<div class="r2">${fl('Name','<input id="bn" class="ro" readonly placeholder="auto" value="'+E(r.name)+'">')}${fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)}</div>`+
@@ -335,7 +341,7 @@ function calc(){D.Books.forEach(b=>{const s=D.Series.find(x=>x.id==b.series||x.n
 function render(){calc();
   $('#tabs').innerHTML=TABS.map(t=>`<button class="tab ${t==tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
   const v={Main,Book,Log,Text,Word,Shelf}[tab]();
-  $('#L').innerHTML=v[0];$('#R').innerHTML=v[1]||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(v[3]);$('#grid').dataset.v=view;
+  $('#L').innerHTML=v[0];$('#R').innerHTML=v[1]||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(v[3]);$('#grid').dataset.v=view;hydrate();
 }
 document.addEventListener('click',async e=>{
   if(e.target.closest('#cfg')){const u=prompt('Apps Script web app URL (/exec). Leave empty to use demo data.',API);if(u===null)return;const k=prompt('Access key (the KEY set in Code.gs; leave empty if none)',KEY);try{localStorage.setItem('bkbk_api',u.trim());localStorage.setItem('bkbk_key',(k||'').trim())}catch(x){}location.reload();return}
