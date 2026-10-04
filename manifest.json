@@ -1,9 +1,9 @@
 {
   "name": "BKBK",
   "short_name": "BKBK",
-  "id": "/bkbk/",
-  "start_url": "/bkbk/",
-  "scope": "/bkbk/",
+  "id": ".",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#3b6a6a",
   "theme_color": "#3b6a6a",
