@@ -80,6 +80,8 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .pl{flex:1;min-height:0;overflow:hidden;display:flex;justify-content:center}
 .pl b{flex:none;display:block;height:112%;margin-top:3px;writing-mode:vertical-rl;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 11px/1.15 var(--se);transform:scaleY(.85);transform-origin:50% 0}
 .vq{flex:none;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font:700 10px var(--ui);font-style:normal;overflow:hidden}
+.upl{background:#fffd;padding:2px 4px;font-size:11px;color:var(--ink)}
+.btn:disabled{cursor:wait}
 .mb,.mo{display:none}.mb{margin-right:8px;font-size:12px}
 .ln .bk{flex:none;max-width:38%;color:var(--sh);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hs{display:flex;gap:6px;overflow-x:auto;padding:2px}.hs>*{flex:none}.hs .th{width:46px}.hs .chip{white-space:nowrap}
@@ -275,7 +277,7 @@ function bookForm(r){
 function openForm(sheet,row,bid){
   const isNew=!row;row=row?{...row}:{};
   if(isNew)row=sheet=='Books'?{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:7}:{book:bid||sel||(D.Books[0]||{}).id,date:new Date().toISOString().slice(0,10)};
-  cur={sheet,row,isNew};
+  cur={sheet,row,isNew};up=0;
   const f=k=>{const v=row[k]??'';
     if(k=='book')return`<select name="book">${opt(D.Books,v,b=>[b.id,b.name])}</select>`;
     if(k=='type')return`<select name="type">${opt(['Author','Genre','Theme'],v,x=>[x,x])}</select>`;
@@ -298,6 +300,7 @@ async function send(sheet,row,del,quiet){
   if(!quiet){$('#md').classList.remove('on');render()}
 }
 function doSave(){
+  if(up){alert('The cover is still uploading. Please wait a moment.');return}
   const r={...cur.row};for(const[k,v]of new FormData($('#md form')).entries())r[k]=v;
   if(cur.sheet=='Books'){if(!String(r.series).trim()){alert('Series is required (it becomes the title)');return}r.volume=r.volume?Math.round(P(r.volume)):'';if(r.star)r.star=Math.min(10,Math.max(1,Math.round(P(r.star))))}
     ['onpct','offpct','pct'].forEach(k=>{if(k in r)r[k]=r[k]===''?'':Math.round(P(r[k])*100)/10000})
@@ -315,6 +318,8 @@ function palette(im){
   const p3=a?a.c:(p1[0]*.3+p1[1]*.59+p1[2]*.11>140?[34,34,34]:[255,255,255]);
   return[p1,p2,p3].map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join(''));
 }
+let up=0;
+function upBusy(d){up=Math.max(0,up+d);const b=$('#md [data-save]');if(b){b.disabled=up>0;b.style.opacity=up?.5:1;b.firstElementChild.textContent=up?'Uploading…':'Save'}}
 function onCover(f){
   if(!f)return;const rd=new FileReader();
   rd.onload=()=>{const im=new Image();im.onload=async()=>{
@@ -323,9 +328,10 @@ function onCover(f){
     box.style.backgroundImage=`url('${url}')`;box.textContent='';
     palette(im).forEach((v,i)=>e['color'+(i+1)].value=v);
     if(!API){e.cover.value=url;return}
-    box.textContent='uploading…';
+    const tok=cur;upBusy(1);box.innerHTML='<span class="upl">uploading…</span>';
     try{const j=await post({action:'upload',name:($('#bn').value||'cover')+'.jpg',mime:'image/jpeg',data:url.split(',')[1]});if(!j.ok)throw new Error(j.error||'failed');e.cover.value=j.url;box.textContent=''}
-    catch(x){e.cover.value='';box.textContent='Upload failed';$('#msg').innerHTML='<div class="err">Cover upload failed: '+E(x.message)+'</div>'}
+    catch(x){e.cover.value='';box.innerHTML='<span class="upl">failed – tap to retry</span>';$('#msg').innerHTML='<div class="err">Cover upload failed: '+E(x.message)+'</div>'}
+    finally{if(cur===tok)upBusy(-1)}
   };im.src=rd.result};rd.readAsDataURL(f);
 }
 document.addEventListener('wheel',e=>{const h=e.target.closest('.hs');if(h&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){h.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
