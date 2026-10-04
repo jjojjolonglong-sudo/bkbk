@@ -109,13 +109,16 @@ const API=LS('bkbk_api'),KEY=LS('bkbk_key');
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TABS=['Main','Book','Log','Text','Word','Shelf'];
 let D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null;
-const P=v=>parseFloat(v)||0,dk=d=>String(d||'').slice(0,10);
+const P=v=>parseFloat(v)||0,PC=v=>Math.round(P(v)*10000)/100,DP=v=>Math.round(P(v)*100),dk=d=>String(d||'').slice(0,10);
 const by=(a,f,r)=>[...a].sort((x,y)=>(f(x)>f(y)?1:f(x)<f(y)?-1:0)*(r?-1:1));
+const has=v=>v!==''&&v!=null,bpg=o=>P((D.Books.find(b=>b.id==o.book)||{}).page);
+const epc=(o,pk,gk)=>has(o[pk])?PC(o[pk]):has(o[gk])&&bpg(o)?Math.min(100,P(o[gk])/bpg(o)*100):0;
+const eOn=l=>epc(l,'onpct','onpage'),eOff=l=>epc(l,'offpct','offpage'),eAt=t=>epc(t,'pct','page');
 const bk=id=>D.Books.find(b=>b.id==id)||{};
 const logs=id=>D.Logs.filter(l=>l.book==id);
-const prog=id=>Math.max(0,...logs(id).map(l=>P(l.offpct)));
+const prog=id=>Math.max(0,...logs(id).map(eOff));
 const fin=id=>prog(id)>=100;
-const finD=id=>logs(id).filter(l=>P(l.offpct)>=100).map(l=>dk(l.date)).sort().pop()||'';
+const finD=id=>logs(id).filter(l=>eOff(l)>=100).map(l=>dk(l.date)).sort().pop()||'';
 const lastD=id=>logs(id).map(l=>dk(l.date)).sort().pop()||'';
 const split=s=>String(s||'').split(/[,;]\s*/).filter(Boolean);
 const lum=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return'#fff';const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11>150?'#222':'#fff'};
@@ -137,9 +140,9 @@ function demo(){
    {id:4,name:'작은 방의 철학',author:'김서진',genre:'에세이',page:180,charcount:90000,star:8,comment:'',color1:'#6b4a7a',color2:'#e0b84f',color3:'#fff',height:18,thick:1.4}],
   Tags:[{id:1,name:'김서진',type:'author'},{id:2,name:'박하린',type:'author'},{id:3,name:'소설',type:'genre'},{id:4,name:'에세이',type:'genre'},{id:5,name:'Favorite',type:'theme'},{id:6,name:'시간',type:'theme'}],
   Series:[{id:1,name:'여름 연작'}],
-  Logs:[{book:1,date:d(40),chapter:'1장',onpct:0,offpct:40},{book:1,date:d(35),chapter:'2장',onpct:40,offpct:100},{book:2,date:d(10),chapter:'1부',onpct:0,offpct:35},{book:2,date:d(2),chapter:'2부',onpct:35,offpct:62},{book:3,date:d(90),chapter:'전체',onpct:0,offpct:100},{book:4,date:d(1),chapter:'1장',onpct:0,offpct:13}],
-  Texts:[{book:1,date:d(38),page:60,pct:19,text:'떠나는 것들은 늘 한 박자 늦게 돌아본다.',tags:'Favorite,시간'},{book:2,date:d(5),page:90,pct:38,text:'느리다는 건 멈췄다는 뜻이 아니라, 깊어진다는 뜻이다.',tags:'Favorite'},{book:3,date:d(80),page:200,pct:48,text:'지도는 길을 알려주지 않고 길을 잃을 자유를 준다.',tags:'시간'}],
-  Words:[{book:1,date:d(37),page:50,pct:16,word:'무람없다',meaning:'예의를 지키지 않고 버릇없다'},{book:3,date:d(70),page:120,pct:28,word:'윤슬',meaning:'햇빛이나 달빛에 비쳐 반짝이는 물결'}]}
+  Logs:[{book:1,date:d(40),chapter:'1장',onpct:0.0,offpct:0.4},{book:1,date:d(35),chapter:'2장',onpct:0.4,offpct:1.0},{book:2,date:d(10),chapter:'1부',onpct:0.0,offpct:0.35},{book:2,date:d(2),chapter:'2부',onpct:0.35,offpct:0.62},{book:3,date:d(90),chapter:'전체',onpct:0.0,offpct:1.0},{book:4,date:d(1),chapter:'1장',onpct:0.0,offpct:0.13}],
+  Texts:[{book:1,date:d(38),page:60,pct:0.19,text:'떠나는 것들은 늘 한 박자 늦게 돌아본다.',tags:'Favorite,시간'},{book:2,date:d(5),page:90,pct:0.38,text:'느리다는 건 멈췄다는 뜻이 아니라, 깊어진다는 뜻이다.',tags:'Favorite'},{book:3,date:d(80),page:200,pct:0.48,text:'지도는 길을 알려주지 않고 길을 잃을 자유를 준다.',tags:'시간'}],
+  Words:[{book:1,date:d(37),page:50,pct:0.16,word:'무람없다',meaning:'예의를 지키지 않고 버릇없다'},{book:3,date:d(70),page:120,pct:0.28,word:'윤슬',meaning:'햇빛이나 달빛에 비쳐 반짝이는 물결'}]}
 }
 
 /* ---------- 공통 조각 ---------- */
@@ -160,13 +163,13 @@ function det(id){
   const b=bk(id);if(!b.id)return'<p class="empty">Select Book</p>';
   const ser=D.Series.find(s=>s.id==b.series||s.name==b.series);
   const sb=ser?by(D.Books.filter(x=>x.series==b.series),x=>P(x.volume)):[];
-  const L=by(logs(id),l=>dk(l.date)),T=by(D.Texts.filter(t=>t.book==id),t=>P(t.pct)),W=by(D.Words.filter(w=>w.book==id),w=>P(w.pct));
+  const L=by(logs(id),l=>dk(l.date)),T=by(D.Texts.filter(t=>t.book==id),t=>eAt(t)),W=by(D.Words.filter(w=>w.book==id),w=>eAt(w));
   return`<div class="bar"><button class="btn" data-edit="Books:${E(b.id)}">✎ Edit</button><button class="btn" data-add="Logs" data-bk="${E(b.id)}">＋ Log</button><button class="btn" data-add="Texts" data-bk="${E(b.id)}">＋ Text</button><button class="btn" data-add="Words" data-bk="${E(b.id)}">＋ Word</button></div><div class="sc">${cv(b,'lg')}<h2>${E(b.name)}</h2><p class="au">${E(b.author)}</p>
   <table class="kv"><tr><td>Genre<td>${E(b.genre)}<tr><td>Page<td>${E(b.page)}<tr><td>Chars<td>${b.charcount?E(b.charcount)+'만자':''}</table>
   ${pb(prog(id))}<div class="st">${stars(b.star)}</div><p class="cm">${E(b.comment)}</p>
   ${sec('Series · '+E(ser&&ser.name),sb.length>1?sb.map(x=>`<div class="blk" data-b="${x.id}">${cv(x,'sm')}<div><b>${E(x.name)}</b><div class="s">${E(x.comment)}</div><span class="st" style="font-size:12px">${stars(x.star)}</span></div></div>`).join(''):'')}
-  ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${P(l.onpct)}→${P(l.offpct)}%</span><span>+${Math.round(P(l.offpct)-P(l.onpct))}%</span></div>`).join(''))}
-  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${P(t.pct)}% · p.${E(t.page)}</small><br>${E(t.text)}</div>`).join(''))}
+  ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${Math.round(eOn(l))}→${Math.round(eOff(l))}%</span><span>+${Math.round(eOff(l))-Math.round(eOn(l))}%</span></div>`).join(''))}
+  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${Math.round(eAt(t))}% · p.${E(t.page)}</small><br>${E(t.text)}</div>`).join(''))}
   ${sec('Word',W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span></div>`).join(''))}</div>`;
 }
 
@@ -189,7 +192,7 @@ function Log(){
   const y=cal.getFullYear(),m=cal.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
   let c=['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d=>`<b>${d}</b>`).join('')+'<div></div>'.repeat(f);
   for(let d=1;d<=n;d++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    c+=`<div class="dc"><em>${d}</em>${D.Logs.filter(l=>dk(l.date)==ds).map(l=>{const b=bk(l.book);return`<div class="lb" data-b="${b.id}" style="background:${E(b.color1||'#888')};color:${lum(b.color1)}">${E(b.name)} ${P(l.offpct)}%</div>`}).join('')}</div>`}
+    c+=`<div class="dc"><em>${d}</em>${D.Logs.filter(l=>dk(l.date)==ds).map(l=>{const b=bk(l.book);return`<div class="lb" data-b="${b.id}" style="background:${E(b.color1||'#888')};color:${lum(b.color1)}">${E(b.name)} ${Math.round(eOff(l))}%</div>`}).join('')}</div>`}
   return[`<div class="sc"><div style="text-align:center;margin-bottom:8px"><button class="btn" data-m="-1">◀</button> <b>${y} ${MON[m]}</b> <button class="btn" data-m="1">▶</button></div><div class="cal">${c}</div></div>`,det(sel),'Log','Book'];
 }
 function filt(k){
@@ -251,7 +254,7 @@ function openForm(sheet,row,bid){
     if(k=='type')return`<select name="type">${opt(['Author','Genre','Theme'],v,x=>[x,x])}</select>`;
     if(k=='date')return`<input type="date" name="date" value="${dk(v)}">`;
     if(['text','notion'].includes(k))return`<textarea name="${k}" rows="3">${E(v)}</textarea>`;
-    return inp(k,v)};
+    return inp(k,['onpct','offpct','pct'].includes(k)&&v!==''?PC(v):v)};
   const body=sheet=='Books'?bookForm(row):FLD[sheet].split(' ').map(k=>fl(KO[k],f(k))).join('');
   $('#md').innerHTML=`<div class="win"><div class="tb"><span>${isNew?'New':'Edit'} ${SK[sheet]}</span></div><form onsubmit="return false">${body}<div style="margin:14px 0 4px;text-align:right"><button type="button" class="btn" data-cancel>Cancel</button> ${isNew?'':'<button type="button" class="btn" data-del>Delete</button> '}<button type="button" class="btn" data-save><b>Save</b></button></div></form></div>`;
   $('#md').classList.add('on');nameSync();
@@ -270,8 +273,7 @@ async function send(sheet,row,del,quiet){
 function doSave(){
   const r={...cur.row};for(const[k,v]of new FormData($('#md form')).entries())r[k]=v;
   if(cur.sheet=='Books'){if(!String(r.series).trim()){alert('Series is required (it becomes the title)');return}r.volume=r.volume?Math.round(P(r.volume)):'';if(r.star)r.star=Math.min(10,Math.max(1,Math.round(P(r.star))))}
-  if(['Logs','Texts','Words'].includes(cur.sheet)){const pg=P(bk(r.book).page);
-    if(pg)[['onpage','onpct'],['offpage','offpct'],['page','pct']].forEach(([a,b])=>{if(a in r&&b in r&&r[a]!==''&&r[b]==='')r[b]=Math.round(P(r[a])/pg*100)})}
+    ['onpct','offpct','pct'].forEach(k=>{if(k in r)r[k]=r[k]===''?'':Math.round(P(r[k])*100)/10000})
   send(cur.sheet,r);
 }
 function palette(im){
