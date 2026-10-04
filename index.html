@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>BKBK</title>
-<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><meta name="theme-color" content="#3b6a6a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="BKBK"><link rel="icon" href="icon.svg"><meta name="theme-color" content="#3b6a6a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <style>
 :root{--desk:#3b6a6a;--face:#d8d2c2;--paper:#f4eedc;--ink:#25232b;--navy:#24406b;--red:#b5402f;--sh:#7d776a;--dk:#2b2924;--ui:'Gowun Dodum','Malgun Gothic',sans-serif;--se:'Gowun Batang','Batang',serif}
@@ -81,7 +81,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 #md input,#md select,#md textarea{width:100%;font:inherit;padding:3px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
 #md input[type=color]{height:28px;padding:0}
 [data-edit]{cursor:pointer!important}[data-edit]:hover{outline:1px dotted var(--red)}
-@media(max-width:760px){#grid{grid-template-columns:1fr;overflow:auto}.pane{min-height:70vh}}
+@media(max-width:760px){body{padding:4px}#app{height:calc(100vh - 8px);height:calc(100dvh - 8px)}#grid{grid-template-columns:1fr;overflow:auto;padding:4px}.pane{min-height:70vh}#tabs{padding:4px 4px 0;gap:1px}.tab{flex:1;min-width:0;padding:4px 0;font-size:12px;text-align:center}#md{padding:4px;align-items:flex-start}#md .win{max-height:calc(100vh - 8px);max-height:calc(100dvh - 8px)}#md form{padding:6px 8px}#md input,#md select,#md textarea{font-size:16px}.fl{margin-top:4px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:2px dotted var(--red);outline-offset:1px}
 </style></head><body>
@@ -115,7 +115,7 @@ const lum=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return'#fff';con
 
 /* ---------- 데이터 ---------- */
 async function load(){
-  if(!API){D=demo();$('#status').textContent='demo · click ⚙ to connect';return}
+  if(!API){D=demo();$('#status').textContent='demo · click ⚙ to connect';$('#msg').innerHTML='<div class="err">DEMO MODE – nothing is saved. Tap ⚙ and enter your web app URL.</div>';return}
   try{const r=await fetch(API+(API.includes('?')?'&':'?')+'action=all&key='+encodeURIComponent(KEY));D=await r.json();if(D.error)throw new Error(D.error);
     for(const k of['Books','Tags','Series','Logs','Texts','Words'])D[k]=D[k]||[];
     $('#status').textContent='connecting...'}
@@ -212,9 +212,8 @@ function Shelf(){
 const FLD={Logs:'date book chapter onpage offpage onpct offpct',Texts:'date book chapter page pct text notion tags',Words:'date book chapter page pct word meaning',Tags:'name type',Series:'name'};
 const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Position %',text:'Text',notion:'Memo',tags:'Tags (comma separated)',word:'Word',meaning:'Meaning',name:'Name',type:'Type'};
 const SK={Books:'Book',Logs:'Log',Texts:'Text',Words:'Word',Tags:'Tag',Series:'Series'};
-const PFX={Books:'BK',Tags:'TG',Series:'SR',Logs:'LG',Texts:'TX',Words:'WD'};
 const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
-const nid=sh=>{const re=new RegExp('^'+PFX[sh]+'(\\d+)$');return PFX[sh]+String(Math.max(0,...D[sh].map(r=>+((String(r.id).match(re)||[0,0])[1])))+1).padStart(4,'0')};
+const nid=sh=>{const ch='abcdefghijklmnopqrstuvwxyz0123456789';let id;do{id=sh+'_'+Array.from({length:8},()=>ch[Math.floor(Math.random()*36)]).join('')}while(D[sh].some(r=>r.id==id));return id};
 const post=async b=>(await fetch(API,{method:'POST',body:JSON.stringify({...b,key:KEY})})).json();
 const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
 let cur;
@@ -223,17 +222,16 @@ const fl=(l,h)=>`<div class="fl"><span>${l}</span>${h}</div>`;
 const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):tagsOf(k).map(t=>[t.name,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
 const inp=(k,v,x='')=>`<input name="${k}" value="${E(v)}" ${x}>`;
 function bookForm(r){
-  return fl('Cover',`<div class="cvup" id="cvup" style="${r.cover?`background-image:url('${E(img(r.cover))}')`:''}">${r.cover?'':'Click to upload'}</div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}">`)+
-  fl('Name',inp('name',r.name))+
+  const col=`<div class="r2" style="gap:4px">${['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${/^#[0-9a-f]{6}$/i.test(r[k])?r[k]:'#888888'}" style="height:28px;padding:0;min-width:0">`).join('')}</div>`;
+  const cov=`<div class="cvup" id="cvup" style="width:100%;height:146px;${r.cover?`background-image:url('${E(img(r.cover))}')`:''}">${r.cover?'':'Cover'}</div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}">`;
+  return`<div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:none;width:104px">${cov}</div><div style="flex:1;min-width:0">`+
+   fl('Color',col)+fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)+fl('Thickness',`<select name="thick">${opt(['얇음','중간','두꺼움'],tl(r.thick),x=>[x,x])}</select>`)+`</div></div>`+
+  `<div class="r2">${fl('Name',inp('name',r.name,'readonly class="ro" placeholder="auto"'))}${fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)}</div>`+
   `<div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',r.author)}</div>`)}${fl('Genre',`<div class="inl" id="in-genre">${inl('genre',r.genre)}</div>`)}</div>`+
-  fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)+
   `<div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>`+
   `<div class="r2">${fl('Page',inp('page',r.page,'type="number" min="0"'))}${fl('Chars (만자)',inp('charcount',r.charcount,'type="number" min="0" step="0.1"'))}</div>`+
-  fl('Platform',`<select name="platform"><option value="">-</option>${opt(PLAT,r.platform,x=>[x,x])}</select>`)+
-  fl('Star (1–10)',inp('star',r.star,'type="number" min="1" max="10" step="1" style="width:70px"')+` <span id="stp">${stars(r.star)}</span>`)+
-  fl('Comment',`<textarea name="comment" rows="3">${E(r.comment)}</textarea>`)+
-  `<div class="r2">${['color1','color2','color3'].map((k,i)=>fl('Color '+(i+1),`<input type="color" name="${k}" value="${/^#[0-9a-f]{6}$/i.test(r[k])?r[k]:'#888888'}" style="height:28px;padding:0">`)).join('')}</div>`+
-  `<div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thick">${opt(['얇음','중간','두꺼움'],tl(r.thick),x=>[x,x])}</select>`)}</div>`;
+  `<div class="r2">${fl('Platform',`<select name="platform"><option value="">-</option>${opt(PLAT,r.platform,x=>[x,x])}</select>`)}${fl('Star (1–10)',inp('star',r.star,'type="number" min="1" max="10" step="1" style="width:46px"')+` <span id="stp">${stars(r.star)}</span>`)}</div>`+
+  fl('Comment',`<textarea name="comment" rows="2">${E(r.comment)}</textarea>`);
 }
 function openForm(sheet,row,bid){
   const isNew=!row;row=row?{...row}:{};
@@ -251,19 +249,18 @@ function openForm(sheet,row,bid){
 }
 function nameSync(){
   if(!cur||cur.sheet!='Books')return;const e=$('#md form').elements,sid=e.series.value;
-  if(sid){const s=D.Series.find(x=>x.id==sid)||{};e.name.value=`${s.name} [${e.label.value||(e.volume.value?e.volume.value+'권':'')}]`.replace(' []','');e.name.readOnly=true;e.name.classList.add('ro')}
-  else{e.name.readOnly=false;e.name.classList.remove('ro')}
+  e.name.readOnly=true;if(sid){const s=D.Series.find(x=>x.id==sid)||{};e.name.value=`${s.name} [${e.label.value||(e.volume.value?e.volume.value+'권':'')}]`.replace(' []','')}
 }
 function onSeries(){const e=$('#md form').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=cur.row.id).map(b=>P(b.volume)))+1:'';nameSync()}
 async function send(sheet,row,del,quiet){
   if(!row.id)row.id=nid(sheet);
   const a=D[sheet],i=a.findIndex(r=>r.id==row.id);del?(i>=0&&a.splice(i,1)):i>=0?(a[i]=row):a.push(row);
-  if(API){$('#status').textContent='saving…';try{const j=await post({sheet,row,del});if(j.ok===false)throw new Error(j.error);$('#status').textContent='connecting...'}catch(e){$('#msg').innerHTML='<div class="err">Save failed: '+E(e.message)+'</div>'}}
+  if(API){$('#status').textContent='saving…';try{const j=await post({sheet,row,del});if(j.ok===false)throw new Error(j.error);$('#status').textContent='saved ✓';setTimeout(()=>$('#status').textContent='connecting...',1500)}catch(e){$('#status').textContent='save failed';$('#msg').innerHTML='<div class="err">Save failed ('+E(e.message)+'). Not written to the sheet. Check the web app URL, deployment access (Anyone) and that you redeployed a new version.</div>'}}
   if(!quiet){$('#md').classList.remove('on');render()}
 }
 function doSave(){
   const r={...cur.row};for(const[k,v]of new FormData($('#md form')).entries())r[k]=v;
-  if(cur.sheet=='Books'){if(!String(r.name).trim()){alert('Name is required');return}r.volume=r.volume?Math.round(P(r.volume)):'';if(r.star)r.star=Math.min(10,Math.max(1,Math.round(P(r.star))))}
+  if(cur.sheet=='Books'){if(!String(r.series).trim()){alert('Series is required (it becomes the title)');return}r.volume=r.volume?Math.round(P(r.volume)):'';if(r.star)r.star=Math.min(10,Math.max(1,Math.round(P(r.star))))}
   if(['Logs','Texts','Words'].includes(cur.sheet)){const pg=P(bk(r.book).page);
     if(pg)[['onpage','onpct'],['offpage','offpct'],['page','pct']].forEach(([a,b])=>{if(a in r&&b in r&&r[a]!==''&&r[b]==='')r[b]=Math.round(P(r[a])/pg*100)})}
   send(cur.sheet,r);
@@ -327,4 +324,5 @@ document.addEventListener('click',async e=>{
   render();
 });
 load().then(render);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
