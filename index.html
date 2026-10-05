@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>BKBK</title>
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="BKBK"><link rel="icon" href="icon.svg"><meta name="theme-color" content="#3b6a6a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Noto+Sans+KR&family=Nanum+Myeongjo&family=IBM+Plex+Sans+KR&family=Gaegu&display=swap" rel="stylesheet">
 <style>
 /* 폰트 파일을 쓰려면: fonts 폴더에 파일을 넣고 아래 주석을 풀어 이름/경로를 맞춘 뒤, :root의 --ui/--se 앞에 'MyFont'를 추가
 @font-face{font-family:'MyFont';src:url('fonts/MyFont.woff2') format('woff2');font-display:swap}
@@ -31,19 +31,19 @@ h3:first-child{margin-top:0}
 h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .empty{color:var(--sh);padding:20px;text-align:center}
 .cv{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font:700 10px/1.2 var(--se);overflow:hidden;border:1px solid var(--dk);box-shadow:2px 2px 0 #0003;flex:none;padding:2px}
-.cv.sm{width:40px;height:56px}.cv.lg{width:96px;height:136px;font-size:13px;margin:0}
+.cv.sm{width:30px;height:42px}.cv.lg{width:96px;height:136px;font-size:13px;margin:0}
 .cv img,.ci{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.it{display:flex;gap:10px;padding:6px;cursor:pointer;border:1px solid transparent}
+.it{display:flex;gap:8px;padding:3px 6px;cursor:pointer;border:1px solid transparent}
 .it:hover{border:1px dotted var(--ink)}.it.on{background:var(--navy);color:#fff}
-.it .t{font-weight:700}.it .s{font-size:12px;opacity:.8}.it>div:last-child{flex:1;min-width:0}
+.it .t{font-weight:700;font-size:13px}.it .s{font-size:11px;opacity:.8}.it>div:last-child{flex:1;min-width:0}
 .au{text-align:center;color:var(--sh)}.st{color:var(--red);letter-spacing:2px;font-size:16px}
 .cm{font-family:var(--se);margin-top:6px}
 .blk{display:flex;gap:8px;padding:6px;margin:4px 0;background:#fff8;border:1px solid var(--sh);cursor:pointer}
 .blk.q{display:block;font-family:var(--se);border-left:4px solid var(--red);cursor:default}
 .ln{display:flex;gap:8px;padding:1px 6px;margin:2px 0;background:#fff8;border:1px solid #bdb59f;font-size:12px;cursor:default}
 .ln b{flex:none;min-width:70px}.ln span:nth-child(2){flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.stat{padding:14px 16px;font-family:var(--se);display:flex;gap:18px;flex-wrap:wrap;background:#fffbe9}
-.stat div{text-align:center}.stat strong{display:block;font-size:26px;color:var(--red)}
+.stat{padding:12px 16px;font-family:var(--se);line-height:1.8}
+.stat div{font-size:15px}.stat strong{font-size:22px;color:var(--red)}
 .card{display:flex;flex-direction:column;position:relative;aspect-ratio:1;background-color:var(--c);border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:2px 2px 0 #0003;min-width:0}
 .ov{position:relative;flex:1;background:rgba(244,238,220,.86);padding:14px;display:flex;flex-direction:column;justify-content:space-between}
 .ov p{font:15px/1.6 var(--se)}.ov small{margin-top:10px}.ov small{color:var(--sh);font-size:12px}
@@ -65,21 +65,29 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .board::after{content:'';position:absolute;left:-4px;right:-4px;top:100%;height:12px;background:linear-gradient(#f0d9ad,#d2a972 55%,#b98d5a);border-radius:0 0 4px 4px;box-shadow:0 3px 0 #0001,inset 0 1px 0 #fff8}
 .sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%;transition:transform .12s}
 .sp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(255,255,255,.15) 20%,transparent 50%,rgba(0,0,0,.22))}
-.sp:hover{transform:scale(1.06);z-index:2}.sp.on{transform:scale(1.04);z-index:1}
+.sp:hover,.sp.hit{transform:scale(1.06);z-index:2}.sp.on{transform:scale(1.04);z-index:1}
 .pbw{display:flex;align-items:center;gap:8px;margin:4px 0;flex:1;min-width:0}
-.pb{display:flex;gap:2px;flex:1;height:14px;padding:2px;background:#fff;border:2px solid;border-color:var(--dk) #fff #fff var(--dk)}
+.pb{display:flex;gap:1px;flex:1;height:20px;padding:2px;background:#fff;border:2px solid;border-color:var(--dk) #fff #fff var(--dk)}
+.it .pb{height:12px;padding:1px;border-width:1px}.it .pbw{margin:1px 0}.it .pbw b{font-size:11px;min-width:30px}
 .pb i{flex:1;background:#e6e0cf}.pbw b{font:400 12px var(--ui);min-width:34px;text-align:right}.it.on .pbw b{color:#fff}
 .dh{display:flex;gap:12px;align-items:flex-start}.di{flex:1;min-width:0}
 .nm{font:700 17px/1.3 var(--se);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pr{display:flex;gap:10px;font-size:13px;margin-top:4px;min-height:1.4em}.pr>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prg{display:flex;align-items:center;gap:10px;margin-top:12px}.prg>strong{font-size:13px;flex:none}
-.sc2{width:100%;margin-top:10px;border-collapse:collapse}.sc2 td{vertical-align:top;padding:4px 6px;border:1px solid #bdb59f}.sc2 td:first-child{width:104px;white-space:nowrap}
+.di .prg{margin-top:8px}.prg .s{display:block;color:var(--sh);font-size:12px}.di>.fl:first-child{margin-top:0}
+
 .ell{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
 .hp{display:flex;justify-content:space-between;align-items:center}.hp span{font-weight:400}
 .bd{position:absolute;left:3px;right:3px;top:18px;bottom:16px;display:flex;flex-direction:column}
 .pl{flex:1;min-height:0;overflow:hidden;display:flex;justify-content:center}
 .pl b{flex:none;display:block;height:112%;margin-top:3px;writing-mode:vertical-rl;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 11px/1.15 var(--se);transform:scaleY(.85);transform-origin:50% 0}
 .vq{flex:none;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font:700 10px var(--ui);font-style:normal;overflow:hidden}
+.vq span{display:block;white-space:nowrap;transform:scaleX(.78)}
+.sh-q .sp:not(.hit){opacity:.45}
+.xs{position:absolute;left:50%;top:8px;bottom:calc(25% + 6px);transform:translateX(-50%);writing-mode:vertical-rl;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 9px/1 var(--se)}
+.xb{position:absolute;left:0;right:0;bottom:0;height:25%}
+.bar input{font:inherit;padding:3px 6px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff;min-width:0}
+.fprev{margin-top:10px;padding:10px;border:1px dashed var(--sh);font:16px/1.6 var(--se)}
+.chips{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
 .upl{background:#fffd;padding:2px 4px;font-size:11px;color:var(--ink)}
 .btn:disabled{cursor:wait}
 .mb,.mo{display:none}.mb{margin-right:8px;font-size:12px}
@@ -96,10 +104,10 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 #md{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:9;padding:10px}
 #md.on{display:flex}#md .win{width:min(480px,100%);max-height:90vh}#md form{padding:10px;overflow:auto}
 #md label{display:block;font-size:12px;margin-top:6px}
-#md input,#md select,#md textarea{width:100%;font:inherit;padding:3px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
-#md input[type=color]{height:28px;padding:0}
+#md input,#md select,#md textarea,.fl input,.fl select,.fl textarea{width:100%;font:inherit;padding:3px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
+#md input[type=color],.fl input[type=color]{height:28px;padding:0}
 [data-edit]{cursor:pointer!important}[data-edit]:hover{outline:1px dotted var(--red)}
-@media(max-width:760px){body{padding:4px}#app{height:calc(100vh - 8px);height:calc(100dvh - 8px)}#grid{grid-template-columns:1fr;overflow:auto;padding:4px}#grid[data-v=L] .pane:nth-child(2){display:none}#grid[data-v=R] .pane:nth-child(1){display:none}.mb,.mo{display:inline-block!important}.bar.mo{display:flex!important}#tabs{padding:4px 4px 0;gap:1px}.tab{flex:1;min-width:0;padding:4px 0;font-size:12px;text-align:center}#md{padding:4px;align-items:flex-start}#md .win{max-height:calc(100vh - 8px);max-height:calc(100dvh - 8px)}#md form{padding:6px 8px}#md input,#md select,#md textarea{font-size:16px}.fl{margin-top:4px}}
+@media(max-width:760px){body{padding:4px}#app{height:calc(100vh - 8px);height:calc(100dvh - 8px)}#grid{grid-template-columns:1fr;overflow:auto;padding:4px}#grid[data-v=L] .pane:nth-child(2){display:none}#grid[data-v=R] .pane:nth-child(1){display:none}.mb,.mo{display:inline-block!important}.bar.mo{display:flex!important}#tabs{padding:4px 4px 0;gap:1px}.tab{flex:1;min-width:0;padding:4px 0;font-size:12px;text-align:center}#md{padding:4px;align-items:flex-start}#md .win{max-height:calc(100vh - 8px);max-height:calc(100dvh - 8px)}#md form{padding:6px 8px}#md input,#md select,#md textarea,.fl input,.fl select,.fl textarea,.bar input{font-size:16px}.fl{margin-top:4px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:2px dotted var(--red);outline-offset:1px}
 </style></head><body>
@@ -119,7 +127,7 @@ const API=LS('bkbk_api'),KEY=LS('bkbk_key');
 
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TABS=['Main','Book','Log','Text','Word','Shelf'];
-let view='L',D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null;
+let view='L',D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null,cfg=false,shq='';
 const P=v=>parseFloat(v)||0,PC=v=>Math.round(P(v)*10000)/100,DP=v=>Math.round(P(v)*100),dk=d=>String(d||'').slice(0,10);
 const by=(a,f,r)=>[...a].sort((x,y)=>(f(x)>f(y)?1:f(x)<f(y)?-1:0)*(r?-1:1));
 const has=v=>v!==''&&v!=null,bpg=o=>P((D.Books.find(b=>b.id==o.book)||{}).page);
@@ -171,48 +179,65 @@ function hydrate(){document.querySelectorAll('img[data-u]:not([src])').forEach(i
 const IM=(c,x='',w=600)=>{const u=img(c,w),v=IC.get(u);return`<img ${x} data-u="${E(u)}" ${v&&v!=='bad'?`src="${E(v)}"`:''} alt="">`};
 const cv=(b,c='')=>`<div class="cv ${c}" data-t="${E(b.name)}" style="background:${E(b.color1||'#8a7f6a')}">${E(b.name)}${b.cover?IM(b.cover,'',c=='lg'?400:240):''}</div>`;
 const hx=v=>{v=String(v||'').trim().replace('#','');if(/^[0-9a-f]{3}$/i.test(v))v=v.replace(/./g,'$&$&');return/^[0-9a-f]{6}$/i.test(v)?'#'+v:'#888888'};
-const GR=(()=>{const a=[[232,195,90],[217,118,58],[181,64,47]];return Array.from({length:10},(_,i)=>{const t=i/9*2,k=Math.min(1,Math.floor(t)),f=t-k,A=a[k],B=a[k+1];return'#'+A.map((v,j)=>Math.round(v+(B[j]-v)*f).toString(16).padStart(2,'0')).join('')})})();
-const pb=p=>{p=Math.min(100,Math.round(p));const n=p>0?Math.max(1,Math.round(p/10)):0;return`<span class="pbw"><span class="pb">${GR.map((c,i)=>`<i${i<n?` style="background:${c}"`:''}></i>`).join('')}</span><b>${p}%</b></span>`};
+const GR=(()=>{const S=[[54,100,72],[217,100,58],[335,100,62]];return Array.from({length:20},(_,i)=>{const t=i/19*2,k=Math.min(1,Math.floor(t)),f=t-k,A=S[k],B=S[k+1];return`hsl(${Math.round(A[0]+(B[0]-A[0])*f)} ${A[1]}% ${Math.round(A[2]+(B[2]-A[2])*f)}%)`})})();
+const pb=p=>{p=Math.min(100,Math.round(p));const n=p>0?Math.max(1,Math.round(p/5)):0;return`<span class="pbw"><span class="pb">${GR.map((c,i)=>`<i${i<n?` style="background:${c}"`:''}></i>`).join('')}</span><b>${p}%</b></span>`};
+
 const SP='M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z',MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const stars=n=>{n=P(n)/2;return'<span style="white-space:nowrap">'+[0,1,2,3,4].map(i=>{const f=Math.max(0,Math.min(1,n-i));return`<svg class="sr" viewBox="0 0 24 24"><path class="bg" d="${SP}"/><path class="fg" d="${SP}" style="clip-path:inset(0 ${100-f*100}% 0 0)"/></svg>`}).join('')+'</span>'};
-const HL={낮음:17,중간:21,높음:25},TL={얇음:1.5,중간:2.5,두꺼움:3.5};
+const HL={낮음:17,중간:21,높음:25},TL={'아주 얇음':.8,얇음:1.5,중간:2.5,두꺼움:3.5};
 const hv=b=>HL[b.height]||P(b.height)||21,tv=b=>TL[b.thick]||P(b.thick)||2.5;
-const hl=v=>HL[v]?v:P(v)<19?'낮음':P(v)<23?'중간':'높음',tl=v=>TL[v]?v:P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
+const hl=v=>HL[v]?v:!has(v)?'중간':P(v)<19?'낮음':P(v)<23?'중간':'높음',tl=v=>TL[v]?v:!has(v)?'중간':P(v)<1?'아주 얇음':P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
 const lv=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return 128;const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11};
-const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t">${E(b.name)}</div><div class="s">${E(b.author)}</div>${pb(prog(b.id))}</div></div>`;
+const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t ell">${E(b.name)}</div><div class="s ell">${E(b.author)}</div>${pb(prog(b.id))}</div></div>`;
+const pp=t=>{const a=[];if(has(t.page))a.push('p '+t.page);if(has(t.pct)||(has(t.page)&&bpg(t)))a.push(Math.round(eAt(t))+'%');return a.join(' / ')};
 const card=(b,main,sub,cls='',ed='')=>`<div class="card" ${ed?`data-edit="${ed}"`:''} style="--c:${E(b.color1||'#8a7f6a')}">${b.cover?IM(b.cover,'class="ci"'):''}<div class="ov"><p class="${cls}">${main}</p><small>${sub}</small></div></div>`;
 const sec=(t,h)=>h?`<h3>${t}</h3>${h}`:'';
 
-function det(id){
+function det(id){return cfg?settingsHtml():ed?bookEdit():bookView(id)}
+function bookView(id){
   const b=bk(id);if(!b.id)return'<p class="empty">Select Book</p>';
   const ser=D.Series.find(s=>s.id==b.series||s.name==b.series);
   const sb=ser?by(D.Books.filter(x=>x.series==b.series),x=>P(x.volume)):[];
   const L=by(logs(id),l=>dk(l.date)),T=by(D.Texts.filter(t=>t.book==id),t=>eAt(t)),W=by(D.Words.filter(w=>w.book==id),w=>eAt(w));
-  return`<div class="bar"><button class="btn" data-edit="Books:${E(b.id)}">✎ Edit</button><button class="btn" data-add="Logs" data-bk="${E(b.id)}">＋ Log</button><button class="btn" data-add="Texts" data-bk="${E(b.id)}">＋ Text</button><button class="btn" data-add="Words" data-bk="${E(b.id)}">＋ Word</button></div><div class="sc"><div class="dh">${cv(b,'lg')}<div class="di"><div class="nm" title="${E(b.name)}">${E(b.name)}</div><div class="pr"><span>${E(b.author)}</span><span>${E(b.genre)}</span></div><div class="pr"><span>${b.page?'p.'+E(b.page):''}</span><span>${b.charcount?E(b.charcount)+'만자':''}</span></div></div></div>
-  <div class="prg"><strong>Progress</strong>${pb(prog(id))}</div>
-  <table class="sc2"><tr><td>${stars(b.star)}</td><td class="cm">${E(b.comment)}</td></tr></table>
+  return`<div class="bar"><button class="btn" data-bedit="${E(b.id)}">✎ Edit</button><button class="btn" data-add="Logs" data-bk="${E(b.id)}">＋ Log</button><button class="btn" data-add="Texts" data-bk="${E(b.id)}">＋ Text</button><button class="btn" data-add="Words" data-bk="${E(b.id)}">＋ Word</button></div><div class="sc"><div class="dh">${cv(b,'lg')}<div class="di"><div class="nm" title="${E(b.name)}">${E(b.name)}</div><div class="pr"><span>${E(b.author)}</span><span>${E(b.genre)}</span></div><div class="pr"><span>${b.page?'p.'+E(b.page):''}</span><span>${b.charcount?E(b.charcount)+'만자':''}</span></div><div class="prg"><span class="s">Progress</span>${pb(prog(id))}</div></div></div>
+  <p class="cm">${stars(b.star)} ${E(b.comment)}</p>
   ${sec('Series · '+E(ser&&ser.name),sb.length>1?sb.map(x=>`<div class="blk" data-b="${x.id}">${cv(x,'sm')}<div style="flex:1;min-width:0"><b class="ell">${E(x.name)}</b><div style="display:flex;gap:8px;align-items:center"><span class="st">${stars(x.star)}</span><span class="ell s" style="flex:1">${E(x.comment)}</span></div></div></div>`).join(''):'')}
-  ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${Math.round(eOn(l))}→${Math.round(eOff(l))}%</span><span>+${Math.round(eOff(l))-Math.round(eOn(l))}%</span></div>`).join(''))}
-  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${Math.round(eAt(t))}% · p.${E(t.page)}</small><br>${E(t.text)}</div>`).join(''))}
+  ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${Math.round(eOn(l))}~${Math.round(eOff(l))}%</span><span>+${Math.round(eOff(l))-Math.round(eOn(l))}%</span></div>`).join(''))}
+  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}">${pp(t)?`<small>${pp(t)}</small><br>`:''}${E(t.text)}</div>`).join(''))}
   ${sec('Word',W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span></div>`).join(''))}</div>`;
+}
+function bookEdit(){
+  const r=ed.row,col=['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${hx(r[k])}" style="height:28px;padding:0;min-width:0">`).join('');
+  return`<div class="bar"><button class="btn" data-bsave><b>Save</b></button><button class="btn" data-bcancel>Cancel</button>${ed.isNew?'':'<button class="btn" data-bdel>Delete</button>'}</div>
+  <form id="bf" onsubmit="return false"><div class="sc"><div class="dh"><div class="cvup" id="cvup" style="width:96px;height:136px;margin:0;flex:none;${r.cover?`background-image:url('${E(img(r.cover,400))}')`:''}">${r.cover?'':'Cover +'}</div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}">
+  <div class="di">${fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)}
+  <div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>
+  <div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',r.author)}</div>`)}${fl('Genre',`<div class="inl" id="in-genre">${inl('genre',r.genre)}</div>`)}</div>
+  <div class="r2">${fl('Page',inp('page',r.page,'type="number" min="0"'))}${fl('Chars',inp('charcount',r.charcount,'type="number" min="0" step="0.1" placeholder="만자 단위"'))}</div></div></div>
+  <div class="s" id="bnm" style="margin-top:6px;min-height:1.2em"></div>
+  ${fl('Color',`<div class="r2" style="gap:6px">${col}</div>`)}
+  <div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thick">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thick),x=>[x,x])}</select>`)}</div>
+  <div class="r2">${fl('Platform',`<select name="platform"><option value="">-</option>${opt(PLAT,r.platform,x=>[x,x])}</select>`)}${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="0" max="10" step="1" value="${r.star||0}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div>
+  ${fl('Comment',`<textarea name="comment" rows="3">${E(r.comment)}</textarea>`)}</div></form>`;
 }
 
 /* ---------- 탭 ---------- */
 function Main(){
-  const B=D.Books,fb=B.filter(b=>fin(b.id)),y=String(new Date().getFullYear()),m=new Date().toISOString().slice(0,7);
-  const st=`<div class="stat"><div><strong>${fb.length}</strong>Total</div><div><strong>${fb.filter(b=>finD(b.id).startsWith(y)).length}</strong>Year</div><div><strong>${fb.filter(b=>finD(b.id).startsWith(m)).length}</strong>Month</div></div>`;
+  const fb=D.Books.filter(b=>fin(b.id)),y=String(new Date().getFullYear()),m=new Date().toISOString().slice(0,7);
+  const L=(n,t)=>`<div><strong>${n}</strong> ${n==1?'book':'books'} read ${t}.</div>`;
+  const st=`<div class="stat">${L(fb.length,'in total')}${L(fb.filter(b=>finD(b.id).startsWith(y)).length,'this year')}${L(fb.filter(b=>finD(b.id).startsWith(m)).length,'this month')}</div>`;
   const f=D.Texts.filter(t=>split(t.tags).includes('Favorite'));
   if(fav==null||!f[fav])fav=f.length?Math.floor(Math.random()*f.length):null;
   const t=f[fav],b=t?bk(t.book):{};
-  const c=t?`<div class="main">${card(b,E(t.text),E(b.name)+' · p.'+E(t.page))}<div style="text-align:center"><button class="btn" data-roll>Shuffle</button></div></div>`:'<p class="empty">Empty</p>';
+  const c=t?`<div class="main">${card(b,E(t.text),E(b.name)+(pp(t)?' · '+pp(t):''))}<div style="text-align:center"><button class="btn" data-roll>Shuffle</button></div></div>`:'<p class="empty">Empty</p>';
   return[st+`<div class="sc">${c}</div>`,'','Main','Memo'];
 }
 let pgAll=0;
 function Book(){
-  const now=Date.now(),rec=by(D.Books.filter(b=>!fin(b.id)&&lastD(b.id)&&now-new Date(lastD(b.id))<=31*864e5),b=>lastD(b.id));
   const all=[...by(D.Books.filter(b=>fin(b.id)),b=>finD(b.id),1),...D.Books.filter(b=>!fin(b.id))];
+  const rec=by(D.Books.filter(b=>!fin(b.id)&&lastD(b.id)),b=>lastD(b.id),1).slice(0,3).reverse();
   const np=Math.max(1,Math.ceil(all.length/5));pgAll=Math.max(0,Math.min(pgAll,np-1));
-  return[`<div class="bar"><button class="btn" data-add="Books">＋ New Book</button></div><div class="half"><h3>Recent</h3>${rec.map(row).join('')||'<p class="empty">Empty</p>'}</div><div class="half"><h3 class="hp">All<span><button class="btn" data-pg="-1">◀</button> ${pgAll+1}/${np} <button class="btn" data-pg="1">▶</button></span></h3>${all.slice(pgAll*5,pgAll*5+5).map(row).join('')}</div>`,det(sel),'Book','Book'];
+  return[`<div class="bar"><button class="btn" data-bnew>＋ New Book</button></div><div class="sc" style="padding-top:2px"><h3 class="hp">All<span><button class="btn" data-pg="-1">◀</button> ${pgAll+1}/${np} <button class="btn" data-pg="1">▶</button></span></h3>${all.slice(pgAll*5,pgAll*5+5).map(row).join('')}<h3>Recent</h3>${rec.map(row).join('')||'<p class="empty">Empty</p>'}</div>`,det(sel),'Book','Book'];
 }
 function Log(){
   const y=cal.getFullYear(),m=cal.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
@@ -221,91 +246,99 @@ function Log(){
     c+=`<div class="dc"><em>${d}</em>${D.Logs.filter(l=>dk(l.date)==ds).map(l=>{const b=bk(l.book);return`<div class="lb" data-b="${b.id}" style="background:${E(b.color1||'#888')};color:${lum(b.color1)}">${E(b.name)} ${Math.round(eOff(l))}%</div>`}).join('')}</div>`}
   return[`<div class="sc"><div style="text-align:center;margin-bottom:8px"><button class="btn" data-m="-1">◀</button> <b>${y} ${MON[m]}</b> <button class="btn" data-m="1">▶</button></div><div class="cal">${c}</div></div>`,det(sel),'Log','Book'];
 }
-function filt(k,n){
+function fscope(k){
   const src=k=='Text'?D.Texts:D.Words,ids=new Set(src.map(x=>String(x.book))),B=D.Books.filter(b=>ids.has(String(b.id)));
-  const ty={};D.Tags.forEach(t=>ty[t.name]=String(t.type).toLowerCase());
-  const au=[...new Set(B.map(b=>b.author).filter(Boolean))],ge=[...new Set(B.flatMap(b=>split(b.genre)))];
-  const th=k=='Text'?[...new Set(D.Texts.flatMap(t=>split(t.tags)))].filter(n=>ty[n]!='author'&&ty[n]!='genre'):[];
-  const sg=[...F.t].filter(n=>ge.includes(n)),sa=[...F.t].filter(n=>au.includes(n));
-  const Bf=sg.length||sa.length?B.filter(b=>split(b.genre).some(g=>sg.includes(g))||sa.includes(b.author)):B;
-  const hs=h=>`<div class="hs">${h}</div>`,chip=n=>`<button class="chip ${F.t.has(n)?'on':''}" data-ft="${E(n)}">${E(n)}</button>`,blk=(t,a)=>a.length?`<h3>${t}</h3>${hs(a.map(chip).join(''))}`:'';
-  return`<div class="bar mo"><button class="btn" data-go>Results (${n}) ▶</button></div><div class="sc">${blk('Genre',ge)}${blk('Author',au)}<h3>Book</h3>${Bf.length?hs(Bf.map(b=>`<div class="th ${F.b.has(String(b.id))?'on':''}" data-fb="${b.id}" title="${E(b.name)}">${cv(b)}</div>`).join('')):'<p class="empty">Empty</p>'}${blk('Theme',th)}<p style="margin-top:12px"><button class="btn" data-clr>Clear</button></p></div>`;
+  const au=[...new Set(B.map(b=>b.author).filter(Boolean))],ge=[...new Set(B.flatMap(b=>split(b.genre)))],th=k=='Text'?tagsOf('theme').map(t=>t.name):[];
+  const sl=[...F.t],sg=sl.filter(n=>ge.includes(n)),sa=sl.filter(n=>au.includes(n)),st=sl.filter(n=>th.includes(n));
+  const Bf=B.filter(b=>(!sg.length||split(b.genre).some(g=>sg.includes(g)))&&(!sa.length||sa.includes(b.author)));
+  const sb=Bf.filter(b=>F.b.has(String(b.id)));
+  return{au,ge,th,st,Bf,scope:new Set((sb.length?sb:Bf).map(b=>String(b.id)))};
 }
-const hit=(bid,tags)=>{if(!F.b.size&&!F.t.size)return true;const b=bk(bid),tg=split(tags);
-  return F.b.has(String(bid))||[...F.t].some(n=>tg.includes(n)||b.author==n||split(b.genre).includes(n))};
+function filt(S,n){
+  const hs=h=>`<div class="hs">${h}</div>`,chip=x=>`<button class="chip ${F.t.has(x)?'on':''}" data-ft="${E(x)}">${E(x)}</button>`,blk=(t,a)=>a.length?`<h3>${t}</h3>${hs(a.map(chip).join(''))}`:'';
+  return`<div class="bar mo"><button class="btn" data-go>Results (${n}) ▶</button></div><div class="sc">${blk('Genre',S.ge)}${blk('Author',S.au)}<h3>Book</h3>${S.Bf.length?hs(S.Bf.map(b=>`<div class="th ${F.b.has(String(b.id))?'on':''}" data-fb="${b.id}" title="${E(b.name)}">${cv(b)}</div>`).join('')):'<p class="empty">Empty</p>'}${blk('Theme',S.th)}<p style="margin-top:12px"><button class="btn" data-clr>Clear</button></p></div>`;
+}
 function Text(){
-  const T=by(D.Texts.filter(t=>hit(t.book,t.tags)),t=>dk(t.date),1);
-  return[filt('Text',T.length),`<div class="sc">${T.map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)} · ${Math.round(eAt(t))}% · p.${E(t.page)}</small><br>${E(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Text'];
+  const S=fscope('Text'),T=by(D.Texts.filter(t=>S.scope.has(String(t.book))&&(!S.st.length||split(t.tags).some(n=>S.st.includes(n)))),t=>dk(t.date),1);
+  return[filt(S,T.length),`<div class="sc">${T.map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${E(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Text'];
 }
 function Word(){
-  const W=by(D.Words.filter(w=>hit(w.book,'')),w=>dk(w.date),1);
-  return[filt('Word',W.length),`<div class="sc">${W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${E(bk(w.book).name)}</span></div>`).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Word'];
+  const S=fscope('Word'),W=by(D.Words.filter(w=>S.scope.has(String(w.book))),w=>dk(w.date),1);
+  return[filt(S,W.length),`<div class="sc">${W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${E(bk(w.book).name)}</span></div>`).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Word'];
 }
 function Shelf(){
-  const W=Math.max(280,($('#L').clientWidth||600)-60),k=8,bw=b=>Math.max(20,tv(b)*9);let rows=[],r=[],w=0;
+  const W=Math.max(280,($('#L').clientWidth||600)-60),k=8,bw=b=>b.thick=='아주 얇음'?10:Math.max(20,tv(b)*9);let rows=[],r=[],w=0;
   D.Books.forEach(b=>{if(w+bw(b)>W&&r.length){rows.push(r);r=[];w=0}r.push(b);w+=bw(b)});r.length&&rows.push(r);
-  const sp=b=>{const w=bw(b),sr=D.Series.find(s=>s.id==b.series||s.name==b.series),c2=b.color2||'#ddd',c3=b.color3||'#fff',v=String(b.label||b.volume||'').trim();
-    return`<div class="sp ${sel==b.id?'on':''}" data-b="${b.id}" title="${E(b.name)}" style="width:${w}px;height:${Math.max(80,hv(b)*k)}px;background:${E(b.color1||'#888')}"><div class="bd"><span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(sr?sr.name:b.name)}</b></span><em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.max(8,Math.min(11,w-12))}px">${E(v)}</em></div></div>`};
-  return[`<div class="sc">${rows.map(r=>`<div class="row"><div class="board">${r.map(sp).join('')}</div></div>`).join('')}</div>`,det(sel),'Shelf','Book'];
+  const sp=b=>{const w=bw(b),sr=D.Series.find(s=>s.id==b.series||s.name==b.series),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||b.volume||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.max(80,hv(b)*k);
+    const s=E(`${b.name} ${t} ${b.author} ${b.genre} ${b.label||''}`.toLowerCase()),a=`class="sp${b.thick=='아주 얇음'?' xt':''}${sel==b.id?' on':''}" data-b="${b.id}" data-s="${s}" title="${E(b.name)}" style="width:${w}px;height:${h}px;background:${E(c1)}"`;
+    if(b.thick=='아주 얇음')return`<div ${a}><b class="xs" style="color:${E(c3)}">${E(t)}</b><i class="xb" style="background:${E(c2)}"></i></div>`;
+    return`<div ${a}><div class="bd"><span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span><em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${E(v)}</span></em></div></div>`};
+  return[`<div class="bar"><input id="sq" placeholder="Search title, author, genre…" value="${E(shq)}" style="flex:1" autocomplete="off"></div><div class="sc">${rows.map(r=>`<div class="row"><div class="board">${r.map(sp).join('')}</div></div>`).join('')}</div>`,det(sel),'Shelf','Book'];
 }
 
-/* ---------- 추가/수정 폼 ---------- */
+
+/* ---------- 폼 / 편집 ---------- */
 const FLD={Logs:'date book chapter onpage offpage onpct offpct',Texts:'date book chapter page pct text notion tags',Words:'date book chapter page pct word meaning',Tags:'name type',Series:'name'};
-const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Position %',text:'Text',notion:'Memo',tags:'Tags (comma separated)',word:'Word',meaning:'Meaning',name:'Name',type:'Type'};
+const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',meaning:'Meaning',name:'Name',type:'Type'};
 const SK={Books:'Book',Logs:'Log',Texts:'Text',Words:'Word',Tags:'Tag',Series:'Series'};
 const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
 const nid=sh=>{const ch='abcdefghijklmnopqrstuvwxyz0123456789';let id;do{id=sh+'_'+Array.from({length:8},()=>ch[Math.floor(Math.random()*36)]).join('')}while(D[sh].some(r=>r.id==id));return id};
 const post=async b=>(await fetch(API,{method:'POST',body:JSON.stringify({...b,key:KEY})})).json();
 const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
-let cur;
+let cur,ed=null,up=0;
 const opt=(a,v,f)=>a.map(x=>{const[i,n]=f(x);return`<option value="${E(i)}" ${i==v?'selected':''}>${E(n)}</option>`}).join('');
 const fl=(l,h)=>`<div class="fl"><span>${l}</span>${h}</div>`;
 const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):tagsOf(k).map(t=>[t.name,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
 const inp=(k,v,x='')=>`<input name="${k}" value="${E(v)}" ${x}>`;
-function bookForm(r){
-  const col=`<div class="r2" style="gap:4px">${['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${hx(r[k])}" style="height:28px;padding:0;min-width:0">`).join('')}</div>`;
-  const cov=`<div style="flex:none;width:78px;display:flex;flex-direction:column"><div class="fl" style="display:flex;flex-direction:column;flex:1"><span>Cover</span><div class="cvup" id="cvup" style="flex:1;width:100%;height:auto;min-height:70px;margin:0;${r.cover?`background-image:url('${E(img(r.cover,400))}')`:''}">${r.cover?'':'+'}</div></div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}"></div>`;
-  return`<div style="display:flex;gap:10px;align-items:stretch">${cov}<div style="flex:1;min-width:0">`+fl('Color',col)+
-   `<div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thick">${opt(['얇음','중간','두꺼움'],tl(r.thick),x=>[x,x])}</select>`)}</div></div></div>`+
-  `<div class="r2">${fl('Name','<input id="bn" class="ro" readonly placeholder="auto" value="'+E(r.name)+'">')}${fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)}</div>`+
-  `<div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',r.author)}</div>`)}${fl('Genre',`<div class="inl" id="in-genre">${inl('genre',r.genre)}</div>`)}</div>`+
-  `<div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>`+
-  `<div class="r2">${fl('Page',inp('page',r.page,'type="number" min="0"'))}${fl('Chars',inp('charcount',r.charcount,'type="number" min="0" step="0.1" placeholder="만자 단위"'))}</div>`+
-  `<div class="r2">${fl('Platform',`<select name="platform"><option value="">-</option>${opt(PLAT,r.platform,x=>[x,x])}</select>`)}${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="1" max="10" step="1" value="${r.star||7}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div>`+
-  fl('Comment',`<textarea name="comment" rows="2">${E(r.comment)}</textarea>`);
-}
+const thmBox=sel=>{const S=new Set(sel);return`<div id="thbox" class="chips">${tagsOf('theme').map(t=>`<button type="button" class="chip ${S.has(t.name)?'on':''}" data-tt="${E(t.name)}">${E(t.name)}</button>`).join('')}<span id="in-theme"><button type="button" class="btn" data-ia="theme">+</button></span></div><input type="hidden" name="tags" value="${E([...S].join(','))}">`};
+/* Log / Text / Word 입력은 팝업 */
 function openForm(sheet,row,bid){
-  const isNew=!row;row=row?{...row}:{};
-  if(isNew)row=sheet=='Books'?{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:7}:{book:bid||sel||(D.Books[0]||{}).id,date:new Date().toISOString().slice(0,10)};
-  cur={sheet,row,isNew};up=0;
+  const isNew=!row;row=row?{...row}:{book:bid||sel||(D.Books[0]||{}).id,date:new Date().toISOString().slice(0,10)};
+  cur={sheet,row,isNew};
   const f=k=>{const v=row[k]??'';
     if(k=='book')return`<select name="book">${opt(D.Books,v,b=>[b.id,b.name])}</select>`;
     if(k=='type')return`<select name="type">${opt(['Author','Genre','Theme'],v,x=>[x,x])}</select>`;
     if(k=='date')return`<input type="date" name="date" value="${dk(v)}">`;
+    if(k=='tags')return thmBox(split(v));
     if(['text','notion'].includes(k))return`<textarea name="${k}" rows="3">${E(v)}</textarea>`;
     return inp(k,['onpct','offpct','pct'].includes(k)&&v!==''?PC(v):v)};
-  const body=sheet=='Books'?bookForm(row):FLD[sheet].split(' ').map(k=>fl(KO[k],f(k))).join('');
-  $('#md').innerHTML=`<div class="win"><div class="tb"><span>${isNew?'New':'Edit'} ${SK[sheet]}</span></div><form onsubmit="return false">${body}<div style="margin:14px 0 4px;text-align:right"><button type="button" class="btn" data-cancel>Cancel</button> ${isNew?'':'<button type="button" class="btn" data-del>Delete</button> '}<button type="button" class="btn" data-save><b>Save</b></button></div></form></div>`;
-  $('#md').classList.add('on');nameSync();
+  $('#md').innerHTML=`<div class="win"><div class="tb"><span>${isNew?'New':'Edit'} ${SK[sheet]}</span></div><form onsubmit="return false">${FLD[sheet].split(' ').map(k=>fl(KO[k],f(k))).join('')}<div style="margin:14px 0 4px;text-align:right"><button type="button" class="btn" data-cancel>Cancel</button> ${isNew?'':'<button type="button" class="btn" data-del>Delete</button> '}<button type="button" class="btn" data-save><b>Save</b></button></div></form></div>`;
+  $('#md').classList.add('on');
 }
-function nameSync(){
-  if(!cur||cur.sheet!='Books')return;const e=$('#md form').elements,s=D.Series.find(x=>x.id==e.series.value);
-  $('#bn').value=s?ttl(s,e.label.value,e.volume.value,D.Books.some(b=>b.series==e.series.value&&b.id!=cur.row.id)):'';
+async function doSave(){
+  const r={...cur.row};for(const[k,v]of new FormData($('#md form')).entries())r[k]=v;
+  ['onpct','offpct','pct'].forEach(k=>{if(k in r)r[k]=r[k]===''?'':Math.round(P(r[k])*100)/10000});
+  await send(cur.sheet,r);
 }
-function onSeries(){const e=$('#md form').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=cur.row.id).map(b=>P(b.volume)))+1:'';nameSync()}
 async function send(sheet,row,del,quiet){
   if(!row.id)row.id=nid(sheet);
   const a=D[sheet],i=a.findIndex(r=>r.id==row.id);del?(i>=0&&a.splice(i,1)):i>=0?(a[i]=row):a.push(row);
   if(API){$('#status').textContent='saving…';try{const j=await post({sheet,row,del});if(j.ok===false)throw new Error(j.error);$('#status').textContent='saved ✓';setTimeout(()=>$('#status').textContent='connecting...',1500)}catch(e){$('#status').textContent='save failed';$('#msg').innerHTML='<div class="err">Save failed ('+E(e.message)+'). Not written to the sheet. Check the web app URL, deployment access (Anyone) and that you redeployed a new version.</div>'}}
   if(!quiet){$('#md').classList.remove('on');render()}
 }
-function doSave(){
+/* Book 입력/수정은 상세 영역 안에서 */
+function startEdit(b){cfg=false;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'중간',thick:'중간'},isNew:!b,ups:[]};view='R';render()}
+function cancelEdit(nr){if(!ed)return;ed.closed=true;if(API&&ed.ups.length)post({action:'trash',ids:ed.ups}).catch(()=>{});ed=null;up=0;if(!nr)render()}
+async function saveBook(){
   if(up){alert('The cover is still uploading. Please wait a moment.');return}
-  const r={...cur.row};for(const[k,v]of new FormData($('#md form')).entries())r[k]=v;
-  if(cur.sheet=='Books'){if(!String(r.series).trim()){alert('Series is required (it becomes the title)');return}r.volume=r.volume?Math.round(P(r.volume)):'';if(r.star)r.star=Math.min(10,Math.max(1,Math.round(P(r.star))))}
-    ['onpct','offpct','pct'].forEach(k=>{if(k in r)r[k]=r[k]===''?'':Math.round(P(r[k])*100)/10000})
-  send(cur.sheet,r);
+  const r={...ed.row};for(const[k,v]of new FormData($('#bf')).entries())r[k]=v;
+  if(!String(r.series).trim()){alert('Series is required (it becomes the title)');return}
+  r.volume=r.volume?Math.round(P(r.volume)):'';r.star=Math.min(10,Math.max(0,Math.round(P(r.star))));
+  const ids=[...ed.ups,gid(ed.row.cover)].filter(id=>id&&id!==gid(r.cover));
+  ed.closed=true;ed=null;up=0;
+  await send('Books',r,false,true);sel=r.id;render();
+  if(API&&ids.length)post({action:'trash',ids}).catch(()=>{});
 }
+async function delBook(){
+  if(!confirm('삭제할까요?'))return;const ids=[gid(ed.row.cover)].filter(Boolean),row=ed.row;ed.closed=true;ed=null;up=0;
+  await send('Books',row,true,true);sel=null;view='L';render();
+  if(API&&ids.length)post({action:'trash',ids}).catch(()=>{});
+}
+function nameSync(){
+  const f=ed&&$('#bf');if(!f)return;const e=f.elements,s=D.Series.find(x=>x.id==e.series.value);
+  $('#bnm').textContent=s?'Title: '+ttl(s,e.label.value,e.volume.value,D.Books.some(b=>b.series==e.series.value&&b.id!=ed.row.id)):'';
+}
+function onSeries(){const e=$('#bf').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=ed.row.id).map(b=>P(b.volume)))+1:'';nameSync()}
 function palette(im){
   const N=64,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,N,N);x.drawImage(im,0,0,N,N);
   const d=x.getImageData(0,0,N,N).data,B={},tot=N*N;
@@ -318,54 +351,104 @@ function palette(im){
   const p3=a?a.c:(p1[0]*.3+p1[1]*.59+p1[2]*.11>140?[34,34,34]:[255,255,255]);
   return[p1,p2,p3].map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join(''));
 }
-let up=0;
-function upBusy(d){up=Math.max(0,up+d);const b=$('#md [data-save]');if(b){b.disabled=up>0;b.style.opacity=up?.5:1;b.firstElementChild.textContent=up?'Uploading…':'Save'}}
+function upBusy(d){up=Math.max(0,up+d);const b=$('[data-bsave]');if(b){b.disabled=up>0;b.style.opacity=up?.5:1;b.firstElementChild.textContent=up?'Uploading…':'Save'}}
 function onCover(f){
-  if(!f)return;const rd=new FileReader();
+  if(!f||!ed)return;const tok=ed,rd=new FileReader();
   rd.onload=()=>{const im=new Image();im.onload=async()=>{
     const s=Math.min(1,700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-    const url=c.toDataURL('image/jpeg',.85),box=$('#cvup'),e=$('#md form').elements;
+    const url=c.toDataURL('image/jpeg',.85),box=$('#cvup'),e=$('#bf').elements;
     box.style.backgroundImage=`url('${url}')`;box.textContent='';
     palette(im).forEach((v,i)=>e['color'+(i+1)].value=v);
     if(!API){e.cover.value=url;return}
-    const tok=cur;upBusy(1);box.innerHTML='<span class="upl">uploading…</span>';
-    try{const j=await post({action:'upload',name:($('#bn').value||'cover')+'.jpg',mime:'image/jpeg',data:url.split(',')[1]});if(!j.ok)throw new Error(j.error||'failed');e.cover.value=j.url;box.textContent=''}
+    upBusy(1);box.innerHTML='<span class="upl">uploading…</span>';
+    const sn=e.series.selectedOptions[0];
+    try{const j=await post({action:'upload',name:(sn&&sn.value?sn.text:'cover')+'.jpg',mime:'image/jpeg',data:url.split(',')[1]});if(!j.ok)throw new Error(j.error||'failed');e.cover.value=j.url;box.textContent='';if(ed===tok&&!tok.closed)tok.ups.push(j.id);else post({action:'trash',ids:[j.id]}).catch(()=>{})}
     catch(x){e.cover.value='';box.innerHTML='<span class="upl">failed – tap to retry</span>';$('#msg').innerHTML='<div class="err">Cover upload failed: '+E(x.message)+'</div>'}
-    finally{if(cur===tok)upBusy(-1)}
+    finally{if(ed===tok)upBusy(-1)}
   };im.src=rd.result};rd.readAsDataURL(f);
 }
+/* ---------- 폰트 설정 (Drive 폴더의 폰트 파일 포함) ---------- */
+let UF=[],ufState='';
+const FB=[['Gowun Dodum','Gowun Dodum'],['Gowun Batang','Gowun Batang'],['Noto Sans KR','Noto Sans KR'],['Nanum Myeongjo','Nanum Myeongjo'],['IBM Plex Sans KR','IBM Plex Sans KR'],['Gaegu','Gaegu'],['sans-serif','System sans'],['serif','System serif'],['monospace','Monospace']];
+const fOpts=role=>{const c=LS('bkbk_f'+role)||('b:'+(role=='ui'?'Gowun Dodum':'Gowun Batang'));return`<optgroup label="Built-in">${FB.map(([f,n])=>`<option value="b:${E(f)}" ${c=='b:'+f?'selected':''}>${E(n)}</option>`).join('')}</optgroup>${UF.length?`<optgroup label="My fonts (Drive)">${UF.map(u=>{const v='u:'+u.id+':'+u.name;return`<option value="${E(v)}" ${c==v?'selected':''}>${E(u.name)}</option>`}).join('')}</optgroup>`:''}`};
+function settingsHtml(){return`<div class="bar"><button class="btn" data-ssave><b>Save</b></button><button class="btn" data-sclose>Close</button></div><div class="sc"><h3>Connection</h3>${fl('Web app URL','<input id="s-api" value="'+E(API)+'" placeholder="https://script.google.com/.../exec">')}${fl('Access key','<input id="s-key" type="password" value="'+E(KEY)+'">')}<h3>Fonts</h3>${fl('Interface font','<select id="s-fui">'+fOpts('ui')+'</select>')}${fl('Text font (titles, quotes)','<select id="s-fse">'+fOpts('se')+'</select>')}<div class="s" id="s-fmsg" style="margin-top:6px">${E(ufState)}</div><div class="fprev">가나다라마바사 ABC abc 123<br>The quick brown fox jumps over the lazy dog.</div><p class="s" style="margin-top:10px">Put .ttf / .otf / .woff / .woff2 files in the Drive font folder. Smaller files (about 3MB or less) load faster; each font is downloaded once per device.</p></div>`}
+const setMsg=()=>{const m=$('#s-fmsg');if(m)m.textContent=ufState};
+async function loadUF(){
+  if(!API||UF.length)return;ufState='loading fonts…';setMsg();
+  try{const j=await(await fetch(API+(API.includes('?')?'&':'?')+'action=fonts&key='+encodeURIComponent(KEY))).json();
+    if(!j.fonts)ufState='Code.gs has no font support yet – update it and redeploy a new version';else{UF=j.fonts;ufState=UF.length?UF.length+' font file(s) found in Drive':'No font files found in the Drive font folder'}}
+  catch(e){ufState='Could not read the font folder ('+e.message+')'}
+  if(cfg){const a=$('#s-fui'),b=$('#s-fse');if(a){a.innerHTML=fOpts('ui');b.innerHTML=fOpts('se')}setMsg()}
+}
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('bkbk',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbGet=async k=>{try{const d=await idb();return await new Promise(res=>{const q=d.transaction('f').objectStore('f').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})}catch(e){return null}};
+const idbSet=async(k,v)=>{try{const d=await idb();await new Promise(res=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=()=>res();t.onerror=()=>res()})}catch(e){}};
+const LF={};
+async function userFont(id,name){
+  const fam='U_'+name.replace(/[^\w가-힣]/g,'_');if(LF[id])return fam;
+  let buf=await idbGet('f_'+id);
+  if(!buf){if(!API)throw new Error('not connected');const j=await(await fetch(API+(API.includes('?')?'&':'?')+'action=font&id='+encodeURIComponent(id)+'&key='+encodeURIComponent(KEY))).json();
+    if(!j.data)throw new Error(j.error||'no data');buf=Uint8Array.from(atob(j.data),c=>c.charCodeAt(0)).buffer;await idbSet('f_'+id,buf)}
+  const ff=new FontFace(fam,buf);await ff.load();document.fonts.add(ff);LF[id]=1;return fam;
+}
+async function applyFont(role,val){
+  let fam;if(val.startsWith('u:')){const[,id,...n]=val.split(':');fam=await userFont(id,n.join(':'))}else fam=val.slice(2);
+  const q=/^(sans-serif|serif|monospace)$/.test(fam)?fam:`'${fam}'`;
+  document.documentElement.style.setProperty('--'+role,role=='ui'?`${q},'Malgun Gothic',sans-serif`:`${q},'Batang',serif`);
+}
+async function setFont(t){
+  const role=t.id=='s-fui'?'ui':'se';try{localStorage.setItem('bkbk_f'+role,t.value)}catch(e){}
+  ufState='applying…';setMsg();try{await applyFont(role,t.value);ufState='applied'}catch(e){ufState='Font failed: '+e.message}setMsg();
+}
+function applySaved(){['ui','se'].forEach(r=>{const v=LS('bkbk_f'+r);if(v)applyFont(r,v).catch(()=>{})})}
 document.addEventListener('wheel',e=>{const h=e.target.closest('.hs');if(h&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){h.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
-document.addEventListener('change',e=>{if(!$('#md').classList.contains('on'))return;const t=e.target;
-  if(t.name=='series')onSeries();if(t.id=='cvf')onCover(t.files[0])});
-document.addEventListener('input',e=>{if(!$('#md').classList.contains('on'))return;const n=e.target.name;
-  if(n=='label'||n=='volume')nameSync();if(n=='star'&&$('#stp'))$('#stp').innerHTML=stars(e.target.value)});
+document.addEventListener('change',e=>{const t=e.target;
+  if(ed&&t.closest('#bf')){if(t.name=='series')onSeries();if(t.id=='cvf')onCover(t.files[0])}
+  if(t.id=='s-fui'||t.id=='s-fse')setFont(t)});
+document.addEventListener('input',e=>{const t=e.target;
+  if(t.id=='sq'){shq=t.value.trim().toLowerCase();markShelf();return}
+  if(ed&&t.closest('#bf')&&(t.name=='label'||t.name=='volume'))nameSync()});
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
 
 /* ---------- 렌더 & 이벤트 ---------- */
 const ttl=(s,lb,vol,multi)=>{lb=String(lb||'').trim();return!s?'':lb?`${s.name} [${lb}]`:multi&&vol?`${s.name} [${vol}권]`:s.name};
 function calc(){D.Books.forEach(b=>{const s=D.Series.find(x=>x.id==b.series||x.name==b.series);b.name=s?ttl(s,b.label,b.volume,D.Books.filter(x=>x.series==b.series).length>1):(b.name||'(untitled)')})}
+function markShelf(){document.querySelectorAll('#L .sp').forEach(s=>s.classList.toggle('hit',!!shq&&s.dataset.s.includes(shq)));const c=$('#L .sc');if(c)c.classList.toggle('sh-q',!!shq)}
 function render(){calc();
   $('#tabs').innerHTML=TABS.map(t=>`<button class="tab ${t==tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
-  const v={Main,Book,Log,Text,Word,Shelf}[tab]();
-  $('#L').innerHTML=v[0];$('#R').innerHTML=v[1]||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(v[3]);$('#grid').dataset.v=view;hydrate();
+  const v={Main,Book,Log,Text,Word,Shelf}[tab]();let R=v[1],rt=v[3];
+  if(cfg){R=settingsHtml();rt='Settings'}else if(ed)rt=ed.isNew?'New Book':'Edit Book';
+  $('#L').innerHTML=v[0];$('#R').innerHTML=R||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(rt);$('#grid').dataset.v=view;hydrate();
+  if(tab=='Shelf')markShelf();
+  if(ed)nameSync();
 }
 document.addEventListener('click',async e=>{
-  if(e.target.closest('#cfg')){const u=prompt('Apps Script web app URL (/exec). Leave empty to use demo data.',API);if(u===null)return;const k=prompt('Access key (the KEY set in Code.gs; leave empty if none)',KEY);try{localStorage.setItem('bkbk_api',u.trim());localStorage.setItem('bkbk_key',(k||'').trim())}catch(x){}location.reload();return}
   const g=a=>e.target.closest(`[${a}]`);let x;
-  if(x=g('data-st')){const i=$('#md [name=star]');i.value=Math.min(10,Math.max(1,P(i.value||7)+ +x.dataset.st));return}
+  if(e.target.closest('#cfg')){if(ed)cancelEdit(true);cfg=true;view='R';render();loadUF();return}
+  if(x=g('data-st')){const i=x.parentNode.querySelector('input');i.value=Math.min(10,Math.max(0,P(i.value)+ +x.dataset.st));return}
   if(e.target.closest('#cvup')){$('#cvf').click();return}
+  if(x=g('data-tt')){x.classList.toggle('on');$('#md [name=tags]').value=[...document.querySelectorAll('#thbox [data-tt].on')].map(b=>b.dataset.tt).join(',');return}
   if(x=g('data-ia')){const k=x.dataset.ia;$('#in-'+k).innerHTML=`<input id="ni-${k}" placeholder="New ${k}" maxlength="60"><button type="button" class="btn" data-ic="${k}">OK</button>`;$('#ni-'+k).focus();return}
   if(x=g('data-ic')){const k=x.dataset.ic,v=$('#ni-'+k).value.trim();
-    if(v){if(k=='series'){const r={name:v};r.id=nid('Series');await send('Series',r,false,true);$('#in-'+k).innerHTML=inl(k,r.id);onSeries()}
-      else{await send('Tags',{name:v,type:k=='author'?'Author':'Genre'},false,true);$('#in-'+k).innerHTML=inl(k,v)}}
-    else $('#in-'+k).innerHTML=inl(k,'');return}
+    if(!v){$('#in-'+k).innerHTML=k=='theme'?'<button type="button" class="btn" data-ia="theme">+</button>':inl(k,'');return}
+    if(k=='series'){const r={name:v};r.id=nid('Series');await send('Series',r,false,true);$('#in-'+k).innerHTML=inl(k,r.id);onSeries()}
+    else if(k=='theme'){await send('Tags',{name:v,type:'Theme'},false,true);const on=[...document.querySelectorAll('#thbox [data-tt].on')].map(b=>b.dataset.tt);on.push(v);const bx=$('#thbox').parentNode;bx.innerHTML='<span>Theme</span>'+thmBox(on)}
+    else{await send('Tags',{name:v,type:k=='author'?'Author':'Genre'},false,true);$('#in-'+k).innerHTML=inl(k,v)}
+    return}
   if(g('data-cancel')){$('#md').classList.remove('on');return}
   if(g('data-save')){doSave();return}
-  if(g('data-del')){confirm('삭제할까요?')&&send(cur.sheet,cur.row,true);return}
+  if(g('data-del')){if(confirm('삭제할까요?'))await send(cur.sheet,cur.row,true);return}
+  if(g('data-bsave')){saveBook();return}
+  if(g('data-bcancel')){cancelEdit();return}
+  if(g('data-bdel')){delBook();return}
+  if(x=g('data-bedit')){startEdit(bk(x.dataset.bedit));return}
+  if(g('data-bnew')){startEdit(null);return}
+  if(g('data-ssave')){const u=$('#s-api').value.trim(),k=$('#s-key').value.trim();try{localStorage.setItem('bkbk_api',u);localStorage.setItem('bkbk_key',k)}catch(z){}if(u!==API||k!==KEY){location.reload();return}ufState='saved';setMsg();return}
+  if(g('data-sclose')){cfg=false;view='L';render();return}
   if(x=g('data-add')){openForm(x.dataset.add,null,x.dataset.bk);return}
   if(x=g('data-edit')){const[sh,id]=x.dataset.edit.split(':');openForm(sh,D[sh].find(r=>String(r.id)==id));return}
-  if(x=g('data-tab')){tab=x.dataset.tab;view='L'}
-  else if(g('data-back'))view='L';
+  if(x=g('data-tab')){if(ed)cancelEdit(true);cfg=false;tab=x.dataset.tab;view='L'}
+  else if(g('data-back')){if(ed)cancelEdit(true);cfg=false;view='L'}
   else if(g('data-go'))view='R';
   else if(x=g('data-fb')){const i=x.dataset.fb;F.b.has(i)?F.b.delete(i):F.b.add(i)}
   else if(x=g('data-ft')){const i=x.dataset.ft;F.t.has(i)?F.t.delete(i):F.t.add(i)}
@@ -373,10 +456,11 @@ document.addEventListener('click',async e=>{
   else if(g('data-roll'))fav=null;
   else if(x=g('data-pg'))pgAll+=+x.dataset.pg;
   else if(x=g('data-m'))cal=new Date(cal.getFullYear(),cal.getMonth()+ +x.dataset.m,1);
-  else if(x=g('data-b')){sel=x.dataset.b;view='R'}
+  else if(x=g('data-b')){if(ed)cancelEdit(true);cfg=false;sel=x.dataset.b;view='R'}
   else return;
   render();
 });
-load().then(render);
+load().then(()=>{render();applySaved()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
 </script></body></html>
