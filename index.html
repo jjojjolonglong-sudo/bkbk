@@ -32,7 +32,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .empty{color:var(--sh);padding:20px;text-align:center}
 .cv{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font:700 10px/1.2 var(--se);overflow:hidden;border:1px solid var(--dk);box-shadow:2px 2px 0 #0003;flex:none;padding:2px}
 .cv.sm{width:26px;height:36px}.cv.lg{width:96px;height:136px;font-size:13px;margin:0}
-.cv .ct{writing-mode:vertical-rl;font:700 10px/1.1 var(--se);letter-spacing:.05em}.cv.lg .ct{font-size:20px}.th .cv .ct{font-size:9px}
+.cv .ct{writing-mode:vertical-rl;font:700 8px/1 var(--se);letter-spacing:0;white-space:nowrap}.cv.lg .ct{font-size:20px}.th .cv .ct{font-size:9px}
 .cv img,.ci{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .it{display:flex;gap:8px;padding:3px 6px;cursor:pointer;border:1px solid transparent}
 .it:hover{border:1px dotted var(--ink)}.it.on{background:var(--navy);color:#fff}
@@ -64,8 +64,8 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .shelves{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:34px 18px}
 .row{min-width:0}
 .sp.xt{border-radius:2px 2px 0 0}
-.board{position:relative;display:flex;align-items:flex-end;padding:18px 6px 0}
-.board::after{content:'';position:absolute;left:-4px;right:-4px;top:100%;height:12px;background:linear-gradient(#f0d9ad,#d2a972 55%,#b98d5a);border-radius:0 0 4px 4px;box-shadow:0 3px 0 #0001,inset 0 1px 0 #fff8}
+.board{position:relative;display:flex;align-items:flex-end;height:214px;padding:0 6px}
+.board::after{content:'';position:absolute;left:-2px;right:-2px;top:100%;height:10px;background:var(--face);border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:0 3px 0 #0002}.vs{flex:none;height:6px;margin-top:3px}
 .sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%;transition:transform .12s}
 .sp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(255,255,255,.15) 20%,transparent 50%,rgba(0,0,0,.22))}
 .sp:hover,.sp.hit{transform:scale(1.06);z-index:2}.sp.on{transform:scale(1.04);z-index:1}
@@ -93,6 +93,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .chips{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
 .upl{background:#fffd;padding:2px 4px;font-size:11px;color:var(--ink)}
 .btn:disabled{cursor:wait}
+.mc{cursor:pointer}.mc .ov{background:none;justify-content:center;align-items:center;text-align:center}.mc .ov small{color:inherit;opacity:.7}
 .mb,.mo{display:none}.mb{margin-right:8px;font-size:12px}
 .ln .bk{flex:none;max-width:38%;color:var(--sh);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hs{display:flex;flex-wrap:wrap;gap:6px;padding:2px}.hs>*{flex:none}.hs .th{width:46px}.hs .chip{white-space:nowrap}
@@ -130,14 +131,15 @@ const API=LS('bkbk_api'),KEY=LS('bkbk_key');
 
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TABS=['Main','Book','Log','Text','Word','Shelf'];
-let lastTab='',view='L',D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null,cfg=false,shq='';
+let favPrev=null,lastTab='',view='L',D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null,cfg=false,shq='';
 const P=v=>parseFloat(v)||0,PC=v=>Math.round(P(v)*10000)/100,DP=v=>Math.round(P(v)*100),dk=d=>String(d||'').slice(0,10);
 const by=(a,f,r)=>[...a].sort((x,y)=>(f(x)>f(y)?1:f(x)<f(y)?-1:0)*(r?-1:1));
-const has=v=>v!==''&&v!=null,bpg=o=>P((D.Books.find(b=>b.id==o.book)||{}).page);
+const has=v=>v!==''&&v!=null,bpg=o=>P((BM.get(String(o.book))||{}).page);
 const epc=(o,pk,gk)=>has(o[pk])?PC(o[pk]):has(o[gk])&&bpg(o)?Math.min(100,P(o[gk])/bpg(o)*100):0;
 const eOn=l=>epc(l,'onpct','onpage'),eOff=l=>epc(l,'offpct','offpage'),eAt=t=>epc(t,'pct','page');
-const bk=id=>D.Books.find(b=>b.id==id)||{};
-const logs=id=>D.Logs.filter(l=>l.book==id);
+let BM=new Map(),LM=new Map();
+const bk=id=>BM.get(String(id))||{};
+const logs=id=>LM.get(String(id))||[];
 const prog=id=>Math.max(0,...logs(id).map(eOff));
 const fin=id=>prog(id)>=100;
 const finD=id=>logs(id).filter(l=>eOff(l)>=100).map(l=>dk(l.date)).sort().pop()||'';
@@ -199,6 +201,7 @@ const hv=b=>HL[b.height]||P(b.height)||21,tv=b=>TL[b.thickness]||P(b.thickness)|
 const hl=v=>HL[v]?v:!has(v)?'중간':P(v)<19?'낮음':P(v)<23?'중간':'높음',tl=v=>TL[v]?v:!has(v)?'중간':P(v)<1?'아주 얇음':P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
 const lv=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return 128;const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11};
 const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t ell">${E(b.name)}${b.authorN?`<span class="s"> / ${E(b.authorN)}</span>`:''}</div>${pb(prog(b.id))}</div></div>`;
+const txB=x=>String(x??'').split(/\s*\n\s*|\s+\/\s+/).filter(y=>y!==''),txL=x=>E(txB(x).join(' / ')),txP=x=>txB(x).map(E).join('<br>');
 const pp=t=>{const a=[];if(has(t.page))a.push('p '+t.page);if(has(t.pct)||(has(t.page)&&bpg(t)))a.push(Math.round(eAt(t))+'%');return a.join(' / ')};
 const card=(b,main,sub,cls='',ed='')=>`<div class="card" ${ed?`data-edit="${ed}"`:''} style="--c:${E(b.color1||'#8a7f6a')}">${b.cover?IM(b.cover,'class="ci"'):''}<div class="ov"><p class="${cls}">${main}</p><small>${sub}</small></div></div>`;
 const sec=(t,h)=>h?`<h3>${t}</h3>${h}`:'';
@@ -213,7 +216,7 @@ function bookView(id){
   <p class="cm">${stars(b.star)} ${E(b.comment)}</p>
   ${sec('Series · '+E(ser&&ser.name),sb.length>1?sb.map(x=>`<div class="blk" data-b="${x.id}">${cv(x,'sm')}<div style="flex:1;min-width:0"><b class="ell">${E(x.name)}</b><div style="display:flex;gap:8px;align-items:center"><span class="st">${stars(x.star)}</span><span class="ell s" style="flex:1">${E(x.comment)}</span></div></div></div>`).join(''):'')}
   ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${Math.round(eOn(l))}~${Math.round(eOff(l))}%</span><span>+${Math.round(eOff(l))-Math.round(eOn(l))}%</span></div>`).join(''))}
-  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}">${pp(t)?`<small>${pp(t)}</small><br>`:''}${E(t.text)}</div>`).join(''))}
+  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}">${pp(t)?`<small>${pp(t)}</small><br>`:''}${txL(t.text)}</div>`).join(''))}
   ${sec('Word',W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span></div>`).join(''))}</div>`;
 }
 function bookEdit(){
@@ -228,7 +231,7 @@ function bookEdit(){
   <div class="s" id="bnm" style="margin-top:6px;min-height:1.2em"></div>
   ${fl('Color',`<div class="r2" style="gap:6px">${col}</div>`)}
   <div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thickness">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thickness),x=>[x,x])}</select>`)}</div>
-  <div class="r2">${fl('Platform',`<select name="platform"><option value="">-</option>${opt(PLAT,r.platform,x=>[x,x])}</select>`)}${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="0" max="10" step="1" value="${r.star||0}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div>
+  <div class="r2">${fl('Platform',`<div class="inl" id="in-platform">${inl('platform',nz(r.platform,'platform'))}</div>`)}${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="0" max="10" step="1" value="${r.star||0}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div>
   ${fl('Comment',`<textarea name="comment" rows="3">${E(r.comment)}</textarea>`)}</div></form>`;
 }
 
@@ -238,9 +241,9 @@ function Main(){
   const L=(n,t)=>`<div><strong>${n}</strong> ${n==1?'book':'books'} read ${t}.</div>`;
   const st=`<div class="stat">${L(fb.length,'in total')}${L(fb.filter(b=>finD(b.id).startsWith(y)).length,'this year')}${L(fb.filter(b=>finD(b.id).startsWith(m)).length,'this month')}</div>`;
   const fid=nz('Favorite','theme'),f=D.Texts.filter(t=>split(t.tags).some(x=>nz(x,'theme')==fid));
-  if(fav==null||!f[fav])fav=f.length?Math.floor(Math.random()*f.length):null;
+  if(fav==null||!f[fav]){let n=f.length?Math.floor(Math.random()*f.length):null;if(f.length>1&&n===favPrev)n=(n+1)%f.length;fav=n}
   const t=f[fav],b=t?bk(t.book):{};
-  const c=t?`<div class="main">${card(b,E(t.text),E(b.name)+(pp(t)?' · '+pp(t):''))}<div style="text-align:center"><button class="btn" data-roll>Shuffle</button></div></div>`:'<p class="empty">Empty</p>';
+  const bc=b.color1||'#8a7f6a',c=t?`<div class="main"><div class="card mc" data-roll style="background:${E(bc)};color:${lum(bc)}"><div class="ov"><p>${txP(t.text)}</p><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small></div></div></div>`:'<p class="empty">Empty</p>';
   return[st+`<div class="sc">${c}</div>`,'','Main','Memo'];
 }
 let pgAll=0;const PER=6;
@@ -280,7 +283,7 @@ function filt(S,n){
 }
 function Text(){
   const S=fscope('Text'),T=by(D.Texts.filter(t=>S.scope.has(String(t.book))&&(!S.st.length||split(t.tags).map(x=>nz(x,'theme')).some(n=>S.st.includes(n)))),t=>dk(t.date),1);
-  return[filt(S,T.length),`<div class="sc">${T.map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${E(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Text'];
+  return[filt(S,T.length),`<div class="sc">${T.map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${txL(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Text'];
 }
 function Word(){
   const S=fscope('Word'),W=by(D.Words.filter(w=>S.scope.has(String(w.book))),w=>dk(w.date),1);
@@ -288,10 +291,10 @@ function Word(){
 }
 function Shelf(){
   const TW={'아주 얇음':10,얇음:17,중간:22.5,두꺼움:31.5},k=8,bw=b=>TW[tl(b.thickness)];
-  const sp=b=>{const w=bw(b),xt=tl(b.thickness)=='아주 얇음',sr=D.Series.find(s=>s.id==b.series||s.name==b.series),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||b.volume||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.max(80,hv(b)*k);
+  const sp=b=>{const w=bw(b),xt=tl(b.thickness)=='아주 얇음',sr=serOf(b),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||((SC.get(String(b.series))||0)>1?b.volume:'')||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.min(200,Math.max(80,hv(b)*k));
     const s=E(`${b.name} ${t} ${b.authorN} ${b.genreN} ${b.label||''}`.toLowerCase()),a=`class="sp${xt?' xt':''}${sel==b.id?' on':''}" data-b="${b.id}" data-s="${s}" title="${E(b.name)}" style="flex:0 1 ${w}px;height:${h}px;background:${E(c1)}"`;
     if(xt)return`<div ${a}><b class="xs" style="color:${E(c3)}">${E(t)}</b><i class="xb" style="background:${E(c2)}"></i></div>`;
-    return`<div ${a}><div class="bd"><span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span><em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${E(v)}</span></em></div></div>`};
+    return`<div ${a}><div class="bd"><span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span>${v?`<em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${E(v)}</span></em>`:`<i class="vs" style="background:${E(c3)}"></i>`}</div></div>`};
   const sh=[];for(let i=0;i<D.Books.length;i+=10)sh.push(D.Books.slice(i,i+10));
   return[`<div class="bar"><input id="sq" placeholder="Search title, author, genre…" value="${E(shq)}" style="flex:1" autocomplete="off"></div><div class="sc"><div class="shelves">${sh.map(r=>`<div class="row"><div class="board">${r.map(sp).join('')}</div></div>`).join('')}</div></div>`,det(sel),'Shelf','Book'];
 }
@@ -309,7 +312,7 @@ const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
 let cur,ed=null,up=0;
 const opt=(a,v,f)=>a.map(x=>{const[i,n]=f(x);return`<option value="${E(i)}" ${i==v?'selected':''}>${E(n)}</option>`}).join('');
 const fl=(l,h)=>`<div class="fl"><span>${l}</span>${h}</div>`;
-const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):tagsOf(k).map(t=>[t.id,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
+const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):k=='platform'&&!tagsOf('platform').length?PLAT.map(x=>[x,x]):tagsOf(k).map(t=>[t.id,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
 const inp=(k,v,x='')=>`<input name="${k}" value="${E(v)}" ${x}>`;
 const chipBox=(k,sel)=>{const S=new Set(sel.map(String)),h=k=='theme'?'tags':'genre';return`<div class="chipwrap" id="cw-${k}"><div class="chips">${tagsOf(k).map(t=>`<button type="button" class="chip ${S.has(String(t.id))?'on':''}" data-tt="${E(t.id)}">${E(t.name)}</button>`).join('')}<span id="in-${k}"><button type="button" class="btn" data-ia="${k}">+</button></span></div><input type="hidden" name="${h}" value="${E([...S].join(','))}"></div>`};
 const thmBox=sel=>chipBox('theme',sel);
@@ -446,9 +449,10 @@ document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.id&&e.target
 
 /* ---------- 렌더 & 이벤트 ---------- */
 const ttl=(s,lb,vol,multi)=>{lb=String(lb||'').trim();return!s?'':lb?`${s.name} [${lb}]`:multi&&vol?`${s.name} [${vol}권]`:s.name};
-let TM=new Map(),TK=new Map();
+let TM=new Map(),TK=new Map(),SM=new Map(),SN=new Map(),SC=new Map();
+const serOf=b=>SM.get(String(b.series))||SN.get(String(b.series));
 const tn=v=>TM.has(String(v))?TM.get(String(v)):String(v??''),nz=(v,type)=>{v=String(v??'').trim();return!v?'':TM.has(v)?v:(TK.get(type+'|'+v)||v)};
-function calc(){TM=new Map(D.Tags.map(t=>[String(t.id),t.name]));TK=new Map(D.Tags.map(t=>[String(t.type).toLowerCase()+'|'+t.name,String(t.id)]));D.Books.forEach(b=>{b.authorN=tn(nz(b.author,'author'));b.genreN=split(b.genre).map(x=>tn(nz(x,'genre'))).join(', ');const s=D.Series.find(x=>x.id==b.series||x.name==b.series);b.name=s?ttl(s,b.label,b.volume,D.Books.filter(x=>x.series==b.series).length>1):(b.name||'(untitled)')})}
+function calc(){TM=new Map(D.Tags.map(t=>[String(t.id),t.name]));TK=new Map(D.Tags.map(t=>[String(t.type).toLowerCase()+'|'+t.name,String(t.id)]));BM=new Map(D.Books.map(b=>[String(b.id),b]));LM=new Map();D.Logs.forEach(l=>{const k=String(l.book),a=LM.get(k);a?a.push(l):LM.set(k,[l])});SM=new Map(D.Series.map(x=>[String(x.id),x]));SN=new Map(D.Series.map(x=>[x.name,x]));SC=new Map();D.Books.forEach(b=>{const k=String(b.series);SC.set(k,(SC.get(k)||0)+1)});D.Books.forEach(b=>{b.authorN=tn(nz(b.author,'author'));b.genreN=split(b.genre).map(x=>tn(nz(x,'genre'))).join(', ');const s=serOf(b);b.name=s?ttl(s,b.label,b.volume,(SC.get(String(b.series))||0)>1):(b.name||'(untitled)')})}
 function markShelf(){document.querySelectorAll('#L .sp').forEach(s=>s.classList.toggle('hit',!!shq&&s.dataset.s.includes(shq)));const c=$('#L .sc');if(c)c.classList.toggle('sh-q',!!shq)}
 function render(){calc();const pv=$('#L .sc'),st0=pv?pv.scrollTop:0,lt0=lastTab;lastTab=tab;
   $('#tabs').innerHTML=TABS.map(t=>`<button class="tab ${t==tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
@@ -470,7 +474,7 @@ document.addEventListener('click',async e=>{
     if(!v){$('#in-'+k).innerHTML=(k=='theme'||k=='genre')?`<button type="button" class="btn" data-ia="${k}">+</button>`:inl(k,'');return}
     if(k=='series'){const r={name:v};r.id=nid('Series');await send('Series',r,false,true);$('#in-'+k).innerHTML=inl(k,r.id);onSeries()}
     else if(k=='theme'||k=='genre'){const id=await addTag(v,k=='theme'?'Theme':'Genre');const w=$('#cw-'+k),on=[...w.querySelectorAll('[data-tt].on')].map(b=>b.dataset.tt);if(!on.includes(String(id)))on.push(id);w.outerHTML=chipBox(k,on)}
-    else{const id=await addTag(v,'Author');$('#in-'+k).innerHTML=inl(k,id)}
+    else{const id=await addTag(v,k=='platform'?'Platform':'Author');$('#in-'+k).innerHTML=inl(k,id)}
     return}
   if(g('data-cancel')){$('#md').classList.remove('on');return}
   if(g('data-save')){doSave();return}
@@ -491,7 +495,7 @@ document.addEventListener('click',async e=>{
   else if(x=g('data-fb')){const i=x.dataset.fb;F.b.has(i)?F.b.delete(i):F.b.add(i)}
   else if(x=g('data-ft')){const i=x.dataset.ft;F.t.has(i)?F.t.delete(i):F.t.add(i)}
   else if(g('data-clr')){F.b.clear();F.t.clear()}
-  else if(g('data-roll'))fav=null;
+  else if(g('data-roll')){favPrev=fav;fav=null}
   else if(x=g('data-pg'))pgAll+=+x.dataset.pg;
   else if(x=g('data-fp')){const[k,d]=x.dataset.fp.split(':');fp[k]+=+d}
   else if(x=g('data-m'))cal=new Date(cal.getFullYear(),cal.getMonth()+ +x.dataset.m,1);
