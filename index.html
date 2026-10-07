@@ -97,6 +97,10 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .msl{max-height:170px;overflow:auto}.msl label{display:flex;gap:6px;align-items:center;padding:2px 0;font-size:13px;white-space:nowrap;color:var(--ink)}
 .msl input[type=checkbox]{width:auto}.msa{display:flex;gap:4px;margin-top:6px}.msa input{flex:1;min-width:0}
 @media(min-width:761px){#app{min-height:730px}}
+.dh.vw{align-items:stretch}.dh.vw .di{display:flex;flex-direction:column;justify-content:center}
+.lc{width:96px;flex:none}.lc .fl{flex:none}
+.stp .btn{padding:3px 0;width:26px;margin:0;text-align:center}.stp input{flex:1;min-width:0}
+.be{display:block}
 .upl{background:#fffd;padding:2px 4px;font-size:11px;color:var(--ink)}
 .btn:disabled{cursor:wait}
 .mc{cursor:pointer}.mc .ov{padding:28px;background:none;justify-content:center;align-items:center;text-align:center}.mc .ov p{word-break:keep-all;overflow-wrap:break-word}.mc .ov small{color:inherit;opacity:.7}
@@ -115,7 +119,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .fl input,.fl select,.fl textarea{width:100%;font:inherit;padding:3px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
 .fl input[type=color]{height:28px;padding:0}
 [data-edit]{cursor:pointer!important}[data-edit]:hover{outline:1px dotted var(--red)}
-@media(max-width:760px){body{padding:4px}#app{height:calc(100vh - 8px);height:calc(100dvh - 8px)}#grid{grid-template-columns:1fr;overflow:auto;padding:4px}#grid[data-v=L] .pane:nth-child(2){display:none}#grid[data-v=R] .pane:nth-child(1){display:none}.mb,.mo{display:inline-block!important}.bar.mo{display:flex!important}#tabs{padding:4px 4px 0;gap:1px}.tab{flex:1;min-width:0;padding:4px 0;font-size:12px;text-align:center}.fl input,.fl select,.fl textarea,.bar input{font-size:16px}.fl{margin-top:4px}}
+@media(max-width:760px){body{padding:4px}#app{height:calc(100vh - 8px);height:calc(100dvh - 8px)}#grid{grid-template-columns:1fr;overflow:auto;padding:4px}#grid[data-v=L] .pane:nth-child(2){display:none}#grid[data-v=R] .pane:nth-child(1){display:none}.mb,.mo{display:inline-block!important}#tabs{padding:4px 4px 0;gap:1px}.tab{flex:1;min-width:0;padding:4px 0;font-size:12px;text-align:center}.fl input,.fl select,.fl textarea,.bar input{font-size:16px}.fl{margin-top:4px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:2px dotted var(--red);outline-offset:1px}
 </style></head><body>
@@ -134,19 +138,33 @@ const API=LS('bkbk_api'),KEY=LS('bkbk_key');
 
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TABS=['Main','Book','Log','Text','Word','Shelf'];
-let favPrev=null,lastTab='',view='L',D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null,cfg=false,shq='';
+let ls={},favPrev=null,lastTab='',view='L',D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null,cfg=false,shq='';
 const P=v=>parseFloat(v)||0,PC=v=>Math.round(P(v)*10000)/100,dk=d=>String(d||'').slice(0,10);
 const by=(a,f,r)=>[...a].sort((x,y)=>(f(x)>f(y)?1:f(x)<f(y)?-1:0)*(r?-1:1));
+const cmp=(a,b)=>a>b?1:a<b?-1:0,stab=(a,f,rev)=>a.map((x,i)=>[x,i]).sort((p,q)=>f(p[0],q[0])||(rev?q[1]-p[1]:p[1]-q[1])).map(x=>x[0]);
+const byD=(a,b)=>{const x=firstD(a.id),y=firstD(b.id);return x===y?0:!x?1:!y?-1:x<y?1:-1};
 const has=v=>v!==''&&v!=null,bpg=o=>P((BM.get(String(o.book))||{}).page);
 const epc=(o,pk,gk)=>has(o[pk])?PC(o[pk]):has(o[gk])&&bpg(o)?Math.min(100,P(o[gk])/bpg(o)*100):0;
 const eOn=l=>epc(l,'onpct','onpage'),eOff=l=>epc(l,'offpct','offpage'),eAt=t=>epc(t,'pct','page');
+/* 읽기 회차: 100% 로그 이후 0% / 1쪽에서 다시 시작하는 로그가 나오면 재독으로 보고, 모든 정렬·진행률은 '현재 회차' 기준 */
+let CS=new Map();
+const fresh=l=>has(l.onpct)?PC(l.onpct)<=0.5:has(l.onpage)?P(l.onpage)<=1:eOn(l)<=0.5;
+function sess(arr){
+  const L=stab(arr,(a,b)=>cmp(dk(a.date),dk(b.date))||eOn(a)-eOn(b));
+  let start=0,done=false,cd='';const comps=[];
+  L.forEach((l,i)=>{if(done&&fresh(l)){start=i;done=false}if(!done&&eOff(l)>=100){done=true;cd=dk(l.date);comps.push(cd)}});
+  const S=L.slice(start);
+  return{p:Math.min(100,Math.max(0,...S.map(eOff))),fin:done,finD:done?cd:'',first:S.length?dk(S[0].date):'',last:S.length?dk(S[S.length-1].date):'',rr:start>0&&!done,comps};
+}
+const cs=id=>CS.get(String(id))||{p:0,fin:false,finD:'',first:'',last:'',rr:false,comps:[]};
+const prog=id=>cs(id).p,fin=id=>cs(id).fin,finD=id=>cs(id).finD,lastD=id=>cs(id).last,firstD=id=>cs(id).first,rr=id=>cs(id).rr;
 let BM=new Map(),LM=new Map();
 const bk=id=>BM.get(String(id))||{};
 const logs=id=>LM.get(String(id))||[];
-const prog=id=>Math.max(0,...logs(id).map(eOff));
-const fin=id=>prog(id)>=100;
-const finD=id=>logs(id).filter(l=>eOff(l)>=100).map(l=>dk(l.date)).sort().pop()||'';
-const lastD=id=>logs(id).map(l=>dk(l.date)).sort().pop()||'';
+
+
+
+
 const split=s=>String(s||'').split(/[,;]\s*/).filter(Boolean);
 const lum=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return'#fff';const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11>150?'#222':'#fff'};
 
@@ -195,14 +213,14 @@ const IM=(c,x='',w=600)=>{const u=img(c,w),v=IC.get(u);return`<img ${x} data-u="
 const cv=(b,c='')=>`<div class="cv ${c}" style="background:${E(b.color1||'#8a7f6a')}"><span class="ct">${E(Array.from(String(b.name||'').replace(/\s/g,'')).slice(0,3).join(''))}</span>${b.cover?IM(b.cover,'',c=='lg'?400:240):''}</div>`;
 const hx=v=>{v=String(v||'').trim().replace('#','');if(/^[0-9a-f]{3}$/i.test(v))v=v.replace(/./g,'$&$&');return/^[0-9a-f]{6}$/i.test(v)?'#'+v:'#888888'};
 const GR=(()=>{const S=[[54,92,72],[217,92,58],[335,92,62]],a=4/19*2,z=15/19*2;return Array.from({length:20},(_,i)=>{const t=a+(z-a)*i/19,k=Math.min(1,Math.floor(t)),f=t-k,A=S[k],B=S[k+1];return`hsl(${Math.round(A[0]+(B[0]-A[0])*f)} ${A[1]}% ${Math.round(A[2]+(B[2]-A[2])*f)}%)`})})();
-const pb=p=>{p=Math.min(100,Math.round(p));const n=p>0?Math.max(1,Math.round(p/5)):0;return`<span class="pbw"><span class="pb">${GR.map((c,i)=>`<i${i<n?` style="background:${c}"`:''}></i>`).join('')}</span><b>${p}%</b></span>`};
+const pb=(p,rr)=>{p=Math.min(100,Math.round(p));const n=p>0?Math.max(1,Math.round(p/5)):0;return`<span class="pbw"${rr?' title="Re-reading"':''}><span class="pb">${GR.map((c,i)=>`<i${i<n?` style="background:${c}"`:rr?` style="background:${c};opacity:.3"`:''}></i>`).join('')}</span><b>${rr?'↻ ':''}${p}%</b></span>`};
 
 const SP='M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z',MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const stars=n=>{n=P(n)/2;return'<span style="white-space:nowrap">'+[0,1,2,3,4].map(i=>{const f=Math.max(0,Math.min(1,n-i));return`<svg class="sr" viewBox="0 0 24 24"><path class="bg" d="${SP}"/><path class="fg" d="${SP}" style="clip-path:inset(0 ${100-f*100}% 0 0)"/></svg>`}).join('')+'</span>'};
 const HL={낮음:17,중간:21,높음:25},TL={'아주 얇음':.8,얇음:1.5,중간:2.5,두꺼움:3.5};
 const hv=b=>HL[b.height]||P(b.height)||21,tv=b=>TL[b.thickness]||P(b.thickness)||2.5;
 const hl=v=>HL[v]?v:!has(v)?'중간':P(v)<19?'낮음':P(v)<23?'중간':'높음',tl=v=>TL[v]?v:!has(v)?'중간':P(v)<1?'아주 얇음':P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
-const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t ell">${E(b.name)}${b.authorN?`<span class="s"> / ${E(b.authorN)}</span>`:''}</div>${pb(prog(b.id))}</div></div>`;
+const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t ell">${E(b.name)}${b.authorN?`<span class="s"> / ${E(b.authorN)}</span>`:''}</div>${pb(prog(b.id),rr(b.id))}</div></div>`;
 const txB=x=>String(x??'').split(/\s*\n\s*|\s+\/\s+/).filter(y=>y!==''),txL=x=>E(txB(x).join(' / ')),txP=x=>txB(x).map(E).join('<br>');
 const pp=t=>{const a=[];if(has(t.page))a.push('p '+t.page);if(has(t.pct)||(has(t.page)&&bpg(t)))a.push(Math.round(eAt(t))+'%');return a.join(' / ')};
 const sec=(t,h)=>h?`<h3>${t}</h3>${h}`:'';
@@ -212,8 +230,8 @@ function bookView(id){
   const b=bk(id);if(!b.id)return'<p class="empty">Select Book</p>';
   const ser=D.Series.find(s=>s.id==b.series||s.name==b.series);
   const sb=ser?by(D.Books.filter(x=>x.series==b.series),x=>P(x.volume)):[];
-  const L=by(logs(id),l=>dk(l.date)),T=by(D.Texts.filter(t=>t.book==id),t=>eAt(t)),W=by(D.Words.filter(w=>w.book==id),w=>eAt(w));
-  return`<div class="bar"><button class="btn" data-bedit="${E(b.id)}">✎ Edit</button><button class="btn" data-add="Logs" data-bk="${E(b.id)}">＋ Log</button><button class="btn" data-add="Texts" data-bk="${E(b.id)}">＋ Text</button><button class="btn" data-add="Words" data-bk="${E(b.id)}">＋ Word</button></div><div class="sc"><div class="dh">${cv(b,'lg')}<div class="di"><div class="nm" title="${E(b.name)}">${E(b.name)}</div><div class="pr"><span>${E(b.authorN)}</span><span>${E(b.genreN)}</span></div><div class="pr"><span>${b.page?'p.'+E(b.page):''}</span><span>${b.charcount?E(b.charcount)+'만자':''}</span></div><div class="prg"><span class="s">Progress</span>${pb(prog(id))}</div></div></div>
+  const L=stab(logs(id),(a,b)=>cmp(dk(a.date),dk(b.date))||eOn(a)-eOn(b)),pgo=(a,b)=>eAt(a)-eAt(b)||P(a.page)-P(b.page),T=stab(D.Texts.filter(t=>t.book==id),pgo),W=stab(D.Words.filter(w=>w.book==id),pgo);
+  return`<div class="bar"><button class="btn" data-bedit="${E(b.id)}">✎ Edit</button><button class="btn" data-add="Logs" data-bk="${E(b.id)}">＋ Log</button><button class="btn" data-add="Texts" data-bk="${E(b.id)}">＋ Text</button><button class="btn" data-add="Words" data-bk="${E(b.id)}">＋ Word</button></div><div class="sc"><div class="dh vw">${cv(b,'lg')}<div class="di"><div class="nm" title="${E(b.name)}">${E(b.name)}</div><div class="pr"><span>${E(b.authorN)}</span><span>${E(b.genreN)}</span></div><div class="pr"><span>${b.page?'p.'+E(b.page):''}</span><span>${b.charcount?E(b.charcount)+'만자':''}</span></div><div class="prg"><span class="s">Progress</span>${pb(prog(id),rr(id))}</div></div></div>
   <p class="cm">${stars(b.star)} ${E(b.comment)}</p>
   ${sec('Series · '+E(ser&&ser.name),sb.length>1?sb.map(x=>`<div class="blk" data-b="${x.id}">${cv(x,'sm')}<div style="flex:1;min-width:0"><b class="ell">${E(x.name)}</b><div style="display:flex;gap:8px;align-items:center"><span class="st">${stars(x.star)}</span><span class="ell s" style="flex:1">${E(x.comment)}</span></div></div></div>`).join(''):'')}
   ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${Math.round(eOn(l))}~${Math.round(eOff(l))}%</span><span>+${Math.round(eOff(l))-Math.round(eOn(l))}%</span></div>`).join(''))}
@@ -228,16 +246,16 @@ function bookEdit(){
   <div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>
   <div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',nz(r.author,'author'))}</div>`)}${fl('Genre',msBox('genre',split(r.genre).map(x=>nz(x,'genre'))))}</div>
   <div class="r2">${fl('Page',inp('page',r.page,'type="number" min="0"'))}${fl('Chars',inp('charcount',r.charcount,'type="number" min="0" step="0.1" placeholder="만자 단위"'))}</div></div></div>
-  <div class="r2" style="gap:6px;align-items:flex-end"><div class="fl" style="flex:none"><span>Color</span><div style="display:flex;gap:3px">${col}</div></div>${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thickness">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thickness),x=>[x,x])}</select>`)}</div>
-  <div class="r2">${fl('Platform',`<div class="inl" id="in-platform">${inl('platform',nz(r.platform,'platform'))}</div>`)}${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="0" max="10" step="1" value="${r.star||0}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div>
+  <div class="dh"><div class="lc"><div class="fl"><span>Color</span><div style="display:flex;gap:3px">${col}</div></div></div><div class="di"><div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thickness">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thickness),x=>[x,x])}</select>`)}</div></div></div>
+  <div class="dh"><div class="lc">${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="0" max="10" step="1" value="${r.star||0}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div><div class="di"><div class="r2">${fl('Platform',`<div class="inl" id="in-platform">${inl('platform',nz(r.platform,'platform'))}</div>`)}</div></div></div>
   ${fl('Comment',`<textarea name="comment" rows="3">${E(r.comment)}</textarea>`)}</div></form>`;
 }
 
 /* ---------- 탭 ---------- */
 function Main(){
-  const fb=D.Books.filter(b=>fin(b.id)),y=String(new Date().getFullYear()),m=new Date().toISOString().slice(0,7);
+  const cm=D.Books.flatMap(b=>cs(b.id).comps),y=String(new Date().getFullYear()),m=new Date().toISOString().slice(0,7);
   const L=(n,t)=>`<div><strong>${n}</strong> ${n==1?'book':'books'} read ${t}.</div>`;
-  const st=`<div class="stat">${L(fb.length,'in total')}${L(fb.filter(b=>finD(b.id).startsWith(y)).length,'this year')}${L(fb.filter(b=>finD(b.id).startsWith(m)).length,'this month')}</div>`;
+  const st=`<div class="stat">${L(D.Books.filter(b=>cs(b.id).comps.length).length,'in total')}${L(cm.filter(d=>d.startsWith(y)).length,'this year')}${L(cm.filter(d=>d.startsWith(m)).length,'this month')}</div>`;
   const fid=nz('Favorite','theme'),f=D.Texts.filter(t=>split(t.tags).some(x=>nz(x,'theme')==fid));
   if(fav==null||!f[fav]){let n=f.length?Math.floor(Math.random()*f.length):null;if(f.length>1&&n===favPrev)n=(n+1)%f.length;fav=n}
   const t=f[fav],b=t?bk(t.book):{};
@@ -246,8 +264,8 @@ function Main(){
 }
 let pgAll=0;const PER=7;
 function Book(){
-  const all=[...by(D.Books.filter(b=>fin(b.id)),b=>finD(b.id),1),...D.Books.filter(b=>!fin(b.id))];
-  const rec=by(D.Books.filter(b=>!fin(b.id)&&lastD(b.id)),b=>lastD(b.id),1).slice(0,3).reverse();
+  const all=[...D.Books].sort(byD);
+  const rec=D.Books.filter(b=>!fin(b.id)&&lastD(b.id)).sort((a,b)=>cmp(lastD(b.id),lastD(a.id))).slice(0,3).sort(byD);
   const np=Math.max(1,Math.ceil(all.length/PER));pgAll=Math.max(0,Math.min(pgAll,np-1));
   return[`<div class="bar"><button class="btn" data-bnew>＋ New Book</button></div><div class="sc" style="padding-top:2px"><h3 class="hp">All<span><button class="btn" data-pg="-1">◀</button> ${pgAll+1}/${np} <button class="btn" data-pg="1">▶</button></span></h3>${all.slice(pgAll*PER,pgAll*PER+PER).map(row).join('')}<h3>Recent</h3>${rec.map(row).join('')||'<p class="empty">Empty</p>'}</div>`,det(sel),'Book','Book'];
 }
@@ -288,27 +306,30 @@ function fit(){
 }
 function filt(S,n){
   const chip=x=>`<button class="chip ${F.t.has(x)?'on':''}" data-ft="${E(x)}">${E(tn(x))}</button>`;
-  return`<div class="bar mo"><button class="btn" data-go>Results (${n}) ▶</button></div><div class="sc">${fsec('Genre',S.ge,chip)}${fsec('Author',S.au,chip)}${fsec('Book',S.Bf,b=>`<div class="th ${F.b.has(String(b.id))?'on':''}" data-fb="${b.id}" title="${E(b.name)}">${cv(b)}</div>`)}${fsec('Theme',S.th,chip)}<p style="margin-top:12px"><button class="btn" data-clr>Clear</button></p></div>`;
+  return`<div class="bar"><button class="btn mo" data-go>Results (${n}) ▶</button><button class="btn" data-clr>Clear</button></div><div class="sc">${fsec('Genre',S.ge,chip)}${fsec('Author',S.au,chip)}${fsec('Book',S.Bf,b=>`<div class="th ${F.b.has(String(b.id))?'on':''}" data-fb="${b.id}" title="${E(b.name)}">${cv(b)}</div>`)}${fsec('Theme',S.th,chip)}</div>`;
 }
 const more=n=>n>rlim?`<p style="text-align:center;margin-top:10px"><button class="btn" data-more>Show more (${n-rlim})</button></p>`:'';
 function Text(){
-  const S=fscope('Text'),T=by(D.Texts.filter(t=>S.scope.has(String(t.book))&&(!S.st.length||split(t.tags).map(x=>nz(x,'theme')).some(n=>S.st.includes(n)))),t=>dk(t.date),1);
+  const S=fscope('Text'),T=stab(D.Texts.filter(t=>S.scope.has(String(t.book))&&(!S.st.length||split(t.tags).map(x=>nz(x,'theme')).some(n=>S.st.includes(n)))),(a,b)=>cmp(dk(b.date),dk(a.date)),true);
   return[filt(S,T.length),`<div class="sc">${T.slice(0,rlim).map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${txL(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}${more(T.length)}</div>`,'Filter','Text'];
 }
 function Word(){
-  const S=fscope('Word'),W=by(D.Words.filter(w=>S.scope.has(String(w.book))),w=>dk(w.date),1);
+  const S=fscope('Word'),W=stab(D.Words.filter(w=>S.scope.has(String(w.book))),(a,b)=>cmp(dk(b.date),dk(a.date)),true);
   return[filt(S,W.length),`<div class="sc">${W.slice(0,rlim).map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${E(bk(w.book).name)}</span></div>`).join('')||'<p class="empty">Empty</p>'}${more(W.length)}</div>`,'Filter','Word'];
 }
 /* 책장: 화면 폭에 맞춰 책이 자동으로 줄바꿈되고, 선반 밑판은 CSS가 줄마다 그려줌 (JS로 폭을 재지 않음) */
+const BE='<svg class="be" viewBox="0 0 36 114" width="36" height="114" aria-hidden="true"><g stroke="#2b2924" stroke-width="2" stroke-linejoin="round"><path d="M3 112V8L11 17H17L25 8V112Z" fill="#8cc5b0"/><rect x="3" y="105" width="31" height="9" fill="#6fa996"/></g><circle cx="10" cy="30" r="1.9" fill="#2b2924"/><circle cx="18" cy="30" r="1.9" fill="#2b2924"/><circle cx="7" cy="37" r="2.2" fill="#f4a6b8"/><circle cx="21" cy="37" r="2.2" fill="#f4a6b8"/><path d="M11 35.5Q14 40 17 35.5" fill="none" stroke="#2b2924" stroke-width="1.5" stroke-linecap="round"/><path d="M14 72C8.5 67.5 10.5 62.5 14 65.5C17.5 62.5 19.5 67.5 14 72Z" fill="#e56b83"/></svg>';
 function Shelf(){
   const TW={'아주 얇음':10,얇음:17,중간:22.5,두꺼움:31.5},k=8,bw=b=>TW[tl(b.thickness)];
-  const sp=b=>{const w=bw(b),xt=tl(b.thickness)=='아주 얇음',sr=serOf(b),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||((SC.get(String(b.series))||0)>1?b.volume:'')||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.min(200,Math.max(80,hv(b)*k));
+  const sp=b=>{const w=bw(b),xt=tl(b.thickness)=='아주 얇음',sr=serOf(b),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.min(200,Math.max(80,hv(b)*k));
     const s=E(`${b.name} ${t} ${b.authorN} ${b.genreN} ${b.label||''}`.toLowerCase()),a=`class="sp${xt?' xt':''}${sel==b.id?' on':''}" data-b="${b.id}" data-s="${s}" title="${E(b.name)}" style="width:${w}px;height:${h}px;background:${E(c1)}"`;
     if(xt)return`<div ${a}><b class="xs" style="color:${E(c3)}">${E(t)}</b><i class="xb" style="background:${E(c2)}"></i></div>`;
     const pl=`<span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span>`;
     if(!v){const d=Math.min(8,Math.max(5,w-12));return`<div ${a}><i class="dm" style="width:${d}px;height:${d}px;background:${E(c3)}"></i><div class="bd sg">${pl}</div></div>`}
     return`<div ${a}><div class="bd">${pl}<em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${E(v)}</span></em></div></div>`};
-  return[`<div class="bar"><input id="sq" placeholder="Search title, author, genre…" value="${E(shq)}" style="flex:1" autocomplete="off"></div><div class="sc"><div class="shelf">${D.Books.map(b=>`<div class="slot">${sp(b)}</div>`).join('')}</div></div>`,det(sel),'Shelf','Book'];
+  const done=D.Books.filter(b=>fin(b.id)).sort((a,b)=>cmp(finD(a.id),finD(b.id))),todo=D.Books.filter(b=>!fin(b.id)).sort(byD);
+  const items=[...done.map(sp),...(todo.length?[`<div class="be" title="Unfinished books are on the right">${BE}</div>`]:[]),...todo.map(sp)];
+  return[`<div class="bar"><input id="sq" placeholder="Search title, author, genre…" value="${E(shq)}" style="flex:1" autocomplete="off"></div><div class="sc"><div class="shelf">${items.map(h=>`<div class="slot">${h}</div>`).join('')}</div></div>`,det(sel),'Shelf','Book'];
 }
 
 /* ---------- 폼 / 편집 ---------- */
@@ -466,14 +487,14 @@ const ttl=(s,lb,vol,multi)=>{lb=String(lb||'').trim();return!s?'':lb?`${s.name} 
 let TM=new Map(),TK=new Map(),SM=new Map(),SN=new Map(),SC=new Map();
 const serOf=b=>SM.get(String(b.series))||SN.get(String(b.series));
 const tn=v=>TM.has(String(v))?TM.get(String(v)):String(v??''),nz=(v,type)=>{v=String(v??'').trim();return!v?'':TM.has(v)?v:(TK.get(type+'|'+v)||v)};
-function calc(){TM=new Map(D.Tags.map(t=>[String(t.id),t.name]));TK=new Map(D.Tags.map(t=>[String(t.type).toLowerCase()+'|'+t.name,String(t.id)]));BM=new Map(D.Books.map(b=>[String(b.id),b]));LM=new Map();D.Logs.forEach(l=>{const k=String(l.book),a=LM.get(k);a?a.push(l):LM.set(k,[l])});SM=new Map(D.Series.map(x=>[String(x.id),x]));SN=new Map(D.Series.map(x=>[x.name,x]));SC=new Map();D.Books.forEach(b=>{const k=String(b.series);SC.set(k,(SC.get(k)||0)+1)});D.Books.forEach(b=>{b.authorN=tn(nz(b.author,'author'));b.genreN=split(b.genre).map(x=>tn(nz(x,'genre'))).join(', ');const s=serOf(b);b.name=s?ttl(s,b.label,b.volume,(SC.get(String(b.series))||0)>1):(b.name||'(untitled)')})}
+function calc(){TM=new Map(D.Tags.map(t=>[String(t.id),t.name]));TK=new Map(D.Tags.map(t=>[String(t.type).toLowerCase()+'|'+t.name,String(t.id)]));BM=new Map(D.Books.map(b=>[String(b.id),b]));LM=new Map();D.Logs.forEach(l=>{const k=String(l.book),a=LM.get(k);a?a.push(l):LM.set(k,[l])});CS=new Map();LM.forEach((a,k)=>CS.set(k,sess(a)));SM=new Map(D.Series.map(x=>[String(x.id),x]));SN=new Map(D.Series.map(x=>[x.name,x]));SC=new Map();D.Books.forEach(b=>{const k=String(b.series);SC.set(k,(SC.get(k)||0)+1)});D.Books.forEach(b=>{b.authorN=tn(nz(b.author,'author'));b.genreN=split(b.genre).map(x=>tn(nz(x,'genre'))).join(', ');const s=serOf(b);b.name=s?ttl(s,b.label,b.volume,(SC.get(String(b.series))||0)>1):(b.name||'(untitled)')})}
 function markShelf(){document.querySelectorAll('#L .sp').forEach(s=>s.classList.toggle('hit',!!shq&&s.dataset.s.includes(shq)));const c=$('#L .sc');if(c)c.classList.toggle('sh-q',!!shq)}
-function render(){calc();const pv=$('#L .sc'),st0=pv?pv.scrollTop:0,lt0=lastTab;lastTab=tab;
+function render(){calc();const pv=$('#L .sc'),lt0=lastTab;lastTab=tab;if(pv&&pv.offsetParent!==null)ls[tab]=pv.scrollTop;
   $('#tabs').innerHTML=TABS.map(t=>`<button class="tab ${t==tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
   const v={Main,Book,Log,Text,Word,Shelf}[tab]();let R=v[1],rt=v[3];
   if(cfg){R=settingsHtml();rt='Settings'}else if(ed)rt=ed.isNew?'New Book':'Edit Book';else if(fm){R=formHtml();rt=(fm.isNew?'New ':'Edit ')+SK[fm.sheet]}
   $('#L').innerHTML=v[0];$('#R').innerHTML=R||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(rt);$('#grid').dataset.v=view;hydrate();fit();
-  if(lt0===tab){const n=$('#L .sc');if(n)n.scrollTop=st0}
+  if(lt0===tab&&$('#L').offsetParent!==null){const n=$('#L .sc');if(n)n.scrollTop=ls[tab]||0}
   if(tab=='Shelf')markShelf();
 }
 document.addEventListener('click',async e=>{
@@ -506,7 +527,7 @@ document.addEventListener('click',async e=>{
   if(x=g('data-add')){openForm(x.dataset.add,null,x.dataset.bk);return}
   if(x=g('data-edit')){const[sh,id]=x.dataset.edit.split(':');openForm(sh,D[sh].find(r=>String(r.id)==id));return}
   if(g('data-more')){const sc=$('#R .sc'),st=sc?sc.scrollTop:0;rlim+=40;render();const n=$('#R .sc');if(n)n.scrollTop=st;return}
-  if(x=g('data-tab')){if(ed)cancelEdit(true);fm=null;cfg=false;tab=x.dataset.tab;view='L';rlim=40}
+  if(x=g('data-tab')){if(ed)cancelEdit(true);fm=null;cfg=false;tab=x.dataset.tab;view='L';rlim=40;ls[tab]=0}
   else if(g('data-back')){if(ed)cancelEdit(true);fm=null;cfg=false;view='L'}
   else if(g('data-go'))view='R';
   else if(x=g('data-fb')){const i=x.dataset.fb;F.b.has(i)?F.b.delete(i):F.b.add(i);rlim=40}
