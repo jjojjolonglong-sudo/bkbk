@@ -24,8 +24,8 @@ body{font:14px/1.45 var(--ui);color:var(--ink);padding:10px;background:var(--des
 .ph::after{content:"----------------------------------------------------------------------------------------------------------------------------------";display:block;overflow:hidden;white-space:nowrap;color:var(--sh);letter-spacing:1px}
 .body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .sc{overflow:auto;flex:1;min-height:0;padding:10px}
-.half{flex:1;min-height:0;overflow:auto;padding:8px}
-.half+.half,.stat+.sc{border-top:1px dashed var(--sh)}
+
+.stat+.sc{border-top:1px dashed var(--sh)}
 h3{font:700 13px var(--ui);margin:14px 0 6px;padding-bottom:2px;border-bottom:1px dashed var(--sh)}
 h3:first-child{margin-top:0}
 h2{font:700 20px/1.3 var(--se);margin-top:10px}
@@ -33,7 +33,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .cv{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font:700 10px/1.2 var(--se);overflow:hidden;border:1px solid var(--dk);box-shadow:2px 2px 0 #0003;flex:none;padding:2px}
 .cv.sm{width:26px;height:36px}.cv.lg{width:96px;height:136px;font-size:13px;margin:0}
 .cv .ct{writing-mode:vertical-rl;font:700 8px/1 var(--se);letter-spacing:0;white-space:nowrap}.cv.lg .ct{font-size:20px}.th .cv .ct{font-size:9px}
-.cv img,.ci{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .it{display:flex;gap:8px;padding:3px 6px;cursor:pointer;border:1px solid transparent}
 .it:hover{border:1px dotted var(--ink)}.it.on{background:var(--navy);color:#fff}
 .it .t{font-weight:700;font-size:13px}.it .t .s{font-weight:400;font-size:11px;opacity:.75}.it .s{font-size:11px;opacity:.8}.it>div:last-child{flex:1;min-width:0}
@@ -50,7 +50,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .ov p{font:15px/1.6 var(--se)}.ov small{margin-top:10px}.ov small{color:var(--sh);font-size:12px}
 .ov p.w{font-size:20px;font-weight:700}
 .main .card{margin:14px auto;width:min(100%,340px)}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
 .btn,.chip{font:inherit;font-size:12px;padding:3px 10px;background:var(--face);cursor:pointer;border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;margin:2px}
 .btn:active,.chip.on{border-color:var(--dk) #fff #fff var(--dk);background:#c3bca9;font-weight:700}
 .bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
@@ -61,11 +61,6 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .dc{min-height:70px;background:#fff8;border:1px solid #bdb59f;padding:2px;min-width:0;overflow:hidden}
 .dc em{font-style:normal;color:var(--sh)}
 .lb{margin-top:2px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:1px solid #0005}
-.shelves{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:34px 18px}
-.row{min-width:0}
-.sp.xt{border-radius:2px 2px 0 0}
-.board{position:relative;display:flex;align-items:flex-end;height:214px;padding:0 6px}
-.board::after{content:'';position:absolute;left:-2px;right:-2px;top:100%;height:10px;background:var(--face);border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:0 3px 0 #0002}.vs{flex:none;height:6px;margin-top:3px}
 .sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%;transition:transform .12s}
 .sp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(255,255,255,.15) 20%,transparent 50%,rgba(0,0,0,.22))}
 .sp:hover,.sp.hit{transform:scale(1.06);z-index:2}.sp.on{transform:scale(1.04);z-index:1}
@@ -91,9 +86,20 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .bar input{font:inherit;padding:3px 6px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff;min-width:0}
 .fprev{margin-top:10px;padding:10px;border:1px dashed var(--sh);font:16px/1.6 var(--se)}
 .chips{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
+.sp.xt{border-radius:2px 2px 0 0}
+.shelf{display:flex;flex-wrap:wrap;align-items:flex-end;row-gap:34px;padding-bottom:36px;background:linear-gradient(to bottom,transparent 0 214px,#fff 214px 216px,var(--face) 216px 222px,var(--dk) 222px 224px,rgba(0,0,0,.13) 224px 227px,transparent 227px) 0 0/100% 248px repeat-y}
+.slot{flex:none;height:214px;display:flex;align-items:flex-end}
+.sp{flex:none}.bd.sg{top:26px;bottom:26px}
+.dm{position:absolute;left:50%;top:13px;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.ms{position:relative}.msb{position:relative;width:100%;text-align:left;font:inherit;padding:3px 18px 3px 6px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;min-height:27px}
+.msb::after{content:'▾';position:absolute;right:5px;top:3px}
+.msp{position:absolute;right:0;top:100%;z-index:6;min-width:180px;max-width:80vw;background:var(--paper);border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:2px 2px 0 #0003;padding:6px}
+.msl{max-height:170px;overflow:auto}.msl label{display:flex;gap:6px;align-items:center;padding:2px 0;font-size:13px;white-space:nowrap;color:var(--ink)}
+.msl input[type=checkbox]{width:auto}.msa{display:flex;gap:4px;margin-top:6px}.msa input{flex:1;min-width:0}
+@media(min-width:761px){#app{min-height:730px}}
 .upl{background:#fffd;padding:2px 4px;font-size:11px;color:var(--ink)}
 .btn:disabled{cursor:wait}
-.mc{cursor:pointer}.mc .ov{background:none;justify-content:center;align-items:center;text-align:center}.mc .ov small{color:inherit;opacity:.7}
+.mc{cursor:pointer}.mc .ov{padding:28px;background:none;justify-content:center;align-items:center;text-align:center}.mc .ov p{word-break:keep-all;overflow-wrap:break-word}.mc .ov small{color:inherit;opacity:.7}
 .mb,.mo{display:none}.mb{margin-right:8px;font-size:12px}
 .ln .bk{flex:none;max-width:38%;color:var(--sh);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hs{display:flex;flex-wrap:wrap;gap:6px;padding:2px}.hs>*{flex:none}.hs .th{width:46px}.hs .chip{white-space:nowrap}
@@ -101,17 +107,15 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .fl{margin-top:8px;font-size:12px;min-width:0;flex:1}.fl>span{display:block;color:var(--sh)}
 .r2{display:flex;gap:8px}.inl{display:flex;gap:4px}.inl select,.inl input{flex:1;min-width:0}
 .cvup{width:110px;height:156px;margin:0 auto;border:2px dashed var(--sh);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:#fff center/cover;color:var(--sh);font-size:12px}
-.ro{background:#e8e4d6!important}
+
 .sr{width:18px;height:18px;vertical-align:middle}.sr .bg{fill:#fff;stroke:var(--dk);stroke-width:1.2}.sr .fg{fill:var(--red)}
 .err{background:#fff2b0;padding:6px 10px;border-bottom:1px solid var(--sh);font-size:12px}
 .bar{padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;flex:none}
-#md{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:9;padding:10px}
-#md.on{display:flex}#md .win{width:min(480px,100%);max-height:90vh}#md form{padding:10px;overflow:auto}
-#md label{display:block;font-size:12px;margin-top:6px}
-#md input,#md select,#md textarea,.fl input,.fl select,.fl textarea{width:100%;font:inherit;padding:3px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
-#md input[type=color],.fl input[type=color]{height:28px;padding:0}
+#bf input[type=checkbox]{width:auto}
+.fl input,.fl select,.fl textarea{width:100%;font:inherit;padding:3px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
+.fl input[type=color]{height:28px;padding:0}
 [data-edit]{cursor:pointer!important}[data-edit]:hover{outline:1px dotted var(--red)}
-@media(max-width:760px){body{padding:4px}#app{height:calc(100vh - 8px);height:calc(100dvh - 8px)}#grid{grid-template-columns:1fr;overflow:auto;padding:4px}#grid[data-v=L] .pane:nth-child(2){display:none}#grid[data-v=R] .pane:nth-child(1){display:none}.mb,.mo{display:inline-block!important}.bar.mo{display:flex!important}#tabs{padding:4px 4px 0;gap:1px}.tab{flex:1;min-width:0;padding:4px 0;font-size:12px;text-align:center}#md{padding:4px;align-items:flex-start}#md .win{max-height:calc(100vh - 8px);max-height:calc(100dvh - 8px)}#md form{padding:6px 8px}#md input,#md select,#md textarea,.fl input,.fl select,.fl textarea,.bar input{font-size:16px}.fl{margin-top:4px}}
+@media(max-width:760px){body{padding:4px}#app{height:calc(100vh - 8px);height:calc(100dvh - 8px)}#grid{grid-template-columns:1fr;overflow:auto;padding:4px}#grid[data-v=L] .pane:nth-child(2){display:none}#grid[data-v=R] .pane:nth-child(1){display:none}.mb,.mo{display:inline-block!important}.bar.mo{display:flex!important}#tabs{padding:4px 4px 0;gap:1px}.tab{flex:1;min-width:0;padding:4px 0;font-size:12px;text-align:center}.fl input,.fl select,.fl textarea,.bar input{font-size:16px}.fl{margin-top:4px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:2px dotted var(--red);outline-offset:1px}
 </style></head><body>
@@ -123,7 +127,6 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
   <div class="pane"><div class="ph" id="rt"></div><div class="body" id="R"></div></div>
  </div>
 </div>
-<div id="md"></div>
 <script>
 /* 웹앱 URL·키는 코드에 넣지 않고 ⚙ 버튼으로 입력 → 이 브라우저(localStorage)에만 저장 */
 const LS=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
@@ -132,7 +135,7 @@ const API=LS('bkbk_api'),KEY=LS('bkbk_key');
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TABS=['Main','Book','Log','Text','Word','Shelf'];
 let favPrev=null,lastTab='',view='L',D,tab='Main',sel=null,cal=new Date(),F={b:new Set(),t:new Set()},fav=null,cfg=false,shq='';
-const P=v=>parseFloat(v)||0,PC=v=>Math.round(P(v)*10000)/100,DP=v=>Math.round(P(v)*100),dk=d=>String(d||'').slice(0,10);
+const P=v=>parseFloat(v)||0,PC=v=>Math.round(P(v)*10000)/100,dk=d=>String(d||'').slice(0,10);
 const by=(a,f,r)=>[...a].sort((x,y)=>(f(x)>f(y)?1:f(x)<f(y)?-1:0)*(r?-1:1));
 const has=v=>v!==''&&v!=null,bpg=o=>P((BM.get(String(o.book))||{}).page);
 const epc=(o,pk,gk)=>has(o[pk])?PC(o[pk]):has(o[gk])&&bpg(o)?Math.min(100,P(o[gk])/bpg(o)*100):0;
@@ -158,7 +161,7 @@ async function refresh(bg){
   const w0=wseq;
   try{const r=await fetch(API+(API.includes('?')?'&':'?')+'action=all&key='+encodeURIComponent(KEY));const j=await r.json();if(j.error)throw new Error(j.error);
     for(const k of['Books','Tags','Series','Logs','Texts','Words'])j[k]=j[k]||[];
-    if(bg&&(wseq!==w0||wq.length||wbusy||ed||cfg||$('#md').classList.contains('on'))){$('#status').textContent='connecting...';return}
+    if(bg&&(wseq!==w0||wq.length||wbusy||ed||cfg||fm)){$('#status').textContent='connecting...';return}
     D=j;idbSet('data:'+API,j);$('#status').textContent='connecting...';if(bg)render()}
   catch(e){if(bg){$('#status').textContent='offline (cached)';return}D=demo();$('#status').textContent='offline (demo)';$('#msg').innerHTML='<div class="err">Could not load the sheet. Check the web app URL and its access setting (Anyone).</div>'}
 }
@@ -199,11 +202,9 @@ const stars=n=>{n=P(n)/2;return'<span style="white-space:nowrap">'+[0,1,2,3,4].m
 const HL={낮음:17,중간:21,높음:25},TL={'아주 얇음':.8,얇음:1.5,중간:2.5,두꺼움:3.5};
 const hv=b=>HL[b.height]||P(b.height)||21,tv=b=>TL[b.thickness]||P(b.thickness)||2.5;
 const hl=v=>HL[v]?v:!has(v)?'중간':P(v)<19?'낮음':P(v)<23?'중간':'높음',tl=v=>TL[v]?v:!has(v)?'중간':P(v)<1?'아주 얇음':P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
-const lv=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return 128;const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11};
 const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t ell">${E(b.name)}${b.authorN?`<span class="s"> / ${E(b.authorN)}</span>`:''}</div>${pb(prog(b.id))}</div></div>`;
 const txB=x=>String(x??'').split(/\s*\n\s*|\s+\/\s+/).filter(y=>y!==''),txL=x=>E(txB(x).join(' / ')),txP=x=>txB(x).map(E).join('<br>');
 const pp=t=>{const a=[];if(has(t.page))a.push('p '+t.page);if(has(t.pct)||(has(t.page)&&bpg(t)))a.push(Math.round(eAt(t))+'%');return a.join(' / ')};
-const card=(b,main,sub,cls='',ed='')=>`<div class="card" ${ed?`data-edit="${ed}"`:''} style="--c:${E(b.color1||'#8a7f6a')}">${b.cover?IM(b.cover,'class="ci"'):''}<div class="ov"><p class="${cls}">${main}</p><small>${sub}</small></div></div>`;
 const sec=(t,h)=>h?`<h3>${t}</h3>${h}`:'';
 
 function det(id){return cfg?settingsHtml():ed?bookEdit():bookView(id)}
@@ -220,17 +221,14 @@ function bookView(id){
   ${sec('Word',W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span></div>`).join(''))}</div>`;
 }
 function bookEdit(){
-  const r=ed.row,col=['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${hx(r[k])}" style="height:28px;padding:0;min-width:0">`).join('');
+  const r=ed.row,col=['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${hx(r[k])}" style="width:28px;height:28px;padding:0;min-width:0">`).join('');
   return`<div class="bar"><button class="btn" data-bsave><b>Save</b></button><button class="btn" data-bcancel>Cancel</button>${ed.isNew?'':'<button class="btn" data-bdel>Delete</button>'}</div>
   <form id="bf" onsubmit="return false"><div class="sc"><div class="dh"><div class="cvup" id="cvup" style="width:96px;height:136px;margin:0;flex:none;${r.cover?`background-image:url('${E(img(r.cover,400))}')`:''}">${r.cover?'':'Cover +'}</div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}">
   <div class="di">${fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)}
   <div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>
-  ${fl('Author',`<div class="inl" id="in-author">${inl('author',nz(r.author,'author'))}</div>`)}
+  <div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',nz(r.author,'author'))}</div>`)}${fl('Genre',msBox('genre',split(r.genre).map(x=>nz(x,'genre'))))}</div>
   <div class="r2">${fl('Page',inp('page',r.page,'type="number" min="0"'))}${fl('Chars',inp('charcount',r.charcount,'type="number" min="0" step="0.1" placeholder="만자 단위"'))}</div></div></div>
-  ${fl('Genre',chipBox('genre',split(r.genre).map(x=>nz(x,'genre'))))}
-  <div class="s" id="bnm" style="margin-top:6px;min-height:1.2em"></div>
-  ${fl('Color',`<div class="r2" style="gap:6px">${col}</div>`)}
-  <div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thickness">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thickness),x=>[x,x])}</select>`)}</div>
+  <div class="r2" style="gap:6px;align-items:flex-end"><div class="fl" style="flex:none"><span>Color</span><div style="display:flex;gap:3px">${col}</div></div>${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thickness">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thickness),x=>[x,x])}</select>`)}</div>
   <div class="r2">${fl('Platform',`<div class="inl" id="in-platform">${inl('platform',nz(r.platform,'platform'))}</div>`)}${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="0" max="10" step="1" value="${r.star||0}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div>
   ${fl('Comment',`<textarea name="comment" rows="3">${E(r.comment)}</textarea>`)}</div></form>`;
 }
@@ -246,7 +244,7 @@ function Main(){
   const bc=b.color1||'#8a7f6a',c=t?`<div class="main"><div class="card mc" data-roll style="background:${E(bc)};color:${lum(bc)}"><div class="ov"><p>${txP(t.text)}</p><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small></div></div></div>`:'<p class="empty">Empty</p>';
   return[st+`<div class="sc">${c}</div>`,'','Main','Memo'];
 }
-let pgAll=0;const PER=6;
+let pgAll=0;const PER=7;
 function Book(){
   const all=[...by(D.Books.filter(b=>fin(b.id)),b=>finD(b.id),1),...D.Books.filter(b=>!fin(b.id))];
   const rec=by(D.Books.filter(b=>!fin(b.id)&&lastD(b.id)),b=>lastD(b.id),1).slice(0,3).reverse();
@@ -271,71 +269,90 @@ function fscope(k){
   const sb=Bf.filter(b=>F.b.has(String(b.id)));
   return{au,ge,th,st,Bf,scope:new Set((sb.length?sb:Bf).map(b=>String(b.id)))};
 }
-const fp={Genre:0,Author:0,Book:0,Theme:0},PS={Genre:8,Author:8,Book:8,Theme:12};
+/* 필터 목록: 한 줄에 딱 들어가는 만큼만 보여주고, ◀ ▶ 로 넘김 (페이지 시작 위치를 기억) */
+const FS={};['Genre','Author','Book','Theme'].forEach(k=>FS[k]={s:0,h:[],n:8,t:0});
+let rlim=40;
 function fsec(key,arr,fn){
+  const f=FS[key];f.t=arr.length;if(f.s>=arr.length){f.s=0;f.h=[]}
   if(!arr.length)return key=='Book'?`<h3>${key}</h3><p class="empty">Empty</p>`:'';
-  const per=PS[key],np=Math.ceil(arr.length/per);fp[key]=Math.max(0,Math.min(fp[key],np-1));
-  return`<h3 class="hp">${key}${np>1?`<span><button class="btn" data-fp="${key}:-1">◀</button> ${fp[key]+1}/${np} <button class="btn" data-fp="${key}:1">▶</button></span>`:''}</h3><div class="hs">${arr.slice(fp[key]*per,fp[key]*per+per).map(fn).join('')}</div>`;
+  return`<h3 class="hp">${key}<span class="pgc" hidden><button class="btn" data-fp="${key}:-1">◀</button> <i></i> <button class="btn" data-fp="${key}:1">▶</button></span></h3><div class="hs" data-key="${key}">${arr.slice(f.s,f.s+40).map(fn).join('')}</div>`;
+}
+function fit(){
+  document.querySelectorAll('#L .hs').forEach(h=>{
+    const f=FS[h.dataset.key],c=[...h.children];if(!f||!c.length||!h.clientWidth)return;
+    const t0=c[0].offsetTop;let n=0;while(n<c.length&&c[n].offsetTop===t0)n++;
+    for(let i=n;i<c.length;i++)c[i].style.display='none';
+    f.n=n;const pc=h.previousElementSibling.querySelector('.pgc'),bt=pc.querySelectorAll('button');
+    pc.hidden=!(f.s>0||f.s+n<f.t);pc.querySelector('i').textContent=`${f.s+1}–${f.s+n} / ${f.t}`;bt[0].disabled=!f.s;bt[1].disabled=f.s+n>=f.t;
+  });
 }
 function filt(S,n){
   const chip=x=>`<button class="chip ${F.t.has(x)?'on':''}" data-ft="${E(x)}">${E(tn(x))}</button>`;
   return`<div class="bar mo"><button class="btn" data-go>Results (${n}) ▶</button></div><div class="sc">${fsec('Genre',S.ge,chip)}${fsec('Author',S.au,chip)}${fsec('Book',S.Bf,b=>`<div class="th ${F.b.has(String(b.id))?'on':''}" data-fb="${b.id}" title="${E(b.name)}">${cv(b)}</div>`)}${fsec('Theme',S.th,chip)}<p style="margin-top:12px"><button class="btn" data-clr>Clear</button></p></div>`;
 }
+const more=n=>n>rlim?`<p style="text-align:center;margin-top:10px"><button class="btn" data-more>Show more (${n-rlim})</button></p>`:'';
 function Text(){
   const S=fscope('Text'),T=by(D.Texts.filter(t=>S.scope.has(String(t.book))&&(!S.st.length||split(t.tags).map(x=>nz(x,'theme')).some(n=>S.st.includes(n)))),t=>dk(t.date),1);
-  return[filt(S,T.length),`<div class="sc">${T.map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${txL(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Text'];
+  return[filt(S,T.length),`<div class="sc">${T.slice(0,rlim).map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${txL(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}${more(T.length)}</div>`,'Filter','Text'];
 }
 function Word(){
   const S=fscope('Word'),W=by(D.Words.filter(w=>S.scope.has(String(w.book))),w=>dk(w.date),1);
-  return[filt(S,W.length),`<div class="sc">${W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${E(bk(w.book).name)}</span></div>`).join('')||'<p class="empty">Empty</p>'}</div>`,'Filter','Word'];
+  return[filt(S,W.length),`<div class="sc">${W.slice(0,rlim).map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${E(bk(w.book).name)}</span></div>`).join('')||'<p class="empty">Empty</p>'}${more(W.length)}</div>`,'Filter','Word'];
 }
+/* 책장: 화면 폭에 맞춰 책이 자동으로 줄바꿈되고, 선반 밑판은 CSS가 줄마다 그려줌 (JS로 폭을 재지 않음) */
 function Shelf(){
   const TW={'아주 얇음':10,얇음:17,중간:22.5,두꺼움:31.5},k=8,bw=b=>TW[tl(b.thickness)];
   const sp=b=>{const w=bw(b),xt=tl(b.thickness)=='아주 얇음',sr=serOf(b),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||((SC.get(String(b.series))||0)>1?b.volume:'')||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.min(200,Math.max(80,hv(b)*k));
-    const s=E(`${b.name} ${t} ${b.authorN} ${b.genreN} ${b.label||''}`.toLowerCase()),a=`class="sp${xt?' xt':''}${sel==b.id?' on':''}" data-b="${b.id}" data-s="${s}" title="${E(b.name)}" style="flex:0 1 ${w}px;height:${h}px;background:${E(c1)}"`;
+    const s=E(`${b.name} ${t} ${b.authorN} ${b.genreN} ${b.label||''}`.toLowerCase()),a=`class="sp${xt?' xt':''}${sel==b.id?' on':''}" data-b="${b.id}" data-s="${s}" title="${E(b.name)}" style="width:${w}px;height:${h}px;background:${E(c1)}"`;
     if(xt)return`<div ${a}><b class="xs" style="color:${E(c3)}">${E(t)}</b><i class="xb" style="background:${E(c2)}"></i></div>`;
-    return`<div ${a}><div class="bd"><span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span>${v?`<em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${E(v)}</span></em>`:`<i class="vs" style="background:${E(c3)}"></i>`}</div></div>`};
-  const sh=[];for(let i=0;i<D.Books.length;i+=10)sh.push(D.Books.slice(i,i+10));
-  return[`<div class="bar"><input id="sq" placeholder="Search title, author, genre…" value="${E(shq)}" style="flex:1" autocomplete="off"></div><div class="sc"><div class="shelves">${sh.map(r=>`<div class="row"><div class="board">${r.map(sp).join('')}</div></div>`).join('')}</div></div>`,det(sel),'Shelf','Book'];
+    const pl=`<span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span>`;
+    if(!v){const d=Math.min(8,Math.max(5,w-12));return`<div ${a}><i class="dm" style="width:${d}px;height:${d}px;background:${E(c3)}"></i><div class="bd sg">${pl}</div></div>`}
+    return`<div ${a}><div class="bd">${pl}<em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${E(v)}</span></em></div></div>`};
+  return[`<div class="bar"><input id="sq" placeholder="Search title, author, genre…" value="${E(shq)}" style="flex:1" autocomplete="off"></div><div class="sc"><div class="shelf">${D.Books.map(b=>`<div class="slot">${sp(b)}</div>`).join('')}</div></div>`,det(sel),'Shelf','Book'];
 }
 
-
 /* ---------- 폼 / 편집 ---------- */
-const FLD={Logs:'date book chapter onpage offpage onpct offpct',Texts:'date book chapter page pct text notion tags',Words:'date book chapter page pct word meaning',Tags:'name type',Series:'name'};
-const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',meaning:'Meaning',name:'Name',type:'Type'};
-const SK={Books:'Book',Logs:'Log',Texts:'Text',Words:'Word',Tags:'Tag',Series:'Series'};
+const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',meaning:'Meaning'};
+const SK={Logs:'Log',Texts:'Text',Words:'Word'};
+const LAY={Logs:['date book','chapter','onpage offpage','onpct offpct'],Texts:['date book','chapter page pct','text','notion','tags'],Words:['date book','chapter page pct','word','meaning']};
 const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
 const nid=sh=>{const ch='abcdefghijklmnopqrstuvwxyz0123456789';let id;do{id=sh+'_'+Array.from({length:8},()=>ch[Math.floor(Math.random()*36)]).join('')}while(D[sh].some(r=>r.id==id));return id};
 const post=async b=>(await fetch(API,{method:'POST',body:JSON.stringify({...b,key:KEY})})).json();
-async function addTag(name,type){const ex=tagsOf(type.toLowerCase()).find(t=>t.name==name);if(ex)return ex.id;const r={name,type};r.id=nid('Tags');send('Tags',r,false,true);return r.id}
+async function addTag(name,type){const ex=tagsOf(type.toLowerCase()).find(t=>t.name==name);if(ex)return ex.id;const r={name,type};r.id=nid('Tags');send('Tags',r,false,true);TM.set(String(r.id),name);TK.set(type.toLowerCase()+'|'+name,String(r.id));return r.id}
 const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
-let cur,ed=null,up=0;
+let ed=null,fm=null,up=0;
 const opt=(a,v,f)=>a.map(x=>{const[i,n]=f(x);return`<option value="${E(i)}" ${i==v?'selected':''}>${E(n)}</option>`}).join('');
 const fl=(l,h)=>`<div class="fl"><span>${l}</span>${h}</div>`;
 const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):k=='platform'&&!tagsOf('platform').length?PLAT.map(x=>[x,x]):tagsOf(k).map(t=>[t.id,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
 const inp=(k,v,x='')=>`<input name="${k}" value="${E(v)}" ${x}>`;
-const chipBox=(k,sel)=>{const S=new Set(sel.map(String)),h=k=='theme'?'tags':'genre';return`<div class="chipwrap" id="cw-${k}"><div class="chips">${tagsOf(k).map(t=>`<button type="button" class="chip ${S.has(String(t.id))?'on':''}" data-tt="${E(t.id)}">${E(t.name)}</button>`).join('')}<span id="in-${k}"><button type="button" class="btn" data-ia="${k}">+</button></span></div><input type="hidden" name="${h}" value="${E([...S].join(','))}"></div>`};
+/* Theme: 버튼식 다중 선택 */
+const chipBox=(k,sel)=>{const S=new Set(sel.map(String));return`<div class="chipwrap" id="cw-${k}"><div class="chips">${tagsOf(k).map(t=>`<button type="button" class="chip ${S.has(String(t.id))?'on':''}" data-tt="${E(t.id)}">${E(t.name)}</button>`).join('')}<span id="in-${k}"><button type="button" class="btn" data-ia="${k}">+</button></span></div><input type="hidden" name="tags" value="${E([...S].join(','))}"></div>`};
 const thmBox=sel=>chipBox('theme',sel);
-const thmBoxOld=sel=>{const S=new Set(sel.map(String));return`<div id="thbox" class="chips">${tagsOf('theme').map(t=>`<button type="button" class="chip ${S.has(String(t.id))?'on':''}" data-tt="${E(t.id)}">${E(t.name)}</button>`).join('')}<span id="in-theme"><button type="button" class="btn" data-ia="theme">+</button></span></div><input type="hidden" name="tags" value="${E([...S].join(','))}">`};
-/* Log / Text / Word 입력은 팝업 */
+/* Genre: 체크박스 드롭다운 (자리를 적게 차지) */
+const msBox=(k,sel)=>{const S=new Set(sel.map(String)),T=tagsOf(k);return`<div class="ms" id="cw-${k}"><button type="button" class="msb" data-ms>${E([...S].map(tn).join(', ')||'-')}</button><div class="msp" hidden><div class="msl">${T.map(t=>`<label><input type="checkbox" data-mc value="${E(t.id)}" ${S.has(String(t.id))?'checked':''}> ${E(t.name)}</label>`).join('')||'<span class="s">No items yet</span>'}</div><div class="msa"><input id="ni-${k}" placeholder="New ${k}" maxlength="60"><button type="button" class="btn" data-ic="${k}">+</button></div></div><input type="hidden" name="${k}" value="${E([...S].join(','))}"></div>`};
+/* Log / Text / Word 입력: 오른쪽 영역에 표시 */
 function openForm(sheet,row,bid){
-  const isNew=!row;row=row?{...row}:{book:bid||sel||(D.Books[0]||{}).id,date:new Date().toISOString().slice(0,10)};
-  cur={sheet,row,isNew};
+  if(ed)cancelEdit(true);cfg=false;
+  fm={sheet,row:row?{...row}:{book:bid||sel||(D.Books[0]||{}).id,date:new Date().toISOString().slice(0,10)},isNew:!row};view='R';render();
+}
+function formHtml(){
+  const{sheet,row,isNew}=fm;
   const f=k=>{const v=row[k]??'';
     if(k=='book')return`<select name="book">${opt(D.Books,v,b=>[b.id,b.name])}</select>`;
-    if(k=='type')return`<select name="type">${opt(['Author','Genre','Theme'],v,x=>[x,x])}</select>`;
     if(k=='date')return`<input type="date" name="date" value="${dk(v)}">`;
     if(k=='tags')return thmBox(split(v).map(x=>nz(x,'theme')));
-    if(['text','notion'].includes(k))return`<textarea name="${k}" rows="3">${E(v)}</textarea>`;
+    if(k=='text')return`<textarea name="text" rows="5">${E(v)}</textarea>`;
+    if(k=='notion')return`<textarea name="notion" rows="2">${E(v)}</textarea>`;
     return inp(k,['onpct','offpct','pct'].includes(k)&&v!==''?PC(v):v)};
-  $('#md').innerHTML=`<div class="win"><div class="tb"><span>${isNew?'New':'Edit'} ${SK[sheet]}</span></div><form onsubmit="return false">${FLD[sheet].split(' ').map(k=>fl(KO[k],f(k))).join('')}<div style="margin:14px 0 4px;text-align:right"><button type="button" class="btn" data-cancel>Cancel</button> ${isNew?'':'<button type="button" class="btn" data-del>Delete</button> '}<button type="button" class="btn" data-save><b>Save</b></button></div></form></div>`;
-  $('#md').classList.add('on');
+  const body=LAY[sheet].map(g=>{const ks=g.split(' '),h=ks.map(k=>fl(KO[k],f(k))).join('');return ks.length>1?`<div class="r2">${h}</div>`:h}).join('');
+  return`<div class="bar"><button class="btn" data-fsave><b>Save</b></button><button class="btn" data-fcancel>Cancel</button>${isNew?'':'<button class="btn" data-fdel>Delete</button>'}</div><form id="ff" onsubmit="return false"><div class="sc">${body}</div></form>`;
 }
-async function doSave(){
-  const r={...cur.row};for(const[k,v]of new FormData($('#md form')).entries())r[k]=v;
+function saveForm(){
+  const r={...fm.row},sh=fm.sheet;for(const[k,v]of new FormData($('#ff')).entries())r[k]=v;
   ['onpct','offpct','pct'].forEach(k=>{if(k in r)r[k]=r[k]===''?'':Math.round(P(r[k])*100)/10000});
-  await send(cur.sheet,r);
+  fm=null;send(sh,r);
 }
+/* 저장은 화면에 먼저 반영하고 서버에는 순서대로 보냄 */
 const wq=[];let wbusy=false,wseq=0,wfail=[],ct;
 function cacheSoon(){clearTimeout(ct);ct=setTimeout(()=>{if(API&&D)idbSet('data:'+API,D)},400)}
 function enqueue(j){wseq++;wq.push(j);pumpW()}
@@ -352,10 +369,10 @@ function send(sheet,row,del,quiet){
   const a=D[sheet],i=a.findIndex(r=>r.id==row.id);del?(i>=0&&a.splice(i,1)):i>=0?(a[i]=row):a.push(row);
   if(API){const o={...row};delete o.authorN;delete o.genreN;enqueue({sheet,row:o,del})}
   cacheSoon();
-  if(!quiet){$('#md').classList.remove('on');render()}
+  if(!quiet)render();
 }
 /* Book 입력/수정은 상세 영역 안에서 */
-function startEdit(b){cfg=false;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'중간',thickness:'중간'},isNew:!b,ups:[]};view='R';render()}
+function startEdit(b){cfg=false;fm=null;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'중간',thickness:'중간'},isNew:!b,ups:[]};view='R';render()}
 function cancelEdit(nr){if(!ed)return;ed.closed=true;if(API&&ed.ups.length)enqueue({action:'trash',ids:ed.ups});ed=null;up=0;if(!nr)render()}
 async function saveBook(){
   if(up){alert('The cover is still uploading. Please wait a moment.');return}
@@ -364,19 +381,15 @@ async function saveBook(){
   r.volume=r.volume?Math.round(P(r.volume)):'';r.star=Math.min(10,Math.max(0,Math.round(P(r.star))));
   const ids=[...ed.ups,gid(ed.row.cover)].filter(id=>id&&id!==gid(r.cover));
   ed.closed=true;ed=null;up=0;
-  await send('Books',r,false,true);sel=r.id;render();
+  send('Books',r,false,true);sel=r.id;render();
   if(API&&ids.length)enqueue({action:'trash',ids});
 }
-async function delBook(){
+function delBook(){
   if(!confirm('삭제할까요?'))return;const ids=[gid(ed.row.cover)].filter(Boolean),row=ed.row;ed.closed=true;ed=null;up=0;
-  await send('Books',row,true,true);sel=null;view='L';render();
+  send('Books',row,true,true);sel=null;view='L';render();
   if(API&&ids.length)enqueue({action:'trash',ids});
 }
-function nameSync(){
-  const f=ed&&$('#bf');if(!f)return;const e=f.elements,s=D.Series.find(x=>x.id==e.series.value);
-  $('#bnm').textContent=s?'Title: '+ttl(s,e.label.value,e.volume.value,D.Books.some(b=>b.series==e.series.value&&b.id!=ed.row.id)):'';
-}
-function onSeries(){const e=$('#bf').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=ed.row.id).map(b=>P(b.volume)))+1:'';nameSync()}
+function onSeries(){const e=$('#bf').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=ed.row.id).map(b=>P(b.volume)))+1:''}
 function palette(im){
   const N=64,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,N,N);x.drawImage(im,0,0,N,N);
   const d=x.getImageData(0,0,N,N).data,B={},tot=N*N;
@@ -405,6 +418,7 @@ function onCover(f){
     finally{if(ed===tok)upBusy(-1)}
   };im.src=rd.result};rd.readAsDataURL(f);
 }
+
 /* ---------- 폰트 설정 (Drive 폴더의 폰트 파일 포함) ---------- */
 let UF=[],ufState='';
 const FB=[['Gowun Dodum','Gowun Dodum'],['Gowun Batang','Gowun Batang'],['Noto Sans KR','Noto Sans KR'],['Nanum Myeongjo','Nanum Myeongjo'],['IBM Plex Sans KR','IBM Plex Sans KR'],['Gaegu','Gaegu'],['sans-serif','System sans'],['serif','System serif'],['monospace','Monospace']];
@@ -440,12 +454,12 @@ async function setFont(t){
 }
 function applySaved(){['ui','se'].forEach(r=>{const v=LS('bkbk_f'+r);if(v)applyFont(r,v).catch(()=>{})})}
 document.addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.mc!==undefined){const w=t.closest('.ms'),on=[...w.querySelectorAll('[data-mc]:checked')].map(c=>c.value);w.querySelector('input[type=hidden]').value=on.join(',');w.querySelector('.msb').textContent=on.map(tn).join(', ')||'-';return}
   if(ed&&t.closest('#bf')){if(t.name=='series')onSeries();if(t.id=='cvf')onCover(t.files[0])}
   if(t.id=='s-fui'||t.id=='s-fse')setFont(t)});
-document.addEventListener('input',e=>{const t=e.target;
-  if(t.id=='sq'){shq=t.value.trim().toLowerCase();markShelf();return}
-  if(ed&&t.closest('#bf')&&(t.name=='label'||t.name=='volume'))nameSync()});
+document.addEventListener('input',e=>{if(e.target.id=='sq'){shq=e.target.value.trim().toLowerCase();markShelf()}});
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(tab=='Text'||tab=='Word')render()},200)});
 
 /* ---------- 렌더 & 이벤트 ---------- */
 const ttl=(s,lb,vol,multi)=>{lb=String(lb||'').trim();return!s?'':lb?`${s.name} [${lb}]`:multi&&vol?`${s.name} [${vol}권]`:s.name};
@@ -457,28 +471,30 @@ function markShelf(){document.querySelectorAll('#L .sp').forEach(s=>s.classList.
 function render(){calc();const pv=$('#L .sc'),st0=pv?pv.scrollTop:0,lt0=lastTab;lastTab=tab;
   $('#tabs').innerHTML=TABS.map(t=>`<button class="tab ${t==tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
   const v={Main,Book,Log,Text,Word,Shelf}[tab]();let R=v[1],rt=v[3];
-  if(cfg){R=settingsHtml();rt='Settings'}else if(ed)rt=ed.isNew?'New Book':'Edit Book';
-  $('#L').innerHTML=v[0];$('#R').innerHTML=R||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(rt);$('#grid').dataset.v=view;hydrate();
+  if(cfg){R=settingsHtml();rt='Settings'}else if(ed)rt=ed.isNew?'New Book':'Edit Book';else if(fm){R=formHtml();rt=(fm.isNew?'New ':'Edit ')+SK[fm.sheet]}
+  $('#L').innerHTML=v[0];$('#R').innerHTML=R||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(rt);$('#grid').dataset.v=view;hydrate();fit();
   if(lt0===tab){const n=$('#L .sc');if(n)n.scrollTop=st0}
   if(tab=='Shelf')markShelf();
-  if(ed)nameSync();
 }
 document.addEventListener('click',async e=>{
   const g=a=>e.target.closest(`[${a}]`);let x;
-  if(e.target.closest('#cfg')){if(ed)cancelEdit(true);cfg=true;view='R';render();loadUF();return}
+  document.querySelectorAll('.msp').forEach(p=>{if(!p.parentNode.contains(e.target))p.hidden=true});
+  if(e.target.closest('#cfg')){if(ed)cancelEdit(true);fm=null;cfg=true;view='R';render();loadUF();return}
+  if(x=g('data-ms')){const p=x.nextElementSibling;p.hidden=!p.hidden;return}
   if(x=g('data-st')){const i=x.parentNode.querySelector('input');i.value=Math.min(10,Math.max(0,P(i.value)+ +x.dataset.st));return}
   if(e.target.closest('#cvup')){$('#cvf').click();return}
   if(x=g('data-tt')){x.classList.toggle('on');const w=x.closest('.chipwrap');w.querySelector('input[type=hidden]').value=[...w.querySelectorAll('[data-tt].on')].map(b=>b.dataset.tt).join(',');return}
   if(x=g('data-ia')){const k=x.dataset.ia;$('#in-'+k).innerHTML=`<input id="ni-${k}" placeholder="New ${k}" maxlength="60"><button type="button" class="btn" data-ic="${k}">OK</button>`;$('#ni-'+k).focus();return}
   if(x=g('data-ic')){const k=x.dataset.ic,v=$('#ni-'+k).value.trim();
-    if(!v){$('#in-'+k).innerHTML=(k=='theme'||k=='genre')?`<button type="button" class="btn" data-ia="${k}">+</button>`:inl(k,'');return}
-    if(k=='series'){const r={name:v};r.id=nid('Series');await send('Series',r,false,true);$('#in-'+k).innerHTML=inl(k,r.id);onSeries()}
-    else if(k=='theme'||k=='genre'){const id=await addTag(v,k=='theme'?'Theme':'Genre');const w=$('#cw-'+k),on=[...w.querySelectorAll('[data-tt].on')].map(b=>b.dataset.tt);if(!on.includes(String(id)))on.push(id);w.outerHTML=chipBox(k,on)}
+    if(k=='genre'){if(!v)return;const id=await addTag(v,'Genre'),w=$('#cw-genre'),on=[...w.querySelectorAll('[data-mc]:checked')].map(c=>c.value);if(!on.includes(String(id)))on.push(String(id));w.outerHTML=msBox('genre',on);$('#cw-genre .msp').hidden=false;return}
+    if(!v){$('#in-'+k).innerHTML=k=='theme'?'<button type="button" class="btn" data-ia="theme">+</button>':inl(k,'');return}
+    if(k=='series'){const r={name:v};r.id=nid('Series');send('Series',r,false,true);$('#in-'+k).innerHTML=inl(k,r.id);onSeries()}
+    else if(k=='theme'){const id=await addTag(v,'Theme'),w=$('#cw-theme'),on=[...w.querySelectorAll('[data-tt].on')].map(b=>b.dataset.tt);if(!on.includes(String(id)))on.push(String(id));w.outerHTML=chipBox('theme',on)}
     else{const id=await addTag(v,k=='platform'?'Platform':'Author');$('#in-'+k).innerHTML=inl(k,id)}
     return}
-  if(g('data-cancel')){$('#md').classList.remove('on');return}
-  if(g('data-save')){doSave();return}
-  if(g('data-del')){if(confirm('삭제할까요?'))await send(cur.sheet,cur.row,true);return}
+  if(g('data-fsave')){saveForm();return}
+  if(g('data-fcancel')){fm=null;render();return}
+  if(g('data-fdel')){if(confirm('삭제할까요?')){const{sheet,row}=fm;fm=null;send(sheet,row,true)}return}
   if(g('data-retry')){wfail.splice(0).forEach(enqueue);$('#msg').innerHTML='';return}
   if(g('data-bsave')){saveBook();return}
   if(g('data-bcancel')){cancelEdit();return}
@@ -489,17 +505,18 @@ document.addEventListener('click',async e=>{
   if(g('data-sclose')){cfg=false;view='L';render();return}
   if(x=g('data-add')){openForm(x.dataset.add,null,x.dataset.bk);return}
   if(x=g('data-edit')){const[sh,id]=x.dataset.edit.split(':');openForm(sh,D[sh].find(r=>String(r.id)==id));return}
-  if(x=g('data-tab')){if(ed)cancelEdit(true);cfg=false;tab=x.dataset.tab;view='L'}
-  else if(g('data-back')){if(ed)cancelEdit(true);cfg=false;view='L'}
+  if(g('data-more')){const sc=$('#R .sc'),st=sc?sc.scrollTop:0;rlim+=40;render();const n=$('#R .sc');if(n)n.scrollTop=st;return}
+  if(x=g('data-tab')){if(ed)cancelEdit(true);fm=null;cfg=false;tab=x.dataset.tab;view='L';rlim=40}
+  else if(g('data-back')){if(ed)cancelEdit(true);fm=null;cfg=false;view='L'}
   else if(g('data-go'))view='R';
-  else if(x=g('data-fb')){const i=x.dataset.fb;F.b.has(i)?F.b.delete(i):F.b.add(i)}
-  else if(x=g('data-ft')){const i=x.dataset.ft;F.t.has(i)?F.t.delete(i):F.t.add(i)}
-  else if(g('data-clr')){F.b.clear();F.t.clear()}
+  else if(x=g('data-fb')){const i=x.dataset.fb;F.b.has(i)?F.b.delete(i):F.b.add(i);rlim=40}
+  else if(x=g('data-ft')){const i=x.dataset.ft;F.t.has(i)?F.t.delete(i):F.t.add(i);rlim=40}
+  else if(g('data-clr')){F.b.clear();F.t.clear();rlim=40}
   else if(g('data-roll')){favPrev=fav;fav=null}
   else if(x=g('data-pg'))pgAll+=+x.dataset.pg;
-  else if(x=g('data-fp')){const[k,d]=x.dataset.fp.split(':');fp[k]+=+d}
+  else if(x=g('data-fp')){const[k,d]=x.dataset.fp.split(':'),f=FS[k];if(d>0){if(f.s+f.n<f.t){f.h.push(f.s);f.s+=f.n}}else f.s=f.h.pop()||0}
   else if(x=g('data-m'))cal=new Date(cal.getFullYear(),cal.getMonth()+ +x.dataset.m,1);
-  else if(x=g('data-b')){if(ed)cancelEdit(true);cfg=false;sel=x.dataset.b;view='R'}
+  else if(x=g('data-b')){if(ed)cancelEdit(true);fm=null;cfg=false;sel=x.dataset.b;view='R'}
   else return;
   render();
 });
