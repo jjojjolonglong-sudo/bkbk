@@ -87,8 +87,8 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .fprev{margin-top:10px;padding:10px;border:1px dashed var(--sh);font:16px/1.6 var(--se)}
 .chips{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
 .sp.xt{border-radius:2px 2px 0 0}
-.shelf{display:flex;flex-wrap:wrap;align-items:flex-end;row-gap:34px;padding-bottom:36px;background:linear-gradient(to bottom,transparent 0 214px,#fff 214px 216px,var(--face) 216px 222px,var(--dk) 222px 224px,rgba(0,0,0,.13) 224px 227px,transparent 227px) 0 0/100% 248px repeat-y}
-.slot{flex:none;height:214px;display:flex;align-items:flex-end}
+.shelf{display:flex;flex-wrap:wrap;align-items:flex-end;row-gap:34px;padding-bottom:36px;background:linear-gradient(to bottom,transparent 0 180px,#fff 180px 182px,var(--face) 182px 188px,var(--dk) 188px 190px,rgba(0,0,0,.13) 190px 193px,transparent 193px) 0 0/100% 214px repeat-y}
+.slot{flex:none;height:180px;display:flex;align-items:flex-end}
 .sp{flex:none}.bd.sg{top:26px;bottom:26px}
 .dm{position:absolute;left:50%;top:13px;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
 .ms{position:relative}.msb{position:relative;width:100%;text-align:left;font:inherit;padding:3px 18px 3px 6px;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;min-height:27px}
@@ -110,7 +110,10 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .btn:disabled{cursor:wait}
 .mc{cursor:pointer}.mc .ov{padding:28px;background:none;justify-content:center;align-items:center;text-align:center}.mc .ov p{word-break:keep-all;overflow-wrap:break-word}.mc .ov small{color:inherit;opacity:.7}
 .mb,.mo{display:none}.mb{margin-right:8px;font-size:12px}
-.ln .bk{flex:none;max-width:38%;color:var(--sh);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ln .bk{flex:none;width:6.2em;color:var(--sh);white-space:nowrap;text-align:left}
+.ln.wd b{flex:none;width:30%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.ln.wd span{text-align:left}
+.mm{font-size:11px;line-height:1.4;color:var(--sh);margin-top:5px;white-space:pre-line}
 .hs{display:flex;flex-wrap:wrap;gap:6px;padding:2px}.hs>*{flex:none}.hs .th{width:46px}.hs .chip{white-space:nowrap}
 .stp{display:flex;gap:3px}.stp input{text-align:center;min-width:0;flex:1}
 .fl{margin-top:8px;font-size:12px;min-width:0;flex:1}.fl>span{display:block;color:var(--sh)}
@@ -221,11 +224,11 @@ const pb=(p,rr)=>{p=Math.min(100,Math.round(p));const n=p>0?Math.max(1,Math.roun
 
 const SP='M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z',MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const stars=n=>{n=P(n)/2;return'<span style="white-space:nowrap">'+[0,1,2,3,4].map(i=>{const f=Math.max(0,Math.min(1,n-i));return`<svg class="sr" viewBox="0 0 24 24"><path class="bg" d="${SP}"/><path class="fg" d="${SP}" style="clip-path:inset(0 ${100-f*100}% 0 0)"/></svg>`}).join('')+'</span>'};
-const HL={낮음:17,중간:21,높음:25},TL={'아주 얇음':.8,얇음:1.5,중간:2.5,두꺼움:3.5};
+const HL={낮음:17,중간:21,높음:21},TL={'아주 얇음':.8,얇음:1.5,중간:2.5,두꺼움:3.5};
 const hv=b=>HL[b.height]||P(b.height)||21,tv=b=>TL[b.thickness]||P(b.thickness)||2.5;
-const hl=v=>HL[v]?v:!has(v)?'중간':P(v)<19?'낮음':P(v)<23?'중간':'높음',tl=v=>TL[v]?v:!has(v)?'중간':P(v)<1?'아주 얇음':P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
+const hl=v=>HL[v]?(v=='낮음'?'낮음':'높음'):!has(v)?'높음':P(v)<19?'낮음':'높음',tl=v=>TL[v]?v:!has(v)?'중간':P(v)<1?'아주 얇음':P(v)<2?'얇음':P(v)<3?'중간':'두꺼움';
 const row=b=>`<div class="it ${sel==b.id?'on':''}" data-b="${b.id}">${cv(b,'sm')}<div><div class="t ell">${E(b.name)}${b.authorN?`<span class="s"> / ${E(b.authorN)}</span>`:''}</div>${pb(prog(b.id),rr(b.id))}</div></div>`;
-const txB=x=>String(x??'').split(/\s*\n\s*|\s+\/\s+/).filter(y=>y!==''),txL=x=>E(txB(x).join(' / ')),txP=x=>txB(x).map(E).join('<br>');
+const txS=x=>String(x??'').replace(/\r/g,'').split(/\s+\/\/\s+|\s*\n\s*\n\s*/).map(g=>g.split(/\s*\n\s*|\s+\/\s+/).filter(y=>y!=='')).filter(g=>g.length),txL=x=>E(txS(x).map(g=>g.join(' / ')).join(' // ')),txP=x=>txS(x).map(g=>g.map(E).join('<br>')).join('<br><br>'),mm=t=>t.notion?`<div class="mm">${E(t.notion)}</div>`:'',sh5=n=>{const a=Array.from(String(n||''));return a.length>5?a.slice(0,5).join('')+'…':a.join('')};
 const pp=t=>{const a=[];if(has(t.page))a.push('p '+t.page);if(has(t.pct)||(has(t.page)&&bpg(t)))a.push(Math.round(eAt(t))+'%');return a.join(' / ')};
 const sec=(t,h)=>h?`<h3>${t}</h3>${h}`:'';
 
@@ -239,8 +242,8 @@ function bookView(id){
   <p class="cm">${stars(b.star)} ${E(b.comment)}</p>
   ${sec('Series · '+E(ser&&ser.name),sb.length>1?sb.map(x=>`<div class="blk" data-b="${x.id}">${cv(x,'sm')}<div style="flex:1;min-width:0"><b class="ell">${E(x.name)}</b><div style="display:flex;gap:8px;align-items:center"><span class="st">${stars(x.star)}</span><span class="ell s" style="flex:1">${E(x.comment)}</span></div></div></div>`).join(''):'')}
   ${sec('Log',L.map(l=>`<div class="ln" data-edit="Logs:${E(l.id)}"><b>${dk(l.date)}</b><span>${E(l.chapter)}</span><span>${Math.round(eOn(l))}~${Math.round(eOff(l))}%</span><span>+${Math.round(eOff(l))-Math.round(eOn(l))}%</span></div>`).join(''))}
-  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}">${pp(t)?`<small>${pp(t)}</small><br>`:''}${txL(t.text)}</div>`).join(''))}
-  ${sec('Word',W.map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span></div>`).join(''))}</div>`;
+  ${sec('Text',T.map(t=>`<div class="blk q" data-edit="Texts:${E(t.id)}">${pp(t)?`<small>${pp(t)}</small><br>`:''}${txL(t.text)}${mm(t)}</div>`).join(''))}
+  ${sec('Word',W.map(w=>`<div class="ln wd" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span></div>`).join(''))}</div>`;
 }
 function bookEdit(){
   const r=ed.row,col=['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${hx(r[k])}">`).join('');
@@ -250,7 +253,7 @@ function bookEdit(){
   <div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>
   <div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',nz(r.author,'author'))}</div>`)}${fl('Genre',msBox('genre',split(r.genre).map(x=>nz(x,'genre'))))}</div>
   <div class="r2">${fl('Page',inp('page',r.page,'type="number" min="0"'))}${fl('Chars',inp('charcount',r.charcount,'type="number" min="0" step="0.1" placeholder="만자 단위"'))}</div></div></div>
-  <div class="dh"><div class="lc"><div class="fl"><span>Color</span><div class="cc">${col}</div></div></div><div class="di"><div class="r2">${fl('Height',`<select name="height">${opt(['낮음','중간','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thickness">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thickness),x=>[x,x])}</select>`)}</div></div></div>
+  <div class="dh"><div class="lc"><div class="fl"><span>Color</span><div class="cc">${col}</div></div></div><div class="di"><div class="r2">${fl('Height',`<select name="height">${opt(['낮음','높음'],hl(r.height),x=>[x,x])}</select>`)}${fl('Thickness',`<select name="thickness">${opt(['아주 얇음','얇음','중간','두꺼움'],tl(r.thickness),x=>[x,x])}</select>`)}</div></div></div>
   <div class="dh"><div class="lc">${fl('Star',`<div class="stp"><button type="button" class="btn" data-st="-1">−</button><input name="star" type="number" min="0" max="10" step="1" value="${r.star||0}"><button type="button" class="btn" data-st="1">+</button></div>`)}</div><div class="di"><div class="r2">${fl('Platform',`<div class="inl" id="in-platform">${inl('platform',nz(r.platform,'platform'))}</div>`)}</div></div></div>
   ${fl('Comment',`<textarea name="comment" rows="3">${E(r.comment)}</textarea>`)}</div></form>`;
 }
@@ -315,16 +318,16 @@ function filt(S,n){
 const more=n=>n>rlim?`<p style="text-align:center;margin-top:10px"><button class="btn" data-more>Show more (${n-rlim})</button></p>`:'';
 function Text(){
   const S=fscope('Text'),T=stab(D.Texts.filter(t=>S.scope.has(String(t.book))&&(!S.st.length||split(t.tags).map(x=>nz(x,'theme')).some(n=>S.st.includes(n)))),(a,b)=>cmp(dk(b.date),dk(a.date)),true);
-  return[filt(S,T.length),`<div class="sc">${T.slice(0,rlim).map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${txL(t.text)}</div>`}).join('')||'<p class="empty">Empty</p>'}${more(T.length)}</div>`,'Filter','Text'];
+  return[filt(S,T.length),`<div class="sc">${T.slice(0,rlim).map(t=>{const b=bk(t.book);return`<div class="blk q" data-edit="Texts:${E(t.id)}"><small>${E(b.name)}${pp(t)?' · '+pp(t):''}</small><br>${txL(t.text)}${mm(t)}</div>`}).join('')||'<p class="empty">Empty</p>'}${more(T.length)}</div>`,'Filter','Text'];
 }
 function Word(){
-  const S=fscope('Word'),W=stab(D.Words.filter(w=>S.scope.has(String(w.book))),(a,b)=>cmp(dk(b.date),dk(a.date)),true);
-  return[filt(S,W.length),`<div class="sc">${W.slice(0,rlim).map(w=>`<div class="ln" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${E(bk(w.book).name)}</span></div>`).join('')||'<p class="empty">Empty</p>'}${more(W.length)}</div>`,'Filter','Word'];
+  const S=fscope('Word'),W=stab(D.Words.filter(w=>S.scope.has(String(w.book))),(a,b)=>String(a.word).localeCompare(String(b.word),'ko'));
+  return[filt(S,W.length),`<div class="sc">${W.slice(0,rlim).map(w=>`<div class="ln wd" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk" title="${E(bk(w.book).name)}">${E(sh5(bk(w.book).name))}</span></div>`).join('')||'<p class="empty">Empty</p>'}${more(W.length)}</div>`,'Filter','Word'];
 }
 /* 책장: 화면 폭에 맞춰 책이 자동으로 줄바꿈되고, 선반 밑판은 CSS가 줄마다 그려줌 (JS로 폭을 재지 않음) */
 function Shelf(){
   const TW={'아주 얇음':10,얇음:17,중간:22.5,두꺼움:31.5},k=8,bw=b=>TW[tl(b.thickness)];
-  const sp=b=>{const w=bw(b),xt=tl(b.thickness)=='아주 얇음',sr=serOf(b),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.min(200,Math.max(80,hv(b)*k));
+  const sp=b=>{const w=bw(b),xt=tl(b.thickness)=='아주 얇음',sr=serOf(b),c1=b.color1||'#888',c2=b.color2||'#ddd',c3=b.color3||'#fff',v=Array.from(String(b.label||'').trim()).slice(0,3).join(''),t=sr?sr.name:b.name,h=Math.min(168,Math.max(80,hv(b)*k));
     const s=E(`${b.name} ${t} ${b.authorN} ${b.genreN} ${b.label||''}`.toLowerCase()),a=`class="sp${xt?' xt':''}${sel==b.id?' on':''}" data-b="${b.id}" data-s="${s}" title="${E(b.name)}" style="width:${w}px;height:${h}px;background:${E(c1)}"`;
     if(xt)return`<div ${a}><b class="xs" style="color:${E(c3)}">${E(t)}</b><i class="xb" style="background:${E(c2)}"></i></div>`;
     const pl=`<span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span>`;
@@ -396,7 +399,7 @@ function send(sheet,row,del,quiet){
   if(!quiet)render();
 }
 /* Book 입력/수정은 상세 영역 안에서 */
-function startEdit(b){cfg=false;fm=null;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'중간',thickness:'중간'},isNew:!b,ups:[]};view='R';render()}
+function startEdit(b){cfg=false;fm=null;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'높음',thickness:'중간'},isNew:!b,ups:[]};view='R';render()}
 function cancelEdit(nr){if(!ed)return;ed.closed=true;if(API&&ed.ups.length)enqueue({action:'trash',ids:ed.ups});ed=null;up=0;if(!nr)render()}
 async function saveBook(){
   if(up){alert('The cover is still uploading. Please wait a moment.');return}
