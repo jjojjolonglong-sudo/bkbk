@@ -106,6 +106,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .cc{display:flex;width:96px;height:var(--fh);border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}
 .cc input[type=color]{flex:1;min-width:0;width:auto;height:100%;padding:0;border:0;background:none}
 .cc input::-webkit-color-swatch-wrapper{padding:0}.cc input::-webkit-color-swatch{border:0}.cc input::-moz-color-swatch{border:0}
+#lg{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:10px;background:var(--desk) radial-gradient(#0003 1px,transparent 1.5px) 0 0/6px 6px}#lg[hidden]{display:none}.lgw{width:min(340px,100%)}.lgw form{padding:6px 14px 14px}#lgm{color:var(--red);font-size:12px;min-height:1.3em;margin-top:8px}
 .upl{background:#fffd;padding:2px 4px;font-size:11px;color:var(--ink)}
 .btn:disabled{cursor:wait}
 .mc{cursor:pointer}.mc .ov{padding:28px;background:none;justify-content:center;align-items:center;text-align:center}.mc .ov p{word-break:keep-all;overflow-wrap:break-word}.mc .ov small{color:inherit;opacity:.7}
@@ -130,6 +131,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .tab:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:2px dotted var(--red);outline-offset:1px}
 </style></head><body>
+<div id="lg" hidden><div class="win lgw"><div class="tb"><span>📖 BKBK.exe</span></div><form onsubmit="return false"><div class="fl"><span>Email</span><input id="lg-email" type="email" autocomplete="username"></div><div class="fl"><span>Password</span><input id="lg-pw" type="password" autocomplete="current-password"></div><p id="lgm"></p><div style="text-align:right;margin-top:12px"><button type="button" class="btn" id="lg-go"><b>Sign in</b></button></div></form></div></div>
 <div id="app" class="win">
  <div class="tb"><span>📖 BKBK.exe</span><span><button class="btn" id="cfg" style="padding:0 6px;font-size:11px;margin:0" title="Connect to sheet">⚙</button> <span id="status">loading…</span></span></div>
  <div id="tabs"></div><div id="msg"></div>
@@ -139,9 +141,63 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
  </div>
 </div>
 <script>
-/* 웹앱 URL·키는 코드에 넣지 않고 ⚙ 버튼으로 입력 → 이 브라우저(localStorage)에만 저장 */
+/* ---------- 연결 설정: 아래 값은 공개돼도 되는 값입니다 (비밀 키는 절대 넣지 마세요) ---------- */
+const SB='https://rtvvajhsnwkkrmncyfbs.supabase.co';
+const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dnZhamhzbndra3JtbmN5ZmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjkwMTEsImV4cCI6MjEwNzA0NTAxMX0.O2aLLeazv_FhUhbVAkp4vz3pw8GPb_683dUu7Et1Cwk';
+const DEFAULT_MEDIA='';   // Cloudflare Worker 주소를 여기 적거나, 앱의 ⚙ 설정에서 입력해도 됩니다
 const LS=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
-const API=LS('bkbk_api'),KEY=LS('bkbk_key');
+const MEDIA=(LS('bkbk_media')||DEFAULT_MEDIA).replace(/\/$/,'');
+
+/* ---------- Supabase 로그인 / 데이터 접근 (필요한 기능만 직접 구현) ---------- */
+const SES=()=>{try{return JSON.parse(localStorage.getItem('bkbk_sb')||'null')}catch(e){return null}};
+const setSES=s=>{try{s?localStorage.setItem('bkbk_sb',JSON.stringify(s)):localStorage.removeItem('bkbk_sb')}catch(e){}};
+async function gotrue(grant,body){
+  const r=await fetch(`${SB}/auth/v1/token?grant_type=${grant}`,{method:'POST',headers:{apikey:ANON,'Content-Type':'application/json'},body:JSON.stringify(body)}),j=await r.json();
+  if(!r.ok)throw new Error(j.error_description||j.msg||j.error||'HTTP '+r.status);
+  const s={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+(j.expires_in||3600)*1000,user:{id:j.user&&j.user.id,email:j.user&&j.user.email}};setSES(s);return s;
+}
+let rfp=null;
+async function token(){
+  let s=SES();if(!s)throw new Error('not signed in');
+  if(s.expires_at-Date.now()<60000){rfp=rfp||gotrue('refresh_token',{refresh_token:s.refresh_token}).finally(()=>{rfp=null});s=await rfp}
+  return s.access_token;
+}
+const login=(email,password)=>gotrue('password',{email,password});
+async function logout(){const s=SES();setSES(null);try{if(s)await fetch(`${SB}/auth/v1/logout`,{method:'POST',headers:{apikey:ANON,Authorization:'Bearer '+s.access_token}})}catch(e){}}
+async function rest(path,o={}){
+  const go=async()=>fetch(`${SB}/rest/v1/${path}`,{...o,headers:{apikey:ANON,Authorization:'Bearer '+await token(),'Content-Type':'application/json',...(o.headers||{})}});
+  let r=await go();
+  if(r.status==401){const s=SES();if(s){await gotrue('refresh_token',{refresh_token:s.refresh_token});r=await go()}}
+  if(!r.ok){let m;try{const j=await r.json();m=j.message||j.hint||JSON.stringify(j)}catch(e){m='HTTP '+r.status}throw new Error(m)}
+  return r;
+}
+const TB={Books:'bkbk_books',Tags:'bkbk_tags',Series:'bkbk_series',Logs:'bkbk_logs',Texts:'bkbk_texts',Words:'bkbk_words'};
+/* 열 종류: t 글자 · l 소문자 글자 · i 정수 · n 숫자 · d 날짜 · u uuid · a uuid 배열(앱에서는 쉼표 문자열) */
+const SCH={Books:{series:'u',volume:'i',label:'t',author:'u',genre:'a',page:'i',charcount:'n',platform:'u',star:'i',comment:'t',cover:'t',color1:'t',color2:'t',color3:'t',height:'t',thickness:'t'},
+  Tags:{name:'t',type:'l'},Series:{name:'t'},
+  Logs:{date:'d',book:'u',chapter:'t',onpage:'i',offpage:'i',onpct:'n',offpct:'n'},
+  Texts:{date:'d',book:'u',chapter:'t',page:'i',pct:'n',text:'t',notion:'t',tags:'a'},
+  Words:{date:'d',book:'u',chapter:'t',page:'i',pct:'n',word:'t',meaning:'t'}};
+const UU=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function toDB(sh,r){
+  const o={id:r.id};
+  for(const[k,t]of Object.entries(SCH[sh])){const v=r[k],e=v===''||v==null;
+    o[k]=t=='t'?(e?null:String(v)):t=='l'?String(v||'').toLowerCase():t=='i'?(e||isNaN(v)?null:Math.round(Number(v))):t=='n'?(e||isNaN(v)?null:Number(v)):t=='d'?(e?null:(String(v).slice(0,10)||null)):t=='u'?(e||!UU.test(String(v))?null:String(v)):split(v).filter(x=>UU.test(x))}
+  if(sh=='Books'&&o.star==null)o.star=0;
+  return o;
+}
+const fromDB=(sh,r)=>{const o={id:r.id};for(const[k,t]of Object.entries(SCH[sh]))o[k]=t=='a'?(r[k]||[]).join(','):r[k]==null?'':r[k];return o};
+async function selAll(sh){
+  const out=[];
+  for(let off=0;;){
+    const r=await rest(`${TB[sh]}?select=*&order=created_at.asc,id.asc&limit=1000&offset=${off}`,{headers:{Prefer:'count=exact'}}),j=await r.json();
+    out.push(...j);off+=j.length;const m=(r.headers.get('content-range')||'').match(/\/(\d+)$/);
+    if(!j.length||(m?off>=+m[1]:j.length<1000))break;
+  }
+  return out.map(x=>fromDB(sh,x));
+}
+const upsert=(sh,row)=>rest(`${TB[sh]}?on_conflict=id`,{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(toDB(sh,row))});
+const remove=(sh,id)=>rest(`${TB[sh]}?id=eq.${encodeURIComponent(id)}`,{method:'DELETE',headers:{Prefer:'return=minimal'}});
 
 const $=s=>document.querySelector(s),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TABS=['Main','Book','Log','Text','Word','Shelf'];
@@ -175,46 +231,47 @@ const logs=id=>LM.get(String(id))||[];
 const split=s=>String(s||'').split(/[,;]\s*/).filter(Boolean);
 const lum=h=>{h=String(h||'#888').replace('#','');if(h.length<6)return'#fff';const[r,g,b]=[0,2,4].map(i=>parseInt(h.substr(i,2),16));return r*.3+g*.59+b*.11>150?'#222':'#fff'};
 
-/* ---------- 데이터 ---------- */
+/* ---------- 로그인 화면 / 데이터 불러오기 ---------- */
+let ME=null;
+const showLogin=m=>{$('#lg').hidden=false;$('#lgm').textContent=m||''};
+const authErr=e=>/refresh|jwt|expired|invalid.?grant|not signed/i.test(e.message);
+async function start(){
+  const s=SES();if(!s){showLogin();return}
+  ME=s.user;
+  try{await load();$('#lg').hidden=true;render();applySaved()}
+  catch(e){if(authErr(e)){await logout();showLogin('Session expired. Please sign in again.')}else showLogin('Could not load data: '+e.message)}
+}
+async function doLogin(){
+  $('#lgm').textContent='Signing in…';
+  try{await login($('#lg-email').value.trim(),$('#lg-pw').value);$('#lg-pw').value='';start()}catch(e){$('#lgm').textContent=e.message}
+}
 async function load(){
-  if(!API){D=demo();$('#status').textContent='demo · click ⚙ to connect';$('#msg').innerHTML='<div class="err">DEMO MODE – nothing is saved. Tap ⚙ and enter your web app URL.</div>';return}
-  const c=await idbGet('data:'+API);
+  const c=await idbGet('data:'+ME.id);
   if(c&&c.Books){D=c;$('#status').textContent='syncing…';refresh(true);return}
   await refresh(false);
 }
 async function refresh(bg){
   const w0=wseq;
-  try{const r=await fetch(API+(API.includes('?')?'&':'?')+'action=all&key='+encodeURIComponent(KEY));const j=await r.json();if(j.error)throw new Error(j.error);
-    for(const k of['Books','Tags','Series','Logs','Texts','Words'])j[k]=j[k]||[];
+  try{
+    const ks=Object.keys(TB),rs=await Promise.all(ks.map(selAll)),j={};ks.forEach((k,i)=>j[k]=rs[i]);
     if(bg&&(wseq!==w0||wq.length||wbusy||ed||cfg||fm)){$('#status').textContent='connecting...';return}
-    D=j;idbSet('data:'+API,j);$('#status').textContent='connecting...';if(bg)render()}
-  catch(e){if(bg){$('#status').textContent='offline (cached)';return}D=demo();$('#status').textContent='offline (demo)';$('#msg').innerHTML='<div class="err">Could not load the sheet. Check the web app URL and its access setting (Anyone).</div>'}
-}
-function demo(){
-  const d=n=>new Date(Date.now()-n*864e5).toISOString().slice(0,10);
-  return{Books:[
-   {id:1,name:'여름의 끝',author:'김서진',genre:'소설',series:1,volume:1,page:312,charcount:210000,star:8,comment:'조용하게 오래 남는 책.',color1:'#2f5d62',color2:'#e0b84f',color3:'#fff',height:21,thickness:2.4},
-   {id:2,name:'느린 시간의 기술',author:'박하린',genre:'에세이',series:1,volume:2,page:240,charcount:150000,star:6,comment:'가볍게 읽기 좋음.',color1:'#b5402f',color2:'#f4eedc',color3:'#fff',height:19,thickness:1.8},
-   {id:3,name:'종이 도시의 지도',author:'이도윤',genre:'인문',page:420,charcount:300000,star:10,comment:'',color1:'#24406b',color2:'#d8d2c2',color3:'#fff',height:23,thickness:3.2},
-   {id:4,name:'작은 방의 철학',author:'김서진',genre:'에세이',page:180,charcount:90000,star:8,comment:'',color1:'#6b4a7a',color2:'#e0b84f',color3:'#fff',height:18,thickness:1.4}],
-  Tags:[{id:1,name:'김서진',type:'author'},{id:2,name:'박하린',type:'author'},{id:3,name:'소설',type:'genre'},{id:4,name:'에세이',type:'genre'},{id:5,name:'Favorite',type:'theme'},{id:6,name:'시간',type:'theme'}],
-  Series:[{id:1,name:'여름 연작'}],
-  Logs:[{book:1,date:d(40),chapter:'1장',onpct:0.0,offpct:0.4},{book:1,date:d(35),chapter:'2장',onpct:0.4,offpct:1.0},{book:2,date:d(10),chapter:'1부',onpct:0.0,offpct:0.35},{book:2,date:d(2),chapter:'2부',onpct:0.35,offpct:0.62},{book:3,date:d(90),chapter:'전체',onpct:0.0,offpct:1.0},{book:4,date:d(1),chapter:'1장',onpct:0.0,offpct:0.13}],
-  Texts:[{book:1,date:d(38),page:60,pct:0.19,text:'떠나는 것들은 늘 한 박자 늦게 돌아본다.',tags:'Favorite,시간'},{book:2,date:d(5),page:90,pct:0.38,text:'느리다는 건 멈췄다는 뜻이 아니라, 깊어진다는 뜻이다.',tags:'Favorite'},{book:3,date:d(80),page:200,pct:0.48,text:'지도는 길을 알려주지 않고 길을 잃을 자유를 준다.',tags:'시간'}],
-  Words:[{book:1,date:d(37),page:50,pct:0.16,word:'무람없다',meaning:'예의를 지키지 않고 버릇없다'},{book:3,date:d(70),page:120,pct:0.28,word:'윤슬',meaning:'햇빛이나 달빛에 비쳐 반짝이는 물결'}]}
+    D=j;idbSet('data:'+ME.id,j);$('#status').textContent='connecting...';if(bg)render();
+  }catch(e){
+    if(bg){if(authErr(e)){await logout();showLogin('Session expired. Please sign in again.')}else $('#status').textContent='offline (cached)';return}
+    throw e;
+  }
 }
 
-/* ---------- 공통 조각 ---------- */
-const gid=u=>/^https?:/.test(u)?(String(u).match(/(?:\/d\/|[?&]id=)([\w-]+)/)||[])[1]:'';
-function img(u,w=600){u=String(u||'');const id=gid(u);return/drive\.google|googleusercontent/.test(u)&&id?`https://lh3.googleusercontent.com/d/${id}=w${w}`:u}
-/* 표지 로더: 화면을 다시 그려도 중단되지 않고, 동시에 4장씩만 요청, 실패하면 다른 주소로 재시도 */
+/* 표지: 목록용 작은 파일(_s.jpg)과 큰 파일을 따로 저장해 두고 크기에 맞춰 불러옴 */
+const img=(u,w=600)=>{u=String(u||'');return w<=240&&/\/covers\/[0-9a-f]+\.jpg$/.test(u)?u.replace(/\.jpg$/,'_s.jpg'):u};
+/* 표지 로더: 화면을 다시 그려도 중단되지 않고, 동시에 4장씩만 요청, 실패하면 재시도 */
 const IC=new Map(),Q=[];let busy=0;
 function want(u){if(IC.has(u))return;IC.set(u,0);Q.push(u);pump()}
 function pump(){while(busy<4&&Q.length){busy++;tryLoad(Q.shift(),0)}}
-function tryLoad(u,n){const id=gid(u),w=(u.match(/=w(\d+)$/)||[0,600])[1],src=[u,id?`https://drive.google.com/thumbnail?id=${id}&sz=w${w}`:u,u][n],im=new Image();im.referrerPolicy='no-referrer';
-  im.onload=()=>{IC.set(u,src);busy--;hydrate();pump()};
-  im.onerror=()=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),n?1500:300);else{IC.set(u,'bad');busy--;hydrate();pump()}};
-  im.src=src}
+function tryLoad(u,n){const im=new Image();im.referrerPolicy='no-referrer';
+  im.onload=()=>{IC.set(u,u);busy--;hydrate();pump()};
+  im.onerror=()=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),500*(n+1));else{IC.set(u,'bad');busy--;hydrate();pump()}};
+  im.src=u}
 function hydrate(){document.querySelectorAll('img[data-u]:not([src])').forEach(i=>{const u=i.dataset.u,v=IC.get(u);if(v==='bad')i.remove();else if(v)i.src=v;else want(u)})}
 const IM=(c,x='',w=600)=>{const u=img(c,w),v=IC.get(u);return`<img ${x} data-u="${E(u)}" ${v&&v!=='bad'?`src="${E(v)}"`:''} alt="">`};
 const cv=(b,c='')=>`<div class="cv ${c}" style="background:${E(b.color1||'#8a7f6a')}"><span class="ct">${E(Array.from(String(b.name||'').replace(/\s/g,'')).slice(0,3).join(''))}</span>${b.cover?IM(b.cover,'',c=='lg'?400:240):''}</div>`;
@@ -343,8 +400,7 @@ const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:
 const SK={Logs:'Log',Texts:'Text',Words:'Word'};
 const LAY={Logs:['date book','chapter','onpage offpage','onpct offpct'],Texts:['date book','chapter page pct','text','notion','tags'],Words:['date book','chapter page pct','word','meaning']};
 const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
-const nid=sh=>{const ch='abcdefghijklmnopqrstuvwxyz0123456789';let id;do{id=sh+'_'+Array.from({length:8},()=>ch[Math.floor(Math.random()*36)]).join('')}while(D[sh].some(r=>r.id==id));return id};
-const post=async b=>(await fetch(API,{method:'POST',body:JSON.stringify({...b,key:KEY})})).json();
+const nid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=crypto.getRandomValues(new Uint8Array(1))[0]&15;return(c=='x'?r:(r&3|8)).toString(16)});
 async function addTag(name,type){const ex=tagsOf(type.toLowerCase()).find(t=>t.name==name);if(ex)return ex.id;const r={name,type};r.id=nid('Tags');send('Tags',r,false,true);TM.set(String(r.id),name);TK.set(type.toLowerCase()+'|'+name,String(r.id));return r.id}
 const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
 let ed=null,fm=null,up=0;
@@ -379,42 +435,42 @@ function saveForm(){
   ['onpct','offpct','pct'].forEach(k=>{if(k in r)r[k]=r[k]===''?'':Math.round(P(r[k])*100)/10000});
   fm=null;send(sh,r);
 }
-/* 저장은 화면에 먼저 반영하고 서버에는 순서대로 보냄 */
+/* 저장은 화면에 먼저 반영하고 서버(Supabase)에는 순서대로 보냄 */
 const wq=[];let wbusy=false,wseq=0,wfail=[],ct;
-function cacheSoon(){clearTimeout(ct);ct=setTimeout(()=>{if(API&&D)idbSet('data:'+API,D)},400)}
+function cacheSoon(){clearTimeout(ct);ct=setTimeout(()=>{if(ME&&D)idbSet('data:'+ME.id,D)},400)}
 function enqueue(j){wseq++;wq.push(j);pumpW()}
 async function pumpW(){
   if(wbusy)return;wbusy=true;
   while(wq.length){const j=wq[0];$('#status').textContent='saving… ('+wq.length+')';let ok=false,err;
-    for(let t=0;t<3&&!ok;t++){try{const r=await post(j);if(r&&r.ok===false)throw new Error(r.error);ok=true}catch(e){err=e;if(t<2)await new Promise(r=>setTimeout(r,700*(t+1)))}}
+    for(let t=0;t<3&&!ok;t++){try{j.del?await remove(j.sheet,j.row.id):await upsert(j.sheet,j.row);ok=true}catch(e){err=e;if(authErr(e))break;if(t<2)await new Promise(r=>setTimeout(r,700*(t+1)))}}
     wq.shift();if(!ok){wfail.push(j);$('#msg').innerHTML='<div class="err">Save failed ('+E(err.message)+'). The change is only on this screen. <button class="btn" data-retry>Retry</button></div>'}}
   wbusy=false;$('#status').textContent=wfail.length?'save failed':'saved ✓';if(!wfail.length)setTimeout(()=>{if(!wbusy&&!wfail.length)$('#status').textContent='connecting...'},1500);
 }
 addEventListener('beforeunload',e=>{if(wq.length||wbusy){e.preventDefault();e.returnValue=''}});
 function send(sheet,row,del,quiet){
-  if(!row.id)row.id=nid(sheet);
+  if(!row.id)row.id=nid();
   const a=D[sheet],i=a.findIndex(r=>r.id==row.id);del?(i>=0&&a.splice(i,1)):i>=0?(a[i]=row):a.push(row);
-  if(API){const o={...row};delete o.authorN;delete o.genreN;enqueue({sheet,row:o,del})}
+  const o={...row};delete o.authorN;delete o.genreN;enqueue({sheet,row:o,del});
   cacheSoon();
   if(!quiet)render();
 }
 /* Book 입력/수정은 상세 영역 안에서 */
-function startEdit(b){cfg=false;fm=null;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'높음',thickness:'중간'},isNew:!b,ups:[]};view='R';render()}
-function cancelEdit(nr){if(!ed)return;ed.closed=true;if(API&&ed.ups.length)enqueue({action:'trash',ids:ed.ups});ed=null;up=0;if(!nr)render()}
-async function saveBook(){
+function startEdit(b){cfg=false;fm=null;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'높음',thickness:'중간'},isNew:!b};view='R';render()}
+function cancelEdit(nr){if(!ed)return;ed.closed=true;ed=null;up=0;if(!nr)render()}
+function saveBook(){
   if(up){alert('The cover is still uploading. Please wait a moment.');return}
   const r={...ed.row};for(const[k,v]of new FormData($('#bf')).entries())r[k]=v;
   if(!String(r.series).trim()){alert('Series is required (it becomes the title)');return}
   r.volume=r.volume?Math.round(P(r.volume)):'';r.star=Math.min(10,Math.max(0,Math.round(P(r.star))));
-  const ids=[...ed.ups,gid(ed.row.cover)].filter(id=>id&&id!==gid(r.cover));
   ed.closed=true;ed=null;up=0;
   send('Books',r,false,true);sel=r.id;render();
-  if(API&&ids.length)enqueue({action:'trash',ids});
 }
 function delBook(){
-  if(!confirm('삭제할까요?'))return;const ids=[gid(ed.row.cover)].filter(Boolean),row=ed.row;ed.closed=true;ed=null;up=0;
-  send('Books',row,true,true);sel=null;view='L';render();
-  if(API&&ids.length)enqueue({action:'trash',ids});
+  if(!confirm('이 책과 책에 딸린 기록, 문장, 단어가 모두 삭제됩니다. 삭제할까요?'))return;
+  const row=ed.row;ed.closed=true;ed=null;up=0;
+  send('Books',row,true,true);
+  ['Logs','Texts','Words'].forEach(k=>{D[k]=D[k].filter(x=>x.book!=row.id)});   // DB가 같이 지우므로 화면에서도 정리
+  sel=null;view='L';render();
 }
 function onSeries(){const e=$('#bf').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=ed.row.id).map(b=>P(b.volume)))+1:''}
 function palette(im){
@@ -430,48 +486,49 @@ function palette(im){
   return[p1,p2,p3].map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join(''));
 }
 function upBusy(d){up=Math.max(0,up+d);const b=$('[data-bsave]');if(b){b.disabled=up>0;b.style.opacity=up?.5:1;b.firstElementChild.textContent=up?'Uploading…':'Save'}}
+const scaled=(im,max,q)=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return new Promise(r=>c.toBlob(b=>r({blob:b,url:c.toDataURL('image/jpeg',q)}),'image/jpeg',q))};
 function onCover(f){
   if(!f||!ed)return;const tok=ed,rd=new FileReader();
   rd.onload=()=>{const im=new Image();im.onload=async()=>{
-    const s=Math.min(1,700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-    const url=c.toDataURL('image/jpeg',.85),box=$('#cvup'),e=$('#bf').elements;
-    box.style.backgroundImage=`url('${url}')`;box.textContent='';
+    const m=await scaled(im,600,.82),t=await scaled(im,140,.78),box=$('#cvup'),e=$('#bf').elements;
+    box.style.backgroundImage=`url('${m.url}')`;box.textContent='';
     palette(im).forEach((v,i)=>e['color'+(i+1)].value=v);
-    if(!API){e.cover.value=url;return}
+    if(!MEDIA){e.cover.value='';box.innerHTML='<span class="upl">no media server</span>';$('#msg').innerHTML='<div class="err">Media server is not set. Open ⚙ and enter the Worker URL.</div>';return}
     upBusy(1);box.innerHTML='<span class="upl">uploading…</span>';
-    const sn=e.series.selectedOptions[0];
-    try{const j=await post({action:'upload',name:(sn&&sn.value?sn.text:'cover')+'.jpg',mime:'image/jpeg',data:url.split(',')[1]});if(!j.ok)throw new Error(j.error||'failed');e.cover.value=j.url;box.textContent='';if(ed===tok&&!tok.closed)tok.ups.push(j.id);else enqueue({action:'trash',ids:[j.id]})}
-    catch(x){e.cover.value='';box.innerHTML='<span class="upl">failed – tap to retry</span>';$('#msg').innerHTML='<div class="err">Cover upload failed: '+E(x.message)+'</div>'}
+    try{
+      const fd=new FormData();fd.append('main',m.blob,'m.jpg');fd.append('thumb',t.blob,'t.jpg');
+      const r=await fetch(MEDIA+'/upload',{method:'POST',headers:{Authorization:'Bearer '+await token()},body:fd}),j=await r.json();
+      if(!r.ok||!j.ok)throw new Error(j.error||'HTTP '+r.status);
+      e.cover.value=j.url;box.textContent='';
+    }catch(x){e.cover.value='';box.innerHTML='<span class="upl">failed – tap to retry</span>';$('#msg').innerHTML='<div class="err">Cover upload failed: '+E(x.message)+'</div>'}
     finally{if(ed===tok)upBusy(-1)}
   };im.src=rd.result};rd.readAsDataURL(f);
 }
 
-/* ---------- 폰트 설정 (Drive 폴더의 폰트 파일 포함) ---------- */
+/* ---------- 폰트 설정 (Cloudflare R2의 fonts/ 폴더) ---------- */
 let UF=[],ufState='';
 const FB=[['Gowun Dodum','Gowun Dodum'],['Gowun Batang','Gowun Batang'],['Noto Sans KR','Noto Sans KR'],['Nanum Myeongjo','Nanum Myeongjo'],['IBM Plex Sans KR','IBM Plex Sans KR'],['Gaegu','Gaegu'],['sans-serif','System sans'],['serif','System serif'],['monospace','Monospace']];
-const fOpts=role=>{const c=LS('bkbk_f'+role)||('b:'+(role=='ui'?'Gowun Dodum':'Gowun Batang'));return`<optgroup label="Built-in">${FB.map(([f,n])=>`<option value="b:${E(f)}" ${c=='b:'+f?'selected':''}>${E(n)}</option>`).join('')}</optgroup>${UF.length?`<optgroup label="My fonts (Drive)">${UF.map(u=>{const v='u:'+u.id+':'+u.name;return`<option value="${E(v)}" ${c==v?'selected':''}>${E(u.name)}</option>`}).join('')}</optgroup>`:''}`};
-function settingsHtml(){return`<div class="bar"><button class="btn" data-ssave><b>Save</b></button><button class="btn" data-sclose>Close</button></div><div class="sc"><h3>Connection</h3>${fl('Web app URL','<input id="s-api" value="'+E(API)+'" placeholder="https://script.google.com/.../exec">')}${fl('Access key','<input id="s-key" type="password" value="'+E(KEY)+'">')}<h3>Fonts</h3>${fl('Interface font','<select id="s-fui">'+fOpts('ui')+'</select>')}${fl('Text font (titles, quotes)','<select id="s-fse">'+fOpts('se')+'</select>')}<div class="s" id="s-fmsg" style="margin-top:6px">${E(ufState)}</div><div class="fprev">가나다라마바사 ABC abc 123<br>The quick brown fox jumps over the lazy dog.</div><p class="s" style="margin-top:10px">Put .ttf / .otf / .woff / .woff2 files in the Drive font folder. Smaller files (about 3MB or less) load faster; each font is downloaded once per device.</p></div>`}
+const fOpts=role=>{const c=LS('bkbk_f'+role)||('b:'+(role=='ui'?'Gowun Dodum':'Gowun Batang'));return`<optgroup label="Built-in">${FB.map(([f,n])=>`<option value="b:${E(f)}" ${c=='b:'+f?'selected':''}>${E(n)}</option>`).join('')}</optgroup>${UF.length?`<optgroup label="My fonts">${UF.map(u=>{const v='u:'+u.name;return`<option value="${E(v)}" ${c==v?'selected':''}>${E(u.name)}</option>`}).join('')}</optgroup>`:''}`};
+function settingsHtml(){return`<div class="bar"><button class="btn" data-ssave><b>Save</b></button><button class="btn" data-sclose>Close</button></div><div class="sc"><h3>Account</h3><p style="margin:6px 0">Signed in as <b>${E(ME&&ME.email)}</b></p><button class="btn" data-logout>Sign out</button><h3>Media server</h3>${fl('Worker URL','<input id="s-media" value="'+E(MEDIA)+'" placeholder="https://bkbk-media.xxxx.workers.dev">')}<h3>Fonts</h3>${fl('Interface font','<select id="s-fui">'+fOpts('ui')+'</select>')}${fl('Text font (titles, quotes)','<select id="s-fse">'+fOpts('se')+'</select>')}<div class="s" id="s-fmsg" style="margin-top:6px">${E(ufState)}</div><div class="fprev">가나다라마바사 ABC abc 123<br>The quick brown fox jumps over the lazy dog.</div><p class="s" style="margin-top:10px">Put .ttf / .otf / .woff / .woff2 files in the bucket's fonts/ folder. Smaller files (about 3MB or less) load faster; each font is downloaded once per device.</p></div>`}
 const setMsg=()=>{const m=$('#s-fmsg');if(m)m.textContent=ufState};
 async function loadUF(){
-  if(!API||UF.length)return;ufState='loading fonts…';setMsg();
-  try{const j=await(await fetch(API+(API.includes('?')?'&':'?')+'action=fonts&key='+encodeURIComponent(KEY))).json();
-    if(!j.fonts)ufState='Code.gs has no font support yet – update it and redeploy a new version';else{UF=j.fonts;ufState=UF.length?UF.length+' font file(s) found in Drive':'No font files found in the Drive font folder'}}
-  catch(e){ufState='Could not read the font folder ('+e.message+')'}
+  if(!MEDIA||UF.length)return;ufState='loading fonts…';setMsg();
+  try{const j=await(await fetch(MEDIA+'/fonts')).json();UF=j.fonts||[];ufState=UF.length?UF.length+' font file(s) found':'No font files found in the fonts/ folder'}
+  catch(e){ufState='Could not read the font list ('+e.message+')'}
   if(cfg){const a=$('#s-fui'),b=$('#s-fse');if(a){a.innerHTML=fOpts('ui');b.innerHTML=fOpts('se')}setMsg()}
 }
 const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('bkbk',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const idbGet=async k=>{try{const d=await idb();return await new Promise(res=>{const q=d.transaction('f').objectStore('f').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})}catch(e){return null}};
 const idbSet=async(k,v)=>{try{const d=await idb();await new Promise(res=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=()=>res();t.onerror=()=>res()})}catch(e){}};
 const LF={};
-async function userFont(id,name){
-  const fam='U_'+name.replace(/[^\w가-힣]/g,'_');if(LF[id])return fam;
-  let buf=await idbGet('f_'+id);
-  if(!buf){if(!API)throw new Error('not connected');const j=await(await fetch(API+(API.includes('?')?'&':'?')+'action=font&id='+encodeURIComponent(id)+'&key='+encodeURIComponent(KEY))).json();
-    if(!j.data)throw new Error(j.error||'no data');buf=Uint8Array.from(atob(j.data),c=>c.charCodeAt(0)).buffer;await idbSet('f_'+id,buf)}
-  const ff=new FontFace(fam,buf);await ff.load();document.fonts.add(ff);LF[id]=1;return fam;
+async function userFont(name){
+  const fam='U_'+name.replace(/[^\w가-힣]/g,'_');if(LF[name])return fam;
+  let buf=await idbGet('f_'+name);
+  if(!buf){await loadUF();const f=UF.find(x=>x.name==name);if(!f)throw new Error('font not found');buf=await(await fetch(f.url)).arrayBuffer();await idbSet('f_'+name,buf)}
+  const ff=new FontFace(fam,buf);await ff.load();document.fonts.add(ff);LF[name]=1;return fam;
 }
 async function applyFont(role,val){
-  let fam;if(val.startsWith('u:')){const[,id,...n]=val.split(':');fam=await userFont(id,n.join(':'))}else fam=val.slice(2);
+  const fam=val.startsWith('u:')?await userFont(val.slice(2)):val.slice(2);
   const q=/^(sans-serif|serif|monospace)$/.test(fam)?fam:`'${fam}'`;
   document.documentElement.style.setProperty('--'+role,role=='ui'?`${q},'Malgun Gothic',sans-serif`:`${q},'Batang',serif`);
 }
@@ -485,7 +542,7 @@ document.addEventListener('change',e=>{const t=e.target;
   if(ed&&t.closest('#bf')){if(t.name=='series')onSeries();if(t.id=='cvf')onCover(t.files[0])}
   if(t.id=='s-fui'||t.id=='s-fse')setFont(t)});
 document.addEventListener('input',e=>{if(e.target.id=='sq'){shq=e.target.value.trim().toLowerCase();markShelf()}});
-document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
+document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.closest&&e.target.closest('#lg')){e.preventDefault();doLogin();return}if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
 let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(tab=='Text'||tab=='Word')render()},200)});
 
 /* ---------- 렌더 & 이벤트 ---------- */
@@ -528,7 +585,9 @@ document.addEventListener('click',async e=>{
   if(g('data-bdel')){delBook();return}
   if(x=g('data-bedit')){startEdit(bk(x.dataset.bedit));return}
   if(g('data-bnew')){startEdit(null);return}
-  if(g('data-ssave')){const u=$('#s-api').value.trim(),k=$('#s-key').value.trim();try{localStorage.setItem('bkbk_api',u);localStorage.setItem('bkbk_key',k)}catch(z){}if(u!==API||k!==KEY){location.reload();return}ufState='saved';setMsg();return}
+  if(g('data-ssave')){const m=$('#s-media').value.trim().replace(/\/$/,'');try{localStorage.setItem('bkbk_media',m)}catch(z){}if(m!==MEDIA){location.reload();return}ufState='saved';setMsg();return}
+  if(g('data-logout')){await logout();location.reload();return}
+  if(e.target.closest('#lg-go')){doLogin();return}
   if(g('data-sclose')){cfg=false;view='L';render();return}
   if(x=g('data-add')){openForm(x.dataset.add,null,x.dataset.bk);return}
   if(x=g('data-edit')){const[sh,id]=x.dataset.edit.split(':');openForm(sh,D[sh].find(r=>String(r.id)==id));return}
@@ -547,7 +606,7 @@ document.addEventListener('click',async e=>{
   else return;
   render();
 });
-load().then(()=>{render();applySaved()});
+start();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 </script></body></html>
