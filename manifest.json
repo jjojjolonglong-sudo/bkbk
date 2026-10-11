@@ -1,6 +1,7 @@
 {
-  "name": "BKBK",
+  "name": "BKBK 독서노트",
   "short_name": "BKBK",
+  "description": "독서 기록",
   "id": ".",
   "start_url": ".",
   "scope": ".",
