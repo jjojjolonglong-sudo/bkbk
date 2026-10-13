@@ -263,16 +263,23 @@ async function refresh(bg){
 }
 
 /* 표지: 목록용 작은 파일(_s.jpg)과 큰 파일을 따로 저장해 두고 크기에 맞춰 불러옴 */
-const img=(u,w=600)=>{u=String(u||'');return w<=240&&/\/covers\/[0-9a-f]+\.jpg$/.test(u)?u.replace(/\.jpg$/,'_s.jpg'):u};
+const mediaUrl=u=>!u||/^https?:/.test(u)?u:`${MEDIA}/o/${u}`;   // DB에는 'covers/해시.jpg' 같은 키만 저장 → 주소(도메인)가 바뀌어도 설정만 고치면 됨
+const img=(u,w=600)=>{u=String(u||'');if(w<=240&&/(^|\/)(covers|images)\/[0-9a-f]+\.jpg$/.test(u))u=u.replace(/\.jpg$/,'_s.jpg');return mediaUrl(u)};
 /* 표지 로더: 화면을 다시 그려도 중단되지 않고, 동시에 4장씩만 요청, 실패하면 재시도 */
 const IC=new Map(),Q=[];let busy=0;
 function want(u){if(IC.has(u))return;IC.set(u,0);Q.push(u);pump()}
 function pump(){while(busy<4&&Q.length){busy++;tryLoad(Q.shift(),0)}}
-function tryLoad(u,n){const im=new Image();im.referrerPolicy='no-referrer';
-  im.onload=()=>{IC.set(u,u);busy--;hydrate();pump()};
-  im.onerror=()=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),500*(n+1));else{IC.set(u,'bad');busy--;hydrate();pump()}};
-  im.src=u}
-function hydrate(){document.querySelectorAll('img[data-u]:not([src])').forEach(i=>{const u=i.dataset.u,v=IC.get(u);if(v==='bad')i.remove();else if(v)i.src=v;else want(u)})}
+async function fetchBlob(u){
+  let c=null;try{c=await caches.open('bkbk-media')}catch(e){}
+  let r=c&&await c.match(u);
+  if(!r){const own=MEDIA&&u.startsWith(MEDIA+'/');r=await fetch(u,own?{headers:{Authorization:'Bearer '+await token()}}:{});if(!r.ok)throw new Error(r.status);if(c)c.put(u,r.clone())}
+  return URL.createObjectURL(await r.blob());
+}
+function tryLoad(u,n){fetchBlob(u).then(b=>{IC.set(u,b);busy--;hydrate();pump()}).catch(()=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),500*(n+1));else{IC.set(u,'bad');busy--;hydrate();pump()}})}
+function hydrate(){
+  document.querySelectorAll('img[data-u]:not([src])').forEach(i=>{const u=i.dataset.u,v=IC.get(u);if(v==='bad')i.remove();else if(v)i.src=v;else want(u)});
+  document.querySelectorAll('[data-bg]').forEach(e=>{const u=e.dataset.bg,v=IC.get(u);if(v&&v!=='bad'){e.style.backgroundImage=`url('${v}')`;e.textContent=''}else if(v!=='bad')want(u)});
+}
 const IM=(c,x='',w=600)=>{const u=img(c,w),v=IC.get(u);return`<img ${x} data-u="${E(u)}" ${v&&v!=='bad'?`src="${E(v)}"`:''} alt="">`};
 const cv=(b,c='')=>`<div class="cv ${c}" style="background:${E(b.color1||'#8a7f6a')}"><span class="ct">${E(Array.from(String(b.name||'').replace(/\s/g,'')).slice(0,3).join(''))}</span>${b.cover?IM(b.cover,'',c=='lg'?400:240):''}</div>`;
 const hx=v=>{v=String(v||'').trim().replace('#','');if(/^[0-9a-f]{3}$/i.test(v))v=v.replace(/./g,'$&$&');return/^[0-9a-f]{6}$/i.test(v)?'#'+v:'#888888'};
@@ -305,7 +312,7 @@ function bookView(id){
 function bookEdit(){
   const r=ed.row,col=['color1','color2','color3'].map(k=>`<input type="color" name="${k}" value="${hx(r[k])}">`).join('');
   return`<div class="bar"><button class="btn" data-bsave><b>Save</b></button><button class="btn" data-bcancel>Cancel</button>${ed.isNew?'':'<button class="btn" data-bdel>Delete</button>'}</div>
-  <form id="bf" onsubmit="return false"><div class="sc"><div class="dh"><div class="lc"><div class="fl" style="margin-top:0"><span>Cover</span><div class="cvup" id="cvup" style="width:96px;height:136px;margin:0;flex:none;${r.cover?`background-image:url('${E(img(r.cover,400))}')`:''}">${r.cover?'':'Cover +'}</div></div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}"></div>
+  <form id="bf" onsubmit="return false"><div class="sc"><div class="dh"><div class="lc"><div class="fl" style="margin-top:0"><span>Cover</span><div class="cvup" id="cvup" style="width:96px;height:136px;margin:0;flex:none;"${r.cover?` data-bg="${E(img(r.cover,400))}"`:''}>${r.cover?'':'Cover +'}</div></div><input type="file" id="cvf" accept="image/*" hidden><input type="hidden" name="cover" value="${E(r.cover)}"></div>
   <div class="di">${fl('Series',`<div class="inl" id="in-series">${inl('series',r.series)}</div>`)}
   <div class="r2">${fl('Volume',inp('volume',r.volume,'type="number" step="1" min="1"'))}${fl('Label',inp('label',r.label))}</div>
   <div class="r2">${fl('Author',`<div class="inl" id="in-author">${inl('author',nz(r.author,'author'))}</div>`)}${fl('Genre',msBox('genre',split(r.genre).map(x=>nz(x,'genre'))))}</div>
@@ -491,7 +498,7 @@ function onCover(f){
   if(!f||!ed)return;const tok=ed,rd=new FileReader();
   rd.onload=()=>{const im=new Image();im.onload=async()=>{
     const m=await scaled(im,600,.82),t=await scaled(im,140,.78),box=$('#cvup'),e=$('#bf').elements;
-    box.style.backgroundImage=`url('${m.url}')`;box.textContent='';
+    box.style.backgroundImage=`url('${m.url}')`;box.removeAttribute('data-bg');box.textContent='';
     palette(im).forEach((v,i)=>e['color'+(i+1)].value=v);
     if(!MEDIA){e.cover.value='';box.innerHTML='<span class="upl">no media server</span>';$('#msg').innerHTML='<div class="err">Media server is not set. Open ⚙ and enter the Worker URL.</div>';return}
     upBusy(1);box.innerHTML='<span class="upl">uploading…</span>';
@@ -499,7 +506,7 @@ function onCover(f){
       const fd=new FormData();fd.append('main',m.blob,'m.jpg');fd.append('thumb',t.blob,'t.jpg');
       const r=await fetch(MEDIA+'/upload',{method:'POST',headers:{Authorization:'Bearer '+await token()},body:fd}),j=await r.json();
       if(!r.ok||!j.ok)throw new Error(j.error||'HTTP '+r.status);
-      e.cover.value=j.url;box.textContent='';
+      e.cover.value=j.key;box.textContent='';
     }catch(x){e.cover.value='';box.innerHTML='<span class="upl">failed – tap to retry</span>';$('#msg').innerHTML='<div class="err">Cover upload failed: '+E(x.message)+'</div>'}
     finally{if(ed===tok)upBusy(-1)}
   };im.src=rd.result};rd.readAsDataURL(f);
@@ -513,7 +520,7 @@ function settingsHtml(){return`<div class="bar"><button class="btn" data-ssave><
 const setMsg=()=>{const m=$('#s-fmsg');if(m)m.textContent=ufState};
 async function loadUF(){
   if(!MEDIA||UF.length)return;ufState='loading fonts…';setMsg();
-  try{const j=await(await fetch(MEDIA+'/fonts')).json();UF=j.fonts||[];ufState=UF.length?UF.length+' font file(s) found':'No font files found in the fonts/ folder'}
+  try{const j=await(await fetch(MEDIA+'/fonts',{headers:{Authorization:'Bearer '+await token()}})).json();UF=j.fonts||[];ufState=UF.length?UF.length+' font file(s) found':'No font files found in the fonts/ folder'}
   catch(e){ufState='Could not read the font list ('+e.message+')'}
   if(cfg){const a=$('#s-fui'),b=$('#s-fse');if(a){a.innerHTML=fOpts('ui');b.innerHTML=fOpts('se')}setMsg()}
 }
@@ -524,7 +531,7 @@ const LF={};
 async function userFont(name){
   const fam='U_'+name.replace(/[^\w가-힣]/g,'_');if(LF[name])return fam;
   let buf=await idbGet('f_'+name);
-  if(!buf){await loadUF();const f=UF.find(x=>x.name==name);if(!f)throw new Error('font not found');buf=await(await fetch(f.url)).arrayBuffer();await idbSet('f_'+name,buf)}
+  if(!buf){await loadUF();const f=UF.find(x=>x.name==name);if(!f)throw new Error('font not found');buf=await(await fetch(f.url,{headers:{Authorization:'Bearer '+await token()}})).arrayBuffer();await idbSet('f_'+name,buf)}
   const ff=new FontFace(fam,buf);await ff.load();document.fonts.add(ff);LF[name]=1;return fam;
 }
 async function applyFont(role,val){
@@ -543,7 +550,7 @@ document.addEventListener('change',e=>{const t=e.target;
   if(t.id=='s-fui'||t.id=='s-fse')setFont(t)});
 document.addEventListener('input',e=>{if(e.target.id=='sq'){shq=e.target.value.trim().toLowerCase();markShelf()}});
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.closest&&e.target.closest('#lg')){e.preventDefault();doLogin();return}if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
-let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(tab=='Text'||tab=='Word')render()},200)});
+let rz,rw=innerWidth;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(innerWidth===rw)return;rw=innerWidth;if((tab=='Text'||tab=='Word')&&!fm&&!ed&&!cfg)render()},200)});
 
 /* ---------- 렌더 & 이벤트 ---------- */
 const ttl=(s,lb,vol,multi)=>{lb=String(lb||'').trim();return!s?'':lb?`${s.name} [${lb}]`:multi&&vol?`${s.name} [${vol}권]`:s.name};
