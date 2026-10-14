@@ -144,6 +144,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 /* ---------- 연결 설정: 아래 값은 공개돼도 되는 값입니다 (비밀 키는 절대 넣지 마세요) ---------- */
 const SB='https://rtvvajhsnwkkrmncyfbs.supabase.co';
 const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dnZhamhzbndra3JtbmN5ZmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjkwMTEsImV4cCI6MjEwNzA0NTAxMX0.O2aLLeazv_FhUhbVAkp4vz3pw8GPb_683dUu7Et1Cwk';
+const VER='sb-v4';        // 설정(⚙)에서 지금 어떤 버전이 올라가 있는지 확인할 수 있어요
 const DEFAULT_MEDIA='';   // Cloudflare Worker 주소를 여기 적거나, 앱의 ⚙ 설정에서 입력해도 됩니다
 const LS=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
 const MEDIA=(LS('bkbk_media')||DEFAULT_MEDIA).replace(/\/$/,'');
@@ -275,7 +276,13 @@ async function fetchBlob(u){
   if(!r){const own=MEDIA&&u.startsWith(MEDIA+'/');r=await fetch(u,own?{headers:{Authorization:'Bearer '+await token()}}:{});if(!r.ok)throw new Error(r.status);if(c)c.put(u,r.clone())}
   return URL.createObjectURL(await r.blob());
 }
-function tryLoad(u,n){fetchBlob(u).then(b=>{IC.set(u,b);busy--;hydrate();pump()}).catch(()=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),500*(n+1));else{IC.set(u,'bad');busy--;hydrate();pump()}})}
+let imgWarned=false;
+function tryLoad(u,n){
+  fetchBlob(u).catch(e=>/_s\.jpg$/.test(u)?fetchBlob(u.replace(/_s\.jpg$/,'.jpg')):Promise.reject(e))
+    .then(b=>{IC.set(u,b);busy--;hydrate();pump()})
+    .catch(e=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),500*(n+1));else{IC.set(u,'bad');busy--;hydrate();pump();
+      if(!imgWarned){imgWarned=true;$('#msg').innerHTML='<div class="err">Images could not be loaded (HTTP '+E(e.message)+'). Open ⚙ → Test media server to find the cause.</div>'}}})
+}
 function hydrate(){
   document.querySelectorAll('img[data-u]:not([src])').forEach(i=>{const u=i.dataset.u,v=IC.get(u);if(v==='bad')i.remove();else if(v)i.src=v;else want(u)});
   document.querySelectorAll('[data-bg]').forEach(e=>{const u=e.dataset.bg,v=IC.get(u);if(v&&v!=='bad'){e.style.backgroundImage=`url('${v}')`;e.textContent=''}else if(v!=='bad')want(u)});
@@ -516,8 +523,22 @@ function onCover(f){
 let UF=[],ufState='';
 const FB=[['Gowun Dodum','Gowun Dodum'],['Gowun Batang','Gowun Batang'],['Noto Sans KR','Noto Sans KR'],['Nanum Myeongjo','Nanum Myeongjo'],['IBM Plex Sans KR','IBM Plex Sans KR'],['Gaegu','Gaegu'],['sans-serif','System sans'],['serif','System serif'],['monospace','Monospace']];
 const fOpts=role=>{const c=LS('bkbk_f'+role)||('b:'+(role=='ui'?'Gowun Dodum':'Gowun Batang'));return`<optgroup label="Built-in">${FB.map(([f,n])=>`<option value="b:${E(f)}" ${c=='b:'+f?'selected':''}>${E(n)}</option>`).join('')}</optgroup>${UF.length?`<optgroup label="My fonts">${UF.map(u=>{const v='u:'+u.name;return`<option value="${E(v)}" ${c==v?'selected':''}>${E(u.name)}</option>`}).join('')}</optgroup>`:''}`};
-function settingsHtml(){return`<div class="bar"><button class="btn" data-ssave><b>Save</b></button><button class="btn" data-sclose>Close</button></div><div class="sc"><h3>Account</h3><p style="margin:6px 0">Signed in as <b>${E(ME&&ME.email)}</b></p><button class="btn" data-logout>Sign out</button><h3>Media server</h3>${fl('Worker URL','<input id="s-media" value="'+E(MEDIA)+'" placeholder="https://bkbk-media.xxxx.workers.dev">')}<h3>Fonts</h3>${fl('Interface font','<select id="s-fui">'+fOpts('ui')+'</select>')}${fl('Text font (titles, quotes)','<select id="s-fse">'+fOpts('se')+'</select>')}<div class="s" id="s-fmsg" style="margin-top:6px">${E(ufState)}</div><div class="fprev">가나다라마바사 ABC abc 123<br>The quick brown fox jumps over the lazy dog.</div><p class="s" style="margin-top:10px">Put .ttf / .otf / .woff / .woff2 files in the bucket's fonts/ folder. Smaller files (about 3MB or less) load faster; each font is downloaded once per device.</p></div>`}
+function settingsHtml(){return`<div class="bar"><button class="btn" data-ssave><b>Save</b></button><button class="btn" data-sclose>Close</button></div><div class="sc"><p class="s">App version: ${VER}</p><h3>Account</h3><p style="margin:6px 0">Signed in as <b>${E(ME&&ME.email)}</b></p><button class="btn" data-logout>Sign out</button><h3>Media server</h3>${fl('Worker URL','<input id="s-media" value="'+E(MEDIA)+'" placeholder="https://media.xxxx.workers.dev">')}<button class="btn" data-mtest>Test media server</button><pre id="s-test" class="s" style="white-space:pre-wrap;margin-top:6px"></pre><h3>Fonts</h3>${fl('Interface font','<select id="s-fui">'+fOpts('ui')+'</select>')}${fl('Text font (titles, quotes)','<select id="s-fse">'+fOpts('se')+'</select>')}<div class="s" id="s-fmsg" style="margin-top:6px">${E(ufState)}</div><div class="fprev">가나다라마바사 ABC abc 123<br>The quick brown fox jumps over the lazy dog.</div><p class="s" style="margin-top:10px">Put .ttf / .otf / .woff / .woff2 files in the bucket's fonts/ folder. Smaller files (about 3MB or less) load faster; each font is downloaded once per device.</p></div>`}
 const setMsg=()=>{const m=$('#s-fmsg');if(m)m.textContent=ufState};
+async function mediaTest(){
+  const out=[],say=t=>{out.push(t);$('#s-test').textContent=out.join('\n')};
+  if(!MEDIA){say('✗ Worker URL is empty. Enter it above and press Save.');return}
+  let H;try{H={headers:{Authorization:'Bearer '+await token()}}}catch(e){say('✗ Not signed in: '+e.message);return}
+  try{const r=await fetch(MEDIA+'/',H),j=await r.json();
+    say(`${j.bucket&&j.supabase&&j.allowedEmail?'✓':'✗'} Worker reachable · R2 ${j.bucket?'ok':'NOT CONNECTED (binding BUCKET)'} · Supabase variables ${j.supabase?'ok':'MISSING'} · ALLOWED_EMAIL ${j.allowedEmail?'set':'MISSING'}`);
+    say(`${j.auth==='ok'?'✓':'✗'} Login check: ${j.auth||'no info (redeploy the latest worker.js)'}`);
+  }catch(e){say('✗ Cannot reach the Worker: '+e.message);return}
+  try{const r=await fetch(MEDIA+'/fonts',H),j=await r.json();say(`${r.ok?'✓':'✗'} Font list: ${r.ok?j.fonts.length+' file(s)':j.error}`)}catch(e){say('✗ Font list: '+e.message)}
+  const b=D.Books.find(x=>x.cover);
+  if(!b)say('– No book has a cover yet');
+  else try{const r=await fetch(mediaUrl(b.cover),H);say(`${r.ok?'✓':'✗'} Cover image (${b.cover}): HTTP ${r.status}${r.ok?'':' '+((await r.json().catch(()=>({}))).error||'')}`)}catch(e){say('✗ Cover image: '+e.message)}
+  say('Done.');
+}
 async function loadUF(){
   if(!MEDIA||UF.length)return;ufState='loading fonts…';setMsg();
   try{const j=await(await fetch(MEDIA+'/fonts',{headers:{Authorization:'Bearer '+await token()}})).json();UF=j.fonts||[];ufState=UF.length?UF.length+' font file(s) found':'No font files found in the fonts/ folder'}
@@ -593,6 +614,7 @@ document.addEventListener('click',async e=>{
   if(x=g('data-bedit')){startEdit(bk(x.dataset.bedit));return}
   if(g('data-bnew')){startEdit(null);return}
   if(g('data-ssave')){const m=$('#s-media').value.trim().replace(/\/$/,'');try{localStorage.setItem('bkbk_media',m)}catch(z){}if(m!==MEDIA){location.reload();return}ufState='saved';setMsg();return}
+  if(g('data-mtest')){mediaTest();return}
   if(g('data-logout')){await logout();location.reload();return}
   if(e.target.closest('#lg-go')){doLogin();return}
   if(g('data-sclose')){cfg=false;view='L';render();return}
