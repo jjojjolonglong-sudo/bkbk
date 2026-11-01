@@ -140,17 +140,19 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
   <div class="pane"><div class="ph" id="rt"></div><div class="body" id="R"></div></div>
  </div>
 </div>
-<script src="https://jjojjolonglong-sudo.github.io/mnmn/media.js"></script>
+<script src="https://jjojjolonglong-sudo.github.io/mnmn/config.js"></script>
+<script src="https://jjojjolonglong-sudo.github.io/mnmn/media.v1.js"></script>
 <script>
 /* ---------- 연결 설정: 아래 값은 공개돼도 되는 값입니다 (비밀 키는 절대 넣지 마세요) ---------- */
-const SB='https://rtvvajhsnwkkrmncyfbs.supabase.co';
-const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dnZhamhzbndra3JtbmN5ZmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjkwMTEsImV4cCI6MjEwNzA0NTAxMX0.O2aLLeazv_FhUhbVAkp4vz3pw8GPb_683dUu7Et1Cwk';
-const VER='sb-v5';        // 설정(⚙)에서 지금 어떤 버전이 올라가 있는지 확인할 수 있어요
-const DEFAULT_MEDIA='https://media.jjojjolonglong.workers.dev';   // 공용 이미지 Worker. ⚙ 설정에 다른 주소를 저장하면 그 주소가 우선합니다(비워서 저장하면 이 기본값으로 돌아와요)
+const CFG=window.APP_CONFIG||{};   // 공용 설정(config.js). 못 불러와도(오프라인 등) 아래 값으로 동작해요
+const SB=CFG.SB||'https://rtvvajhsnwkkrmncyfbs.supabase.co';
+const ANON=CFG.ANON||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dnZhamhzbndra3JtbmN5ZmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjkwMTEsImV4cCI6MjEwNzA0NTAxMX0.O2aLLeazv_FhUhbVAkp4vz3pw8GPb_683dUu7Et1Cwk';
+const VER='sb-v7';        // 설정(⚙)에서 지금 어떤 버전이 올라가 있는지 확인할 수 있어요
+const DEFAULT_MEDIA=CFG.MEDIA||'https://media.jjojjolonglong.workers.dev';   // 공용 이미지 Worker. ⚙ 설정에 다른 주소를 저장하면 그 주소가 우선합니다(비워서 저장하면 이 기본값으로 돌아와요)
 const LS=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
 const MEDIA=(LS('bkbk_media')||DEFAULT_MEDIA).replace(/\/$/,'');
-/* 한국 시간 기준 오늘(YYYY-MM-DD). 기기 시간대와 상관없이 항상 한국 날짜 */
-const todayKST=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date());
+/* 한국 시간 기준 오늘(YYYY-MM-DD): config.js의 todayKST()를 쓰고, 못 불러오면 같은 동작의 대체 함수 */
+if(!window.todayKST)window.todayKST=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date());
 /* 공용 이미지 모듈(media.js). 못 불러와도 앱은 열리고, 업로드할 때만 안내가 떠요 */
 if(!window.Media)window.Media={init(){},process:async()=>{throw new Error('media.js could not be loaded')},upload:async()=>{throw new Error('media.js could not be loaded')}};
 Media.init({worker:MEDIA,getToken:()=>token()});
@@ -178,7 +180,7 @@ async function rest(path,o={}){
   if(!r.ok){let m;try{const j=await r.json();m=j.message||j.hint||JSON.stringify(j)}catch(e){m='HTTP '+r.status}throw new Error(m)}
   return r;
 }
-const TB={Books:'bkbk_books',Tags:'bkbk_tags',Series:'bkbk_series',Logs:'bkbk_logs',Texts:'bkbk_texts',Words:'words',Uses:'bkbk_words_inbook'};
+const TB={Books:'bkbk_books',Tags:'bkbk_tags',Series:'bkbk_series',Logs:'bkbk_logs',Texts:'bkbk_texts',Words:'diti_words',Uses:'bkbk_word_use'};
 /* 열 종류: t 글자 · l 소문자 글자 · i 정수 · n 숫자 · d 날짜 · u uuid · a uuid 배열(앱에서는 쉼표 문자열) */
 const SCH={Books:{series:'u',volume:'i',label:'t',author:'u',genre:'a',page:'i',charcount:'n',platform:'u',star:'i',comment:'t',cover:'t',color1:'t',color2:'t',color3:'t',height:'t',thickness:'t'},
   Tags:{name:'t',type:'l'},Series:{name:'t'},
