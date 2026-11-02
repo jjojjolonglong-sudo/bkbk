@@ -187,7 +187,7 @@ const SCH={Books:{series:'u',volume:'i',label:'t',author:'u',genre:'a',page:'i',
   Logs:{date:'d',book:'u',chapter:'t',onpage:'i',offpage:'i',onpct:'n',offpct:'n'},
   Texts:{date:'d',book:'u',chapter:'t',page:'i',pct:'n',text:'t',notion:'t',tags:'a'},
   Words:{word:'t',meaning:'t',note:'t'},
-  Uses:{word_id:'u',book:'u',date:'d',chapter:'t',page:'i',pct:'n',meaning:'t'}};
+  Uses:{word_id:'u',book:'u',date:'d',chapter:'t',page:'i',pct:'n',example:'t'}};
 const UU=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function toDB(sh,r){
   const o={id:r.id};
@@ -422,9 +422,9 @@ function Shelf(){
 }
 
 /* ---------- 폼 / 편집 ---------- */
-const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',meaning:'Meaning',note:'Note'};
+const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',example:'Example',meaning:'Meaning',note:'Note'};
 const SK={Logs:'Log',Texts:'Text',Words:'Word',Uses:'Word use'};
-const LAY={Logs:['date book','chapter','onpage offpage','onpct offpct'],Texts:['date book','chapter page pct','text','notion','tags'],Words:['word','meaning','note'],Uses:['date book','chapter page pct','word','meaning']};
+const LAY={Logs:['date book','chapter','onpage offpage','onpct offpct'],Texts:['date book','chapter page pct','text','notion','tags'],Words:['word','meaning','note'],Uses:['date book','chapter page pct','word','example']};
 const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
 const nid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=crypto.getRandomValues(new Uint8Array(1))[0]&15;return(c=='x'?r:(r&3|8)).toString(16)});
 async function addTag(name,type){const ex=tagsOf(type.toLowerCase()).find(t=>t.name==name);if(ex)return ex.id;const r={name,type};r.id=nid('Tags');send('Tags',r,false,true);TM.set(String(r.id),name);TK.set(type.toLowerCase()+'|'+name,String(r.id));return r.id}
@@ -453,7 +453,7 @@ function formHtml(){
     if(k=='text')return`<textarea name="text" rows="5">${E(v)}</textarea>`;
     if(k=='notion')return`<textarea name="notion" rows="2">${E(v)}</textarea>`;
     if(k=='note')return`<textarea name="note" rows="3">${E(v)}</textarea>`;
-    if(k=='meaning'&&sheet=='Uses')return inp('meaning',row.meaning||row.meaningX||'');
+    if(k=='example')return`<textarea name="example" rows="3">${E(v)}</textarea>`;
     return inp(k,['onpct','offpct','pct'].includes(k)&&v!==''?PC(v):v)};
   const body=LAY[sheet].map(g=>{const ks=g.split(' '),h=ks.map(k=>fl(KO[k],f(k))).join('');return ks.length>1?`<div class="r2">${h}</div>`:h}).join('');
   const uses=sheet=='Words'&&!isNew?`<h3>Uses in books</h3>${stab(D.Uses.filter(u=>u.word_id==row.id),(a,b)=>cmp(bk(a.book).name,bk(b.book).name)||eAt(a)-eAt(b)).map(u=>`<div class="ln" data-edit="Uses:${E(u.id)}"><b>${E(pp(u)||'-')}</b><span>${E(bk(u.book).name)}</span></div>`).join('')||'<p class="empty">No uses yet</p>'}`:'';
@@ -471,7 +471,7 @@ function saveForm(){
   if(sh=='Words'){r.word=String(r.word||'').trim();if(!r.word){alert('Word is required');return}
     const d=D.Words.find(x=>wkey(x.word)==wkey(r.word)&&x.id!=r.id);if(d){alert('This word already exists in the dictionary');return}}
   if(sh=='Uses'){const t=String(r.word||'').trim();if(!t){alert('Word is required');return}
-    const w=ensureWord(t,r.meaning),m=String(r.meaning||'').trim();r.word_id=w.id;r.meaning=(!m||m===String(w.meaning||'').trim())?'':m}   // 대표 뜻과 같으면 용례에는 안 적음
+    const w=ensureWord(t,'');r.word_id=w.id;r.example=String(r.example||'').trim()}
   fm=null;send(sh,r);
 }
 /* 저장은 화면에 먼저 반영하고 서버(Supabase)에는 순서대로 보냄 */
@@ -603,7 +603,7 @@ const ttl=(s,lb)=>{lb=String(lb||'').trim();return!s?'':lb?`${s.name} [${lb}]`:s
 let TM=new Map(),TK=new Map(),SM=new Map(),SN=new Map(),SC=new Map(),WM=new Map(),WC=new Map(),GMAX=new Map();
 const serOf=b=>SM.get(String(b.series))||SN.get(String(b.series));
 const tn=v=>TM.has(String(v))?TM.get(String(v)):String(v??''),nz=(v,type)=>{v=String(v??'').trim();return!v?'':TM.has(v)?v:(TK.get(type+'|'+v)||v)};
-function calc(){TM=new Map(D.Tags.map(t=>[String(t.id),t.name]));TK=new Map(D.Tags.map(t=>[String(t.type).toLowerCase()+'|'+t.name,String(t.id)]));BM=new Map(D.Books.map(b=>[String(b.id),b]));LM=new Map();D.Logs.forEach(l=>{const k=String(l.book),a=LM.get(k);a?a.push(l):LM.set(k,[l])});D.Logs.forEach((l,i)=>{l._i=i});CS=new Map();LM.forEach((a,k)=>CS.set(k,sess(a)));GMAX=new Map();D.Books.forEach(b=>{const f=firstD(b.id);if(!f)return;const k=f+'|'+gk(b);GMAX.set(k,Math.max(GMAX.has(k)?GMAX.get(k):-1,cs(b.id).fi))});WM=new Map(D.Words.map(w=>[String(w.id),w]));WC=new Map();D.Uses.forEach(u=>{const k=String(u.word_id),w=WM.get(k);WC.set(k,(WC.get(k)||0)+1);u.word=w?w.word:'';u.meaningX=u.meaning||(w&&w.meaning)||''});SM=new Map(D.Series.map(x=>[String(x.id),x]));SN=new Map(D.Series.map(x=>[x.name,x]));SC=new Map();D.Books.forEach(b=>{const k=String(b.series);SC.set(k,(SC.get(k)||0)+1)});D.Books.forEach(b=>{b.authorN=tn(nz(b.author,'author'));b.genreN=split(b.genre).map(x=>tn(nz(x,'genre'))).join(', ');const s=serOf(b);b.name=s?ttl(s,b.label):(b.name||'(untitled)')})}
+function calc(){TM=new Map(D.Tags.map(t=>[String(t.id),t.name]));TK=new Map(D.Tags.map(t=>[String(t.type).toLowerCase()+'|'+t.name,String(t.id)]));BM=new Map(D.Books.map(b=>[String(b.id),b]));LM=new Map();D.Logs.forEach(l=>{const k=String(l.book),a=LM.get(k);a?a.push(l):LM.set(k,[l])});D.Logs.forEach((l,i)=>{l._i=i});CS=new Map();LM.forEach((a,k)=>CS.set(k,sess(a)));GMAX=new Map();D.Books.forEach(b=>{const f=firstD(b.id);if(!f)return;const k=f+'|'+gk(b);GMAX.set(k,Math.max(GMAX.has(k)?GMAX.get(k):-1,cs(b.id).fi))});WM=new Map(D.Words.map(w=>[String(w.id),w]));WC=new Map();D.Uses.forEach(u=>{const k=String(u.word_id),w=WM.get(k);WC.set(k,(WC.get(k)||0)+1);u.word=w?w.word:'';u.meaningX=(w&&w.meaning)||''});SM=new Map(D.Series.map(x=>[String(x.id),x]));SN=new Map(D.Series.map(x=>[x.name,x]));SC=new Map();D.Books.forEach(b=>{const k=String(b.series);SC.set(k,(SC.get(k)||0)+1)});D.Books.forEach(b=>{b.authorN=tn(nz(b.author,'author'));b.genreN=split(b.genre).map(x=>tn(nz(x,'genre'))).join(', ');const s=serOf(b);b.name=s?ttl(s,b.label):(b.name||'(untitled)')})}
 function markShelf(){document.querySelectorAll('#L .sp').forEach(s=>s.classList.toggle('hit',!!shq&&s.dataset.s.includes(shq)));const c=$('#L .sc');if(c)c.classList.toggle('sh-q',!!shq)}
 function render(){calc();const pv=$('#L .sc'),lt0=lastTab;lastTab=tab;if(pv&&pv.offsetParent!==null)ls[tab]=pv.scrollTop;
   $('#tabs').innerHTML=TABS.map(t=>`<button class="tab ${t==tab?'on':''}" data-tab="${t}">${t}</button>`).join('');
