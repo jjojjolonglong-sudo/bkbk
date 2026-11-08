@@ -117,6 +117,9 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .stp{display:flex;gap:3px}.stp input{text-align:center;min-width:0;flex:1}
 .fl{margin-top:8px;font-size:12px;min-width:0;flex:1}.fl>span{display:block;color:var(--sh)}
 .r2{display:flex;gap:8px}.inl{display:flex;gap:4px}.inl select,.inl input{flex:1;min-width:0}
+.cb{position:relative;flex:1;min-width:0;display:flex}.cb .cbi{flex:1;min-width:0;width:100%}
+.cbl{position:absolute;left:0;right:0;top:100%;z-index:30;max-height:220px;overflow:auto;background:#fffef9;border:2px solid;border-color:var(--dk) #fff #fff var(--dk);box-shadow:3px 3px 0 #0003}
+.cbo{padding:4px 8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cbo.a,.cbo[data-cv]:hover{background:var(--navy);color:#fff}.cbo.none{color:var(--sh);cursor:default}
 .cvup{width:110px;height:156px;margin:0 auto;border:2px dashed var(--sh);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:#fff center/cover;color:var(--sh);font-size:12px}
 
 .sr{width:18px;height:18px;vertical-align:middle}.sr .bg{fill:#fff;stroke:var(--dk);stroke-width:1.2}.sr .fg{fill:var(--red)}
@@ -139,7 +142,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
  </div>
 </div>
 <script src="https://jjojjolonglong-sudo.github.io/mnmn/config.js"></script>
-<script src="https://jjojjolonglong-sudo.github.io/mnmn/media.v1.js"></script>
+<script src="https://jjojjolonglong-sudo.github.io/mnmn/media.v2.js"></script>
 <script>
 /* ---------- 연결 설정: 아래 값은 공개돼도 되는 값입니다 (비밀 키는 절대 넣지 마세요) ---------- */
 const CFG=window.APP_CONFIG||{};   // 공용 설정(config.js). 못 불러와도(오프라인 등) 아래 값으로 동작해요
@@ -153,7 +156,7 @@ const MEDIA=(LS('bkbk_media')||DEFAULT_MEDIA).replace(/\/$/,'');
 if(!window.todayKST)window.todayKST=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date());
 /* 공용 이미지 모듈(media.js). 못 불러와도 앱은 열리고, 업로드할 때만 안내가 떠요 */
 if(!window.Media)window.Media={init(){},process:async()=>{throw new Error('media.js could not be loaded')},upload:async()=>{throw new Error('media.js could not be loaded')}};
-Media.init({worker:MEDIA,getToken:()=>token()});
+Media.init({app:'bkbk',worker:MEDIA,getToken:()=>token()});
 
 /* ---------- Supabase 로그인 / 데이터 접근 (필요한 기능만 직접 구현) ---------- */
 const SES=()=>{try{return JSON.parse(localStorage.getItem('bkbk_sb')||'null')}catch(e){return null}};
@@ -223,10 +226,10 @@ let CS=new Map();
 const fresh=l=>has(l.onpct)?PC(l.onpct)<=0.5:has(l.onpage)?P(l.onpage)<=1:eOn(l)<=0.5;
 function sess(arr){
   const L=stab(arr,(a,b)=>cmp(dk(a.date),dk(b.date))||eOn(a)-eOn(b));
-  let start=0,done=false,cd='';const comps=[];
-  L.forEach((l,i)=>{if(done&&fresh(l)){start=i;done=false}if(!done&&eOff(l)>=100){done=true;cd=dk(l.date);comps.push(cd)}});
+  let start=0,done=false,cd='',ci=-1;const comps=[];
+  L.forEach((l,i)=>{if(done&&fresh(l)){start=i;done=false}if(!done&&eOff(l)>=100){done=true;cd=dk(l.date);ci=l._i;comps.push(cd)}});
   const S=L.slice(start);
-  return{p:Math.min(100,Math.max(0,...S.map(eOff))),fin:done,finD:done?cd:'',first:S.length?dk(S[0].date):'',last:S.length?dk(S[S.length-1].date):'',rr:start>0&&!done,comps,fi:S.length?S[0]._i:-1};
+  return{p:Math.min(100,Math.max(0,...S.map(eOff))),fin:done,finD:done?cd:'',first:S.length?dk(S[0].date):'',last:S.length?dk(S[S.length-1].date):'',rr:start>0&&!done,comps,fi:S.length?S[0]._i:-1,ci};   /* ci: 완독한 로그를 입력한 순번(같은 날 완독 순서 정렬용) */
 }
 const cs=id=>CS.get(String(id))||{p:0,fin:false,finD:'',first:'',last:'',rr:false,comps:[],fi:-1};
 const prog=id=>cs(id).p,fin=id=>cs(id).fin,finD=id=>cs(id).finD,lastD=id=>cs(id).last,firstD=id=>cs(id).first,rr=id=>cs(id).rr;
@@ -414,7 +417,7 @@ function Shelf(){
     const pl=`<span class="pl" style="background:${E(c2)};color:${lum(c2)}"><b>${E(t)}</b></span>`;
     if(!v){const d=Math.min(8,Math.max(5,w-12));return`<div ${a}><i class="dm" style="width:${d}px;height:${d}px;background:${E(c3)}"></i><div class="bd sg">${pl}</div></div>`}
     return`<div ${a}><div class="bd">${pl}<em class="vq" style="background:${E(c3)};color:${lum(c3)};font-size:${Math.min(9,Math.max(7,w-13))}px"><span>${E(v)}</span></em></div></div>`};
-  const done=D.Books.filter(b=>fin(b.id)).sort((a,b)=>cmp(finD(a.id),finD(b.id))),todo=D.Books.filter(b=>!fin(b.id)).sort(byD);
+  const done=D.Books.filter(b=>fin(b.id)).sort((a,b)=>cmp(finD(a.id),finD(b.id))||cs(a.id).ci-cs(b.id).ci)   /* 완독일 → 같은 날이면 입력한 순서 */,todo=D.Books.filter(b=>!fin(b.id)).sort(byD);
   const items=[...done.map(sp),...(todo.length?[`<div class="be" title="Unfinished books are on the right"><img src="bookend.png" alt="" height="100" onerror="this.style.visibility='hidden'"></div>`]:[]),...todo.map(sp)];
   return[`<div class="bar"><input id="sq" placeholder="Search title, author, genre…" value="${E(shq)}" style="flex:1" autocomplete="off"></div><div class="sc"><div class="shelf">${items.map(h=>`<div class="slot">${h}</div>`).join('')}</div></div>`,det(sel),'Shelf','Book'];
 }
@@ -430,7 +433,24 @@ const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
 let ed=null,fm=null,up=0;
 const opt=(a,v,f)=>a.map(x=>{const[i,n]=f(x);return`<option value="${E(i)}" ${i==v?'selected':''}>${E(n)}</option>`}).join('');
 const fl=(l,h)=>`<div class="fl"><span>${l}</span>${h}</div>`;
-const inl=(k,v)=>{const it=k=='series'?D.Series.map(s=>[s.id,s.name]):k=='platform'&&!tagsOf('platform').length?PLAT.map(x=>[x,x]):tagsOf(k).map(t=>[t.id,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
+/* 시리즈·저자: 글자를 쳐서 목록을 좁힌 뒤 고르기. 목록은 최근에 만든 것부터 */
+const CBK=new Set(['series','author']);
+const cbItems=k=>(k=='series'?D.Series.map(x=>[String(x.id),x.name]):tagsOf(k).map(t=>[String(t.id),t.name])).reverse();
+const cbx=(k,v)=>{const cur=cbItems(k).find(x=>x[0]==String(v));return`<div class="cb" data-cb="${k}"><input class="cbi" value="${E(cur?cur[1]:'')}" placeholder="Type to search…" autocomplete="off"><input type="hidden" name="${k}" value="${E(cur?cur[0]:'')}"><div class="cbl" hidden></div></div><button type="button" class="btn" data-ia="${k}">+</button>`};
+function cbShow(w,all){const k=w.dataset.cb,q=all?'':w.querySelector('.cbi').value.trim().toLowerCase(),L=cbItems(k).filter(x=>!q||x[1].toLowerCase().includes(q)).slice(0,100),l=w.querySelector('.cbl');
+  l.innerHTML=L.map((x,i)=>`<div class="cbo${i==0?' a':''}" data-cv="${E(x[0])}">${E(x[1])}</div>`).join('')||'<div class="cbo none">No match</div>';l.hidden=false;l.scrollTop=0}
+function cbPick(w,id){const k=w.dataset.cb,it=cbItems(k).find(x=>x[0]==String(id));w.querySelector('input[type=hidden]').value=it?it[0]:'';w.querySelector('.cbi').value=it?it[1]:'';w.querySelector('.cbl').hidden=true;if(k=='series')onSeries()}
+function cbBlur(w){const t=w.querySelector('.cbi').value.trim(),h=w.querySelector('input[type=hidden]'),it=cbItems(w.dataset.cb),ex=it.find(x=>x[1]==t);
+  if(!t)cbPick(w,'');else if(ex)cbPick(w,ex[0]);else{const cur=it.find(x=>x[0]==h.value);w.querySelector('.cbi').value=cur?cur[1]:''}w.querySelector('.cbl').hidden=true}
+document.addEventListener('focusin',e=>{const w=e.target.closest&&e.target.closest('.cb');if(w&&e.target.classList.contains('cbi')){e.target.select();cbShow(w,true)}});
+document.addEventListener('focusout',e=>{const w=e.target.closest&&e.target.closest('.cb');if(w&&e.target.classList.contains('cbi'))cbBlur(w)});
+document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('cbi'))cbShow(e.target.closest('.cb'))});
+document.addEventListener('mousedown',e=>{const o=e.target.closest&&e.target.closest('.cbo[data-cv]');if(o){e.preventDefault();cbPick(o.closest('.cb'),o.dataset.cv)}});
+document.addEventListener('keydown',e=>{if(!e.target.classList||!e.target.classList.contains('cbi'))return;const w=e.target.closest('.cb'),l=w.querySelector('.cbl'),O=[...l.querySelectorAll('.cbo[data-cv]')];let i=O.findIndex(o=>o.classList.contains('a'));
+  if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();if(l.hidden)cbShow(w);i=Math.max(0,Math.min(O.length-1,i+(e.key=='ArrowDown'?1:-1)));O.forEach((o,j)=>o.classList.toggle('a',j==i));O[i]&&O[i].scrollIntoView({block:'nearest'})}
+  else if(e.key=='Enter'){e.preventDefault();if(!l.hidden&&O[i<0?0:i])cbPick(w,O[i<0?0:i].dataset.cv)}
+  else if(e.key=='Escape'){l.hidden=true}});
+const inl=(k,v)=>{if(CBK.has(k))return cbx(k,v);const it=k=='series'?D.Series.map(s=>[s.id,s.name]):k=='platform'&&!tagsOf('platform').length?PLAT.map(x=>[x,x]):tagsOf(k).map(t=>[t.id,t.name]);return`<select name="${k}"><option value="">-</option>${opt(it,v,x=>x)}</select><button type="button" class="btn" data-ia="${k}">+</button>`};
 const inp=(k,v,x='')=>`<input name="${k}" value="${E(v)}" ${x}>`;
 /* Theme: 버튼식 다중 선택 */
 const chipBox=(k,sel)=>{const S=new Set(sel.map(String));return`<div class="chipwrap" id="cw-${k}"><div class="chips">${tagsOf(k).map(t=>`<button type="button" class="chip ${S.has(String(t.id))?'on':''}" data-tt="${E(t.id)}">${E(t.name)}</button>`).join('')}<span id="in-${k}"><button type="button" class="btn" data-ia="${k}">+</button></span></div><input type="hidden" name="tags" value="${E([...S].join(','))}"></div>`};
