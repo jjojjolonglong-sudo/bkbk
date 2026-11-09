@@ -188,7 +188,7 @@ const SCH={Books:{series:'u',volume:'i',label:'t',author:'u',genre:'a',page:'i',
   Tags:{name:'t',type:'l'},Series:{name:'t'},
   Logs:{date:'d',book:'u',chapter:'t',onpage:'i',offpage:'i',onpct:'n',offpct:'n'},
   Texts:{date:'d',book:'u',chapter:'t',page:'i',pct:'n',text:'t',notion:'t',tags:'a'},
-  Words:{word:'t',meaning:'t',note:'t'},
+  Words:{word:'t',meaning:'t'},
   Uses:{word_id:'u',book:'u',date:'d',chapter:'t',page:'i',pct:'n',example:'t'}};
 const UU=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function toDB(sh,r){
@@ -424,7 +424,7 @@ function Shelf(){
 }
 
 /* ---------- 폼 / 편집 ---------- */
-const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',example:'Example',meaning:'Meaning',note:'Note'};
+const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',example:'Example',meaning:'Meaning'};
 const SK={Logs:'Log',Texts:'Text',Words:'Word',Uses:'Word use'};
 const LAY={Logs:['date book','chapter','onpage offpage','onpct offpct'],Texts:['date book','chapter page pct','text','notion','tags'],Words:['word','meaning'],Uses:['date book','chapter page pct','word','example']};
 const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
@@ -472,7 +472,6 @@ function formHtml(){
     if(k=='tags')return thmBox(split(v).map(x=>nz(x,'theme')));
     if(k=='text')return`<textarea name="text" rows="5">${E(v)}</textarea>`;
     if(k=='notion')return`<textarea name="notion" rows="2">${E(v)}</textarea>`;
-    if(k=='note')return`<textarea name="note" rows="3">${E(v)}</textarea>`;
     if(k=='example')return`<textarea name="example" rows="3">${E(v)}</textarea>`;
     return inp(k,['onpct','offpct','pct'].includes(k)&&v!==''?PC(v):v)};
   const body=LAY[sheet].map(g=>{const ks=g.split(' '),h=ks.map(k=>fl(KO[k],f(k))).join('');return ks.length>1?`<div class="r2">${h}</div>`:h}).join('');
@@ -483,7 +482,7 @@ const wkey=x=>String(x||'').trim().toLowerCase();
 function ensureWord(word,meaning){   // 단어 사전에 이미 있으면 그 단어를 쓰고, 없으면 새로 만듦
   const k=wkey(word),m=String(meaning||'').trim();let w=D.Words.find(x=>wkey(x.word)==k);
   if(w){if(!String(w.meaning||'').trim()&&m){w={...w,meaning:m};send('Words',w,false,true)}return w}
-  w={id:nid(),word:String(word).trim(),meaning:m,note:''};send('Words',w,false,true);return w;
+  w={id:nid(),word:String(word).trim(),meaning:m};send('Words',w,false,true);return w;
 }
 function saveForm(){
   const r={...fm.row},sh=fm.sheet;for(const[k,v]of new FormData($('#ff')).entries())r[k]=v;
