@@ -426,7 +426,7 @@ function Shelf(){
 /* ---------- 폼 / 편집 ---------- */
 const KO={date:'Date',book:'Book',chapter:'Chapter',onpage:'Start page',offpage:'End page',onpct:'Start %',offpct:'End %',page:'Page',pct:'Percent',text:'Text',notion:'Memo',tags:'Theme',word:'Word',example:'Example',meaning:'Meaning',note:'Note'};
 const SK={Logs:'Log',Texts:'Text',Words:'Word',Uses:'Word use'};
-const LAY={Logs:['date book','chapter','onpage offpage','onpct offpct'],Texts:['date book','chapter page pct','text','notion','tags'],Words:['word','meaning','note'],Uses:['date book','chapter page pct','word','example']};
+const LAY={Logs:['date book','chapter','onpage offpage','onpct offpct'],Texts:['date book','chapter page pct','text','notion','tags'],Words:['word','meaning'],Uses:['date book','chapter page pct','word','example']};
 const PLAT=['실물소장','실물대여','리디소장','리디대여','리디셀렉트','예스24소장','알라딘소장','교보문고소장'];
 const nid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=crypto.getRandomValues(new Uint8Array(1))[0]&15;return(c=='x'?r:(r&3|8)).toString(16)});
 async function addTag(name,type){const ex=tagsOf(type.toLowerCase()).find(t=>t.name==name);if(ex)return ex.id;const r={name,type};r.id=nid('Tags');send('Tags',r,false,true);TM.set(String(r.id),name);TK.set(type.toLowerCase()+'|'+name,String(r.id));return r.id}
