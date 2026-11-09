@@ -6,11 +6,12 @@
 <style>
 :root{--desk:#3b6a6a;--face:#d8d2c2;--paper:#f4eedc;--ink:#25232b;--navy:#24406b;--red:#b5402f;--sh:#7d776a;--dk:#2b2924;--ui:'Gowun Dodum','Malgun Gothic',sans-serif;--se:'Gowun Batang','Batang',serif}
 *{box-sizing:border-box;margin:0}
-html,body{height:100%}
+html,body{height:100%;overscroll-behavior:none}
 body{font:14px/1.45 var(--ui);color:var(--ink);padding:10px;background:var(--desk) radial-gradient(#0003 1px,transparent 1.5px) 0 0/6px 6px}
 .win{background:var(--face);border:2px solid;border-color:#fff var(--dk) var(--dk) #fff;box-shadow:inset -1px -1px var(--sh),3px 3px 0 #0004;display:flex;flex-direction:column;min-height:0}
 .tb{background:linear-gradient(90deg,var(--navy),#5b82b8);color:#fff;padding:3px 6px;display:flex;justify-content:space-between;align-items:center;font-weight:700;margin:2px}
 .tb span:last-child{font-weight:400;font-size:12px;opacity:.9}
+.tbr{display:flex;align-items:center;gap:3px}.tbr #status{margin-right:4px}.tbr .btn{padding:0;width:22px;height:20px;font-size:12px;line-height:1;margin:0;display:inline-flex;align-items:center;justify-content:center}
 #app{height:calc(100vh - 20px);max-width:1200px;margin:0 auto}
 *{scrollbar-width:none}*::-webkit-scrollbar{display:none}
 #tabs{display:flex;gap:2px;padding:4px 6px 0}
@@ -123,6 +124,8 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .cvup{width:110px;height:156px;margin:0 auto;border:2px dashed var(--sh);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;background:#fff center/cover;color:var(--sh);font-size:12px}
 
 .sr{width:18px;height:18px;vertical-align:middle}.sr .bg{fill:#fff;stroke:var(--dk);stroke-width:1.2}.sr .fg{fill:var(--red)}
+.tgk{display:flex;flex-wrap:wrap;gap:2px}.tgk small{opacity:.6}.tga{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:center;margin:8px 0 6px}.tga input{width:100%;min-width:0;font:inherit;padding:3px 6px;height:var(--fh);border:2px solid;border-color:var(--dk) #fff #fff var(--dk);background:#fff}.tga .btn{margin:0;height:var(--fh);white-space:nowrap}
+.tgt{width:100%;border-collapse:collapse;font-size:13px}.tgt th:first-child{padding-left:7px}.tgt th{text-align:left;font-weight:400;color:var(--sh);font-size:11px;padding:2px 4px;border-bottom:1px dashed var(--sh)}.tgt td{padding:2px 0;border-bottom:1px solid #e6e0cf}.tgt td input{width:100%;font:inherit;padding:2px 6px;border:1px solid transparent;background:transparent}.tgt td input:hover,.tgt td input:focus{border-color:var(--sh);background:#fff;outline:0}.tgt .n{width:44px;text-align:right;padding-right:8px;color:var(--sh)}.tgt td:last-child{width:34px;text-align:right}.tgt .btn{margin:0;padding:1px 6px}.tgt .btn:disabled{opacity:.35;cursor:default}
 .err{background:#fff2b0;padding:6px 10px;border-bottom:1px solid var(--sh);font-size:12px}
 .bar{padding:6px 8px;display:flex;gap:4px;flex-wrap:wrap;flex:none}
 #bf input[type=checkbox]{width:auto}
@@ -134,7 +137,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 </style></head><body>
 <div id="lg" hidden><div class="win lgw"><div class="tb"><span>📖 BKBK.exe</span></div><form onsubmit="return false"><div class="fl"><span>Email</span><input id="lg-email" type="email" autocomplete="username"></div><div class="fl"><span>Password</span><input id="lg-pw" type="password" autocomplete="current-password"></div><p id="lgm"></p><div style="text-align:right;margin-top:12px"><button type="button" class="btn" id="lg-go"><b>Sign in</b></button></div></form></div></div>
 <div id="app" class="win">
- <div class="tb"><span>📖 BKBK.exe</span><span><button class="btn" id="cfg" style="padding:0 6px;font-size:11px;margin:0" title="Connect to sheet">⚙</button> <span id="status">loading…</span></span></div>
+ <div class="tb"><span>📖 BKBK.exe</span><span class="tbr"><span id="status">loading…</span><button class="btn" id="rld" title="Reload">↻</button><button class="btn" id="cfg" title="Settings">⚙</button></span></div>
  <div id="tabs"></div><div id="msg"></div>
  <div id="grid">
   <div class="pane"><div class="ph" id="lt"></div><div class="body" id="L"></div></div>
@@ -148,10 +151,8 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 const CFG=window.APP_CONFIG||{};   // 공용 설정(config.js). 못 불러와도(오프라인 등) 아래 값으로 동작해요
 const SB=CFG.SB||'https://rtvvajhsnwkkrmncyfbs.supabase.co';
 const ANON=CFG.ANON||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0dnZhamhzbndra3JtbmN5ZmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjkwMTEsImV4cCI6MjEwNzA0NTAxMX0.O2aLLeazv_FhUhbVAkp4vz3pw8GPb_683dUu7Et1Cwk';
-const VER='sb-v7';        // 설정(⚙)에서 지금 어떤 버전이 올라가 있는지 확인할 수 있어요
-const DEFAULT_MEDIA=CFG.MEDIA||'https://media.jjojjolonglong.workers.dev';   // 공용 이미지 Worker. ⚙ 설정에 다른 주소를 저장하면 그 주소가 우선합니다(비워서 저장하면 이 기본값으로 돌아와요)
-const LS=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
-const MEDIA=(LS('bkbk_media')||DEFAULT_MEDIA).replace(/\/$/,'');
+const VER='sb-v8';        // 설정(⚙)에서 지금 어떤 버전이 올라가 있는지 확인할 수 있어요
+const MEDIA=(CFG.MEDIA||'https://media.jjojjolonglong.workers.dev').replace(/\/$/,'');   // 공용 이미지 Worker 주소는 mnmn의 config.js에서 한 번에 관리
 /* 한국 시간 기준 오늘(YYYY-MM-DD): config.js의 todayKST()를 쓰고, 못 불러오면 같은 동작의 대체 함수 */
 if(!window.todayKST)window.todayKST=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date());
 /* 공용 이미지 모듈(media.js). 못 불러와도 앱은 열리고, 업로드할 때만 안내가 떠요 */
@@ -293,7 +294,7 @@ function tryLoad(u,n){
   fetchBlob(u).catch(e=>/_s\.jpg$/.test(u)?fetchBlob(u.replace(/_s\.jpg$/,'.jpg')):Promise.reject(e))
     .then(b=>{IC.set(u,b);busy--;hydrate();pump()})
     .catch(e=>{if(n<2)setTimeout(()=>tryLoad(u,n+1),500*(n+1));else{IC.set(u,'bad');busy--;hydrate();pump();
-      if(!imgWarned){imgWarned=true;$('#msg').innerHTML='<div class="err">Images could not be loaded (HTTP '+E(e.message)+'). Open ⚙ → Test media server to find the cause.</div>'}}})
+      if(!imgWarned){imgWarned=true;$('#msg').innerHTML='<div class="err">Images could not be loaded (HTTP '+E(e.message)+'). Open ⚙ → Test images to find the cause.</div>'}}})
 }
 function hydrate(){
   document.querySelectorAll('img[data-u]:not([src])').forEach(i=>{const u=i.dataset.u,v=IC.get(u);if(v==='bad')i.remove();else if(v)i.src=v;else want(u)});
@@ -407,7 +408,7 @@ function Word(){
   const S=fscope('Word'),ub=new Map();
   D.Uses.forEach(u=>{if(S.scope.has(String(u.book)))ub.set(String(u.word_id),(ub.get(String(u.word_id))||0)+1)});
   const W=stab(D.Words.filter(w=>ub.has(String(w.id))||(S.all&&!WC.get(String(w.id)))),(a,b)=>String(a.word).localeCompare(String(b.word),'ko'));
-  return[filt(S,W.length,'Words'),`<div class="sc">${W.slice(0,rlim).map(w=>{const n=ub.get(String(w.id))||0;return`<div class="ln wd" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${n?'×'+n:''}</span></div>`}).join('')||'<p class="empty">Empty</p>'}${more(W.length)}</div>`,'Filter','Word'];
+  return[filt(S,W.length),`<div class="sc">${W.slice(0,rlim).map(w=>{const n=ub.get(String(w.id))||0;return`<div class="ln wd" data-edit="Words:${E(w.id)}"><b>${E(w.word)}</b><span>${E(w.meaning)}</span><span class="bk">${n?'×'+n:''}</span></div>`}).join('')||'<p class="empty">Empty</p>'}${more(W.length)}</div>`,'Filter','Word'];
 }
 function Shelf(){
   const TW={'아주 얇음':10,얇음:17,중간:22.5,두꺼움:31.5},k=8,bw=b=>TW[tl(b.thickness)];
@@ -430,7 +431,8 @@ const PLAT=['실물소장','실물대여','리디소장','리디대여','리디�
 const nid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=crypto.getRandomValues(new Uint8Array(1))[0]&15;return(c=='x'?r:(r&3|8)).toString(16)});
 async function addTag(name,type){const ex=tagsOf(type.toLowerCase()).find(t=>t.name==name);if(ex)return ex.id;const r={name,type};r.id=nid('Tags');send('Tags',r,false,true);TM.set(String(r.id),name);TK.set(type.toLowerCase()+'|'+name,String(r.id));return r.id}
 const tagsOf=t=>D.Tags.filter(x=>String(x.type).toLowerCase()==t);
-let ed=null,fm=null,up=0;
+let ed=null,fm=null,up=0,rkeep=null;   // rkeep: 입력창을 열기 전 오른쪽(상세) 스크롤 위치 → 닫으면 그대로 돌아옴
+const keepR=()=>{if(!fm&&!ed&&!cfg){const n=$('#R .sc');rkeep=n?n.scrollTop:0}};
 const opt=(a,v,f)=>a.map(x=>{const[i,n]=f(x);return`<option value="${E(i)}" ${i==v?'selected':''}>${E(n)}</option>`}).join('');
 const fl=(l,h)=>`<div class="fl"><span>${l}</span>${h}</div>`;
 /* 시리즈·저자: 글자를 쳐서 목록을 좁힌 뒤 고르기. 목록은 최근에 만든 것부터 */
@@ -459,7 +461,7 @@ const thmBox=sel=>chipBox('theme',sel);
 const msBox=(k,sel)=>{const S=new Set(sel.map(String)),T=tagsOf(k);return`<div class="ms" id="cw-${k}"><button type="button" class="msb" data-ms>${E([...S].map(tn).join(', ')||'-')}</button><div class="msp" hidden><div class="msl">${T.map(t=>`<label><input type="checkbox" data-mc value="${E(t.id)}" ${S.has(String(t.id))?'checked':''}> ${E(t.name)}</label>`).join('')||'<span class="s">No items yet</span>'}</div><div class="msa"><input id="ni-${k}" placeholder="New ${k}" maxlength="60"><button type="button" class="btn" data-ic="${k}">+</button></div></div><input type="hidden" name="${k}" value="${E([...S].join(','))}"></div>`};
 /* Log / Text / Word 입력: 오른쪽 영역에 표시 */
 function openForm(sheet,row,bid){
-  if(ed)cancelEdit(true);cfg=false;
+  keepR();if(ed)cancelEdit(true);cfg=false;
   fm={sheet,row:row?{...row}:{book:bid||sel||(D.Books[0]||{}).id,date:todayKST()},isNew:!row};view='R';render();
 }
 function formHtml(){
@@ -512,7 +514,7 @@ function send(sheet,row,del,quiet){
   if(!quiet)render();
 }
 /* Book 입력/수정은 상세 영역 안에서 */
-function startEdit(b){cfg=false;fm=null;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'높음',thickness:'중간'},isNew:!b};view='R';render()}
+function startEdit(b){keepR();cfg=false;fm=null;up=0;ed={row:b?{...b}:{color1:'#2f5d62',color2:'#e0b84f',color3:'#ffffff',star:0,height:'높음',thickness:'중간'},isNew:!b};view='R';render()}
 function cancelEdit(nr){if(!ed)return;ed.closed=true;ed=null;up=0;if(!nr)render()}
 function saveBook(){
   if(up){alert('The cover is still uploading. Please wait a moment.');return}
@@ -548,8 +550,7 @@ function onCover(f){
   if(!f||!ed)return;const tok=ed,box=$('#cvup'),e=$('#bf').elements;
   (async()=>{
     try{
-      if(!MEDIA)throw new Error('Media server is not set. Open ⚙ and enter the Worker URL.');
-      const p=await Media.process(f);   // 공용 규격: 세로 200px WebP, 원본 파일 해시 16자가 이름
+            const p=await Media.process(f);   // 공용 규격: 세로 200px WebP, 원본 파일 해시 16자가 이름
       box.style.backgroundImage=`url('${p.previewUrl}')`;box.removeAttribute('data-bg');box.textContent='';
       palette(p.bitmap).forEach((v,i)=>e['color'+(i+1)].value=v);
       upBusy(1);box.innerHTML='<span class="upl">uploading…</span>';
@@ -563,10 +564,44 @@ function onCover(f){
 }
 
 /* ---------- 설정 ---------- */
-function settingsHtml(){return`<div class="bar"><button class="btn" data-ssave><b>Save</b></button><button class="btn" data-sclose>Close</button></div><div class="sc"><p class="s">App version: ${VER}</p><h3>Account</h3><p style="margin:6px 0">Signed in as <b>${E(ME&&ME.email)}</b></p><button class="btn" data-logout>Sign out</button><h3>Media server</h3>${fl('Worker URL','<input id="s-media" value="'+E(MEDIA)+'" placeholder="https://media.xxxx.workers.dev">')}<button class="btn" data-mtest>Test media server</button><pre id="s-test" class="s" style="white-space:pre-wrap;margin-top:6px"></pre><h3>Fonts</h3><p class="s">Fonts are now set in mnmn (글꼴 tab). They apply to every app.</p></div>`}
+function settingsHtml(){return`<div class="bar"><button class="btn" data-sclose>Close</button></div><div class="sc"><p class="s">App version: ${VER}</p><h3>Account</h3><p style="margin:6px 0">Signed in as <b>${E(ME&&ME.email)}</b></p><button class="btn" data-logout>Sign out</button><h3>Install app</h3><div id="inst" class="s"></div><h3>Tags</h3>${tagEd()}<h3>Images</h3><button class="btn" data-mtest>Test images</button><pre id="s-test" class="s" style="white-space:pre-wrap;margin-top:6px"></pre><h3>Managed in mnmn</h3><p class="s">Image server address, original images and fonts are managed in mnmn. They apply to every app.</p></div>`}
+/* 설정 › 태그 표: 작가·장르·테마·플랫폼·시리즈 이름 고치기 / 새로 추가 / 안 쓰는 것 삭제 */
+const TT=[['author','Author'],['genre','Genre'],['theme','Theme'],['platform','Platform'],['series','Series']];
+let tgT='author',tgQ='';
+function tgUse(k,id){id=String(id);
+  if(k=='series')return D.Books.filter(b=>String(b.series)==id).length;
+  if(k=='theme')return D.Texts.filter(t=>split(t.tags).some(x=>nz(x,'theme')==id)).length;
+  if(k=='genre')return D.Books.filter(b=>split(b.genre).some(x=>nz(x,'genre')==id)).length;
+  return D.Books.filter(b=>nz(b[k],k)==id).length}
+const tgItems=k=>k=='series'?D.Series:tagsOf(k);
+function tgRows(){const q=tgQ.toLowerCase(),L=[...tgItems(tgT)].filter(x=>!q||String(x.name).toLowerCase().includes(q)).sort((a,b)=>String(a.name).localeCompare(String(b.name),'ko'));
+  return L.map(x=>{const n=tgUse(tgT,x.id);return`<tr><td><input data-tgn="${E(x.id)}" value="${E(x.name)}" maxlength="80"></td><td class="n">${n}</td><td><button type="button" class="btn" data-tgd="${E(x.id)}" ${n?'disabled title="In use — cannot delete"':''}>✕</button></td></tr>`}).join('')||'<tr><td colspan="3" class="empty">Empty</td></tr>'}
+function tagEd(){return`<div class="tgk">${TT.map(([k,l])=>`<button type="button" class="chip ${k==tgT?'on':''}" data-tgt="${k}">${l} <small>${tgItems(k).length}</small></button>`).join('')}</div>
+  <div class="tga"><input id="tg-new" placeholder="New ${E(TT.find(t=>t[0]==tgT)[1].toLowerCase())}" maxlength="80"><button type="button" class="btn" data-tgadd>＋ Add</button><input id="tg-q" placeholder="Search…" value="${E(tgQ)}" autocomplete="off"></div>
+  <table class="tgt"><thead><tr><th>Name</th><th class="n">Used</th><th></th></tr></thead><tbody id="tg-b">${tgRows()}</tbody></table><p id="tg-m" class="s"></p>`}
+const tgMsg=t=>{const m=$('#tg-m');if(m)m.textContent=t};
+const tgDup=(name,id)=>tgItems(tgT).some(x=>String(x.name).trim()==name&&String(x.id)!=String(id));
+function tgRename(inp){const id=inp.dataset.tgn,v=inp.value.trim(),sh=tgT=='series'?'Series':'Tags',row=D[sh].find(x=>String(x.id)==id);if(!row)return;
+  if(!v||tgDup(v,id)){tgMsg(!v?'Name cannot be empty.':'"'+v+'" already exists.');inp.value=row.name;return}
+  if(v==row.name)return;send(sh,{...row,name:v},false,true);calc();tgMsg('Saved: '+v)}
+function tgAdd(){const i=$('#tg-new'),v=i.value.trim();if(!v)return;if(tgDup(v)){tgMsg('"'+v+'" already exists.');return}
+  if(tgT=='series')send('Series',{id:nid(),name:v},false,true);else send('Tags',{id:nid(),name:v,type:tgT},false,true);
+  calc();tgQ='';render();tgMsg('Added: '+v);const n=$('#tg-new');if(n)n.focus()}
+/* 앱 설치: 크롬이 설치를 허락하면 버튼, 아니면 이유와 방법을 안내 */
+let dp=null,instRel=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;showInst()});
+addEventListener('appinstalled',()=>{dp=null;showInst()});
+async function showInst(){const el=$('#inst');if(!el)return;
+  const ua=navigator.userAgent,sa=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if(instRel==null&&navigator.getInstalledRelatedApps){try{instRel=(await navigator.getInstalledRelatedApps()).length>0}catch(e){instRel=false}}
+  let h=sa?'<b>Running as the installed app.</b> To get a new icon, the app updates it by itself (it can take a day). If it does not, uninstall BKBK, open this page in Chrome and press Install.'
+    :dp?'<button type="button" class="btn" data-inst><b>Install BKBK</b></button>'
+    :/iphone|ipad|ipod/i.test(ua)?'iPhone: Safari → Share → "Add to Home Screen".'
+    :(instRel?'BKBK is <b>already installed</b> on this device. ':'')+'Install is not available right now. If BKBK is already installed, uninstall it first (long-press the icon → Uninstall), then reload this page — the Install button will appear. Or use Chrome menu (⋮) → "Install app".';
+  if(/KAKAOTALK|NAVER|FBAN|FBAV|Instagram|Line\//i.test(ua))h+='<br>⚠ This is an in-app browser. Open the page in Chrome or Safari.';
+  el.innerHTML=h}
 async function mediaTest(){
   const out=[],say=t=>{out.push(t);$('#s-test').textContent=out.join('\n')};
-  if(!MEDIA){say('✗ Worker URL is empty. Enter it above and press Save.');return}
   let H;try{H={headers:{Authorization:'Bearer '+await token()}}}catch(e){say('✗ Not signed in: '+e.message);return}
   try{const r=await fetch(MEDIA+'/',H),j=await r.json();
     say(`${j.bucket&&j.supabase&&j.allowedEmail?'✓':'✗'} Worker reachable · R2 ${j.bucket?'ok':'NOT CONNECTED (binding BUCKET)'} · Supabase variables ${j.supabase?'ok':'MISSING'} · ALLOWED_EMAIL ${j.allowedEmail?'set':'MISSING'}`);
@@ -583,8 +618,9 @@ const idbSet=async(k,v)=>{try{const d=await idb();await new Promise(res=>{const 
 document.addEventListener('change',e=>{const t=e.target;
   if(t.dataset.mc!==undefined){const w=t.closest('.ms'),on=[...w.querySelectorAll('[data-mc]:checked')].map(c=>c.value);w.querySelector('input[type=hidden]').value=on.join(',');w.querySelector('.msb').textContent=on.map(tn).join(', ')||'-';return}
   if(ed&&t.closest('#bf')){if(t.name=='series')onSeries();if(t.id=='cvf')onCover(t.files[0])}});
-document.addEventListener('input',e=>{if(e.target.id=='sq'){shq=e.target.value.trim().toLowerCase();markShelf()}});
-document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.closest&&e.target.closest('#lg')){e.preventDefault();doLogin();return}if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
+document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.tgn!==undefined)tgRename(e.target)});
+document.addEventListener('input',e=>{if(e.target.id=='tg-q'){tgQ=e.target.value.trim();$('#tg-b').innerHTML=tgRows();return}if(e.target.id=='sq'){shq=e.target.value.trim().toLowerCase();markShelf()}});
+document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.closest&&e.target.closest('#lg')){e.preventDefault();doLogin();return}if(e.key=='Enter'&&e.target.id=='tg-new'){e.preventDefault();tgAdd();return}if(e.key=='Enter'&&e.target.dataset&&e.target.dataset.tgn!==undefined){e.preventDefault();e.target.blur();return}if(e.key=='Enter'&&e.target.id&&e.target.id.startsWith('ni-')){e.preventDefault();document.querySelector(`[data-ic=${e.target.id.slice(3)}]`).click()}});
 let rz,rw=innerWidth;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(innerWidth===rw)return;rw=innerWidth;if((tab=='Text'||tab=='Word')&&!fm&&!ed&&!cfg)render()},200)});
 
 /* ---------- 렌더 & 이벤트 ---------- */
@@ -601,10 +637,17 @@ function render(){calc();const pv=$('#L .sc'),lt0=lastTab;lastTab=tab;if(pv&&pv.
   $('#L').innerHTML=v[0];$('#R').innerHTML=R||'<p class="empty">Empty</p>';$('#lt').textContent=v[2];$('#rt').innerHTML='<button class="btn mb" data-back>◀ Back</button>'+E(rt);$('#grid').dataset.v=view;hydrate();fit();
   if(lt0===tab&&$('#L').offsetParent!==null){const n=$('#L .sc');if(n)n.scrollTop=ls[tab]||0}
   if(tab=='Shelf')markShelf();
+  if(cfg)showInst();
+  if(!fm&&!ed&&!cfg&&rkeep!=null){const n=$('#R .sc');if(n)n.scrollTop=rkeep;rkeep=null}
 }
 document.addEventListener('click',async e=>{
   const g=a=>e.target.closest(`[${a}]`);let x;
   document.querySelectorAll('.msp').forEach(p=>{if(!p.parentNode.contains(e.target))p.hidden=true});
+  if(e.target.closest('#rld')){location.reload();return}
+  if(x=g('data-tgt')){tgT=x.dataset.tgt;tgQ='';render();return}
+  if(g('data-tgadd')){tgAdd();return}
+  if(x=g('data-tgd')){const id=x.dataset.tgd,sh=tgT=='series'?'Series':'Tags',row=D[sh].find(r=>String(r.id)==id);if(row&&!tgUse(tgT,id)&&confirm('"'+row.name+'" 삭제할까요?')){send(sh,row,true,true);calc();$('#tg-b').innerHTML=tgRows()}return}
+  if(g('data-inst')){if(dp){dp.prompt();await dp.userChoice;dp=null;showInst()}return}
   if(e.target.closest('#cfg')){if(ed)cancelEdit(true);fm=null;cfg=true;view='R';render();return}
   if(x=g('data-ms')){const p=x.nextElementSibling;p.hidden=!p.hidden;return}
   if(x=g('data-st')){const i=x.parentNode.querySelector('input');i.value=Math.min(10,Math.max(0,P(i.value)+ +x.dataset.st));return}
@@ -627,7 +670,6 @@ document.addEventListener('click',async e=>{
   if(g('data-bdel')){delBook();return}
   if(x=g('data-bedit')){startEdit(bk(x.dataset.bedit));return}
   if(g('data-bnew')){startEdit(null);return}
-  if(g('data-ssave')){const m=$('#s-media').value.trim().replace(/\/$/,'');try{localStorage.setItem('bkbk_media',m)}catch(z){}if(m!==MEDIA){location.reload();return}const tt=$('#s-test');if(tt)tt.textContent='Saved';return}
   if(g('data-mtest')){mediaTest();return}
   if(g('data-logout')){await logout();location.reload();return}
   if(e.target.closest('#lg-go')){doLogin();return}
@@ -635,8 +677,8 @@ document.addEventListener('click',async e=>{
   if(x=g('data-add')){openForm(x.dataset.add,null,x.dataset.bk);return}
   if(x=g('data-edit')){const[sh,id]=x.dataset.edit.split(':');openForm(sh,D[sh].find(r=>String(r.id)==id));return}
   if(g('data-more')){const sc=$('#R .sc'),st=sc?sc.scrollTop:0;rlim+=40;render();const n=$('#R .sc');if(n)n.scrollTop=st;return}
-  if(x=g('data-tab')){if(ed)cancelEdit(true);fm=null;cfg=false;tab=x.dataset.tab;view='L';rlim=40;ls[tab]=0}
-  else if(g('data-back')){if(ed)cancelEdit(true);fm=null;cfg=false;view='L'}
+  if(x=g('data-tab')){if(ed)cancelEdit(true);fm=null;cfg=false;rkeep=null;tab=x.dataset.tab;view='L';rlim=40;ls[tab]=0}
+  else if(g('data-back')){const under=fm||(ed&&!ed.isNew);if(ed)cancelEdit(true);fm=null;cfg=false;view=under&&tab!='Main'?'R':'L'}   // Log·Text·Word 입력창에서 Back → 보던 책 상세(또는 결과 목록)로
   else if(g('data-go'))view='R';
   else if(x=g('data-fb')){const i=x.dataset.fb;F.b.has(i)?F.b.delete(i):F.b.add(i);rlim=40}
   else if(x=g('data-ft')){const i=x.dataset.ft;F.t.has(i)?F.t.delete(i):F.t.add(i);rlim=40}
@@ -645,7 +687,7 @@ document.addEventListener('click',async e=>{
   else if(x=g('data-pg'))pgAll+=+x.dataset.pg;
   else if(x=g('data-fp')){const[k,d]=x.dataset.fp.split(':'),f=FS[k];if(d>0){if(f.s+f.n<f.t){f.h.push(f.s);f.s+=f.n}}else f.s=f.h.pop()||0}
   else if(x=g('data-m'))cal=new Date(cal.getFullYear(),cal.getMonth()+ +x.dataset.m,1);
-  else if(x=g('data-b')){if(ed)cancelEdit(true);fm=null;cfg=false;sel=x.dataset.b;view='R'}
+  else if(x=g('data-b')){if(ed)cancelEdit(true);fm=null;cfg=false;rkeep=null;sel=x.dataset.b;view='R'}
   else return;
   render();
 });
