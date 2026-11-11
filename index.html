@@ -59,7 +59,7 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .cal>b{text-align:center;padding:2px;background:var(--face)}
 .dc{min-height:70px;background:#fff8;border:1px solid #bdb59f;padding:2px;min-width:0;overflow:hidden}
 .dc em{font-style:normal;color:var(--sh)}
-.lb{margin-top:2px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:1px solid #0005}
+.lb.cg{font-weight:700}.lb{margin-top:2px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:1px solid #0005}
 .sp{position:relative;flex:none;cursor:pointer;border-radius:4px 4px 0 0;overflow:hidden;transform-origin:50% 100%;transition:transform .12s}
 .sp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.3),rgba(255,255,255,.15) 20%,transparent 50%,rgba(0,0,0,.22))}
 .sp:hover,.sp.hit{transform:scale(1.06);z-index:2}.sp.on{transform:scale(1.04);z-index:1}
@@ -360,11 +360,20 @@ function Book(){
   const np=Math.max(1,Math.ceil(all.length/PER));pgAll=Math.max(0,Math.min(pgAll,np-1));
   return[`<div class="bar"><button class="btn" data-bnew>＋ New Book</button></div><div class="sc" style="padding-top:2px"><h3 class="hp">All<span><button class="btn" data-pg="-1">◀</button> ${pgAll+1}/${np} <button class="btn" data-pg="1">▶</button></span></h3>${all.slice(pgAll*PER,pgAll*PER+PER).map(row).join('')}<h3>Recent</h3>${rec.map(row).join('')||'<p class="empty">Empty</p>'}</div>`,det(sel),'Book','Book'];
 }
+/* 달력에서만: 같은 날 같은 시리즈 책이 3권 이상이면 '시리즈 3~14권' 한 칸으로 묶음(누르면 그 자리에서 펼침). 데이터는 그대로 */
+const CEX=new Set();
+function volTxt(B){const n=[],o=[];B.forEach(b=>{const v=P(b.volume)||+(/^(\d+)\s*권?$/.exec(String(b.label||'').trim())||[])[1];v?n.push(v):b.label&&o.push(String(b.label).trim())});
+  const u=[...new Set(n)].sort((a,b)=>a-b),r=[];for(let i=0;i<u.length;){let j=i;while(j+1<u.length&&u[j+1]===u[j]+1)j++;r.push(i===j?u[i]:u[i]+'~'+u[j]);i=j+1}
+  return [r.length?r.join(', ')+'권':'',...o].filter(Boolean).join(', ')}
+function calGroups(L,ds){const B=[],seen=new Set();L.forEach(l=>{const b=bk(l.book);if(b.id&&!seen.has(String(b.id))){seen.add(String(b.id));B.push(b)}});   // 같은 책 로그가 여러 개여도 한 칸
+  const G=new Map();B.forEach(b=>{if(b.series)G.set(String(b.series),(G.get(String(b.series))||[]).concat(b))});
+  const out=[],done=new Set();B.forEach(b=>{const k=String(b.series||''),g=k&&G.get(k);if(!g||g.length<3)return out.push(b);if(done.has(k))return;done.add(k);const s=serOf(b);out.push({k:ds+'|'+k,t:(s?s.name:b.name)+' '+volTxt(g),B:g})});return out}
 function Log(){
   const y=cal.getFullYear(),m=cal.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
   let c=['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d=>`<b>${d}</b>`).join('')+'<div></div>'.repeat(f);
   for(let d=1;d<=n;d++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    c+=`<div class="dc"><em>${d}</em>${D.Logs.filter(l=>dk(l.date)==ds).map(l=>{const b=bk(l.book);return`<div class="lb" data-b="${b.id}" style="background:${E(b.color1||'#888')};color:${lum(b.color1)}">${E(b.name)} ${Math.round(eOff(l))}%</div>`}).join('')}</div>`}
+    const one=b=>`<div class="lb" data-b="${b.id}" style="background:${E(b.color1||'#888')};color:${lum(b.color1)}">${E(b.name)}</div>`;
+    c+=`<div class="dc"><em>${d}</em>${calGroups(D.Logs.filter(l=>dk(l.date)==ds),ds).map(g=>g.B?`<div class="lb cg" data-cg="${E(g.k)}" title="${E(g.t)}" style="background:${E(g.B[0].color1||'#888')};color:${lum(g.B[0].color1)}">${E(g.t)}</div>`+(CEX.has(g.k)?g.B.map(one).join(''):''):one(g)).join('')}</div>`}
   return[`<div class="sc"><div style="text-align:center;margin-bottom:8px"><button class="btn" data-m="-1">◀</button> <b>${y} ${MON[m]}</b> <button class="btn" data-m="1">▶</button></div><div class="cal">${c}</div></div>`,det(sel),'Log','Book'];
 }
 function fscope(k){
@@ -694,6 +703,7 @@ document.addEventListener('click',async e=>{
   else if(g('data-roll')){favPrev=fav;fav=null}
   else if(x=g('data-pg'))pgAll+=+x.dataset.pg;
   else if(x=g('data-fp')){const[k,d]=x.dataset.fp.split(':'),f=FS[k];if(d>0){if(f.s+f.n<f.t){f.h.push(f.s);f.s+=f.n}}else f.s=f.h.pop()||0}
+  else if(x=g('data-cg')){const k=x.dataset.cg;CEX.has(k)?CEX.delete(k):CEX.add(k)}
   else if(x=g('data-m'))cal=new Date(cal.getFullYear(),cal.getMonth()+ +x.dataset.m,1);
   else if(x=g('data-b')){if(ed)cancelEdit(true);fm=null;cfg=false;rkeep=null;sel=x.dataset.b;view='R'}
   else return;
