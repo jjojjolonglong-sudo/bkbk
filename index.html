@@ -110,8 +110,8 @@ h2{font:700 20px/1.3 var(--se);margin-top:10px}
 .btn:disabled{cursor:wait}
 .mc{cursor:pointer}.mc .ov{padding:28px;background:none;justify-content:center;align-items:center;text-align:center}.mc .ov p{word-break:keep-all;overflow-wrap:break-word}.mc .ov small{color:inherit;opacity:.7}
 .mb,.mo{display:none}.mb{margin-right:8px;font-size:12px}
-.ln .bk{flex:none;width:6.2em;color:var(--sh);white-space:nowrap;text-align:left}
-.ln.wd b{flex:none;width:30%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.ln .bk{flex:none;color:var(--sh);white-space:nowrap;text-align:right;padding-left:4px}
+.ln.wd b{flex:none;width:7em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 .ln.wd span{text-align:left}
 .mm{font-size:11px;line-height:1.4;color:var(--sh);margin-top:5px;white-space:pre-line}
 .hs{display:flex;flex-wrap:wrap;gap:6px;padding:2px}.hs>*{flex:none}.hs .th{width:46px}.hs .chip{white-space:nowrap}
@@ -468,7 +468,7 @@ function formHtml(){
   const{sheet,row,isNew}=fm;
   const f=k=>{const v=row[k]??'';
     if(k=='book')return`<select name="book">${opt(D.Books,v,b=>[b.id,b.name])}</select>`;
-    if(k=='date')return`<input type="date" name="date" value="${dk(v)}">`;
+    if(k=='date')return`<input type="date" name="date" value="${dk(v)}" min="1900-01-01" max="9999-12-31">`;
     if(k=='tags')return thmBox(split(v).map(x=>nz(x,'theme')));
     if(k=='text')return`<textarea name="text" rows="5">${E(v)}</textarea>`;
     if(k=='notion')return`<textarea name="notion" rows="2">${E(v)}</textarea>`;
@@ -530,11 +530,20 @@ function delBook(){
   ['Logs','Texts','Uses'].forEach(k=>{D[k]=D[k].filter(x=>x.book!=row.id)});   // DB가 같이 지우므로 화면에서도 정리
   sel=null;view='L';render();
 }
-function onSeries(){const e=$('#bf').elements,sid=e.series.value;e.volume.value=sid?Math.max(0,...D.Books.filter(b=>b.series==sid&&b.id!=ed.row.id).map(b=>P(b.volume)))+1:''}
+function onSeries(){const e=$('#bf').elements,sid=e.series.value,S=D.Books.filter(b=>b.series==sid&&b.id!=ed.row.id);e.volume.value=sid?Math.max(0,...S.map(b=>P(b.volume)))+1:'';
+  /* 같은 시리즈 앞 권(권수가 가장 큰 것)의 저자·장르·플랫폼을 채워 둠 — 새 책이면 덮어쓰고, 고치는 중이면 빈 칸만. 채운 뒤에도 바꿀 수 있어요 */
+  const pv=by(S,b=>P(b.volume)).pop();if(!pv)return;const nw=ed.isNew;
+  const aw=$('#in-author .cb');if(aw&&(nw||!aw.querySelector('input[type=hidden]').value)&&pv.author)cbPick(aw,nz(pv.author,'author'));
+  const gw=$('#cw-genre');if(gw&&(nw||!e.genre.value)){const G=split(pv.genre).map(x=>String(nz(x,'genre')));gw.querySelectorAll('[data-mc]').forEach(c=>c.checked=G.includes(c.value));e.genre.value=G.join(',');gw.querySelector('[data-ms]').textContent=G.map(tn).join(', ')||'-'}
+  if(e.platform&&(nw||!e.platform.value)&&pv.platform)e.platform.value=nz(pv.platform,'platform')}
 function palette(im){
   const N=64,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,N,N);x.drawImage(im,0,0,N,N);
-  const d=x.getImageData(0,0,N,N).data,B={},tot=N*N;
-  for(let i=0;i<d.length;i+=4){const k=(d[i]>>4)+','+(d[i+1]>>4)+','+(d[i+2]>>4),b=B[k]=B[k]||[0,0,0,0];b[0]++;b[1]+=d[i];b[2]+=d[i+1];b[3]+=d[i+2]}
+  const d=x.getImageData(0,0,N,N).data,B={};
+  /* 19세 표시: 오른쪽 위 모서리(가로 72%~, 세로 ~22%)에 빨간 점이 많으면 그 모서리는 색 뽑기에서 뺌 */
+  const inC=i=>{const q=i/4,px=q%N,py=(q/N)|0;return px>=N*.72&&py<N*.22},isR=i=>d[i]>150&&d[i]-d[i+1]>90&&d[i]-d[i+2]>70;
+  let cn=0,cr=0;for(let i=0;i<d.length;i+=4)if(inC(i)){cn++;if(isR(i))cr++}
+  const skip=cr>=cn*.12;let tot=0;
+  for(let i=0;i<d.length;i+=4){if(skip&&inC(i))continue;tot++;const k=(d[i]>>4)+','+(d[i+1]>>4)+','+(d[i+2]>>4),b=B[k]=B[k]||[0,0,0,0];b[0]++;b[1]+=d[i];b[2]+=d[i+1];b[3]+=d[i+2]}
   const L=Object.values(B).map(b=>({n:b[0],c:[b[1]/b[0],b[2]/b[0],b[3]/b[0]].map(Math.round)})).sort((a,b)=>b.n-a.n);
   const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),sat=c=>{const m=Math.max(...c);return m?(m-Math.min(...c))/m:0},light=c=>Math.min(...c)>228;
   const w=o=>o.n*(light(o.c)?.25:1)*(.5+sat(o.c)),W=[...L].sort((a,b)=>w(b)-w(a));
